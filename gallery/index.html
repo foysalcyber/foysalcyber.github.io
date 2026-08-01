@@ -1,0 +1,781 @@
+---
+layout: default
+title: "Gallery | Foysal Mahmud"
+description: "Photo gallery of Foysal Mahmud - personal and project photos."
+---
+
+<!-- ══════════════════════════════════════════
+     SEO — Gallery Page
+     ══════════════════════════════════════════ -->
+
+<!-- Primary Meta -->
+<meta name="title"       content="Photo Gallery | Foysal Mahmud — Cyber Security Specialist">
+<meta name="description" content="Photo gallery of Foysal Mahmud — Ethical Hacker, Cyber Security Specialist and Developer. Personal photos, project screenshots, setup and event moments.">
+<meta name="keywords"    content="Foysal photo, Foysal, Foysal1627, Foysal Mahmud, Foysal gallery, Foysal hacker, Cyber Security, Ethical Hacking, Developer, Foysal photos, foysal cyber">
+<meta name="author"      content="Foysal Mahmud">
+<meta name="robots"      content="index, follow">
+<meta name="googlebot"   content="index, follow">
+<meta name="bingbot"     content="index, follow">
+<meta name="theme-color" content="#04060a">
+
+<!-- Google Site Verification -->
+<meta name="google-site-verification" content="9JFsbcMzZFHxw-EIZuv3OLa05VVQ4osqMMUaEaGVcy4" />
+
+<!-- Canonical -->
+<link rel="canonical" href="/gallery/">
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type"        content="website">
+<meta property="og:url"         content="/gallery/">
+<meta property="og:title"       content="Gallery | Foysal Mahmud — Cyber Security Specialist">
+<meta property="og:description" content="Photo gallery of Foysal Mahmud — personal photos, project screenshots, setup and event moments.">
+<meta property="og:image"       content="/assets/image/red.png">
+<meta property="og:image"       content="/assets/image/shikho.jpg">
+<meta property="og:image"       content="/assets/image/2025-05-19.webp">
+<meta property="og:image"       content="/assets/image/pp1.jpg">
+<meta property="og:image"       content="/assets/image/hacker.jpg">
+<meta property="og:image"       content="/assets/image/newcover.jpg">
+<meta property="og:image"       content="/assets/image/FA.jpeg">
+<meta property="og:site_name"   content="Foysal Mahmud">
+<meta property="og:locale"      content="en_US">
+
+<!-- Twitter Card -->
+<meta property="twitter:card"        content="summary_large_image">
+<meta property="twitter:url"         content="/gallery/">
+<meta property="twitter:title"       content="Gallery | Foysal Mahmud — Cyber Security Specialist">
+<meta property="twitter:description" content="Photo gallery of Foysal Mahmud — personal photos, project screenshots, setup and event moments.">
+<meta property="twitter:image"       content="/assets/image/2025-05-19.webp">
+
+<!-- Favicons -->
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-7YSKWYR30V"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-7YSKWYR30V');
+</script>
+
+<!-- JSON-LD Structured Data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ImageGallery",
+  "name": "Gallery — Foysal Mahmud",
+  "description": "Photo gallery of Foysal Mahmud — personal photos, project screenshots, setup and event moments.",
+  "url": "/gallery/",
+  "author": {
+    "@type": "Person",
+    "name": "Foysal Mahmud",
+    "url": "https://foysal1627.github.io",
+    "jobTitle": "Cyber Security Specialist",
+    "sameAs": [
+      "https://www.facebook.com/foysal1627githubio"
+    ]
+  },
+  "image": [
+    "/assets/image/red.png",
+    "/assets/image/shikho.jpg",
+    "/assets/image/2025-05-19.webp",
+    "/assets/image/pp1.jpg",
+    "/assets/image/hacker.jpg",
+    "/assets/image/newcover.jpg",
+    "/assets/image/FA.jpeg"
+  ]
+}
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+<style>
+  :root {
+    --gold:    #c9a84c;
+    --gold2:   #f0d080;
+    --gold3:   #8a6820;
+    --dark:    #04060a;
+    --dark2:   #080c14;
+    --dark3:   #0d1220;
+    --border:  rgba(201,168,76,0.18);
+    --border2: rgba(201,168,76,0.07);
+    --border3: rgba(201,168,76,0.35);
+    --text:    #e8dcc8;
+    --muted:   #6b6050;
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Rajdhani', sans-serif;
+    background: var(--dark);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── BACKGROUND ── */
+  #gal-bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+  #gal-stars { position: absolute; inset: 0; }
+  .g-star {
+    position: absolute; border-radius: 50%; background: white;
+    animation: gTwinkle var(--d,3s) var(--delay,0s) infinite;
+  }
+  @keyframes gTwinkle {
+    0%,100% { opacity: var(--min,.1); transform: scale(1); }
+    50%      { opacity: var(--max,.7); transform: scale(1.3); }
+  }
+  .g-particle {
+    position: absolute; border-radius: 50%; background: var(--gold);
+    opacity: 0; animation: gFloat var(--pd,9s) var(--pdelay,0s) ease-in infinite;
+  }
+  @keyframes gFloat {
+    0%   { transform: translateY(0) scale(1); opacity: 0; }
+    10%  { opacity: var(--po,.15); }
+    90%  { opacity: var(--po,.15); }
+    100% { transform: translateY(-100vh) scale(0.2); opacity: 0; }
+  }
+  .g-scanlines {
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.07) 2px,rgba(0,0,0,.07) 4px);
+  }
+  .g-orb {
+    position: absolute; border-radius: 50%; filter: blur(90px);
+    animation: gOrb var(--od,22s) ease-in-out infinite alternate;
+  }
+  .g-orb1 { width:500px;height:500px;top:-15%;left:-10%;background:radial-gradient(circle,rgba(201,168,76,.05) 0%,transparent 70%);--od:28s; }
+  .g-orb2 { width:350px;height:350px;bottom:-10%;right:-10%;background:radial-gradient(circle,rgba(98,0,234,.04) 0%,transparent 70%);--od:20s; }
+  @keyframes gOrb {
+    0%   { transform: translate(0,0) scale(1); }
+    100% { transform: translate(25px,18px) scale(1.08); }
+  }
+  .g-hud-line {
+    position: fixed; background: linear-gradient(90deg,transparent,var(--gold),transparent);
+    height:1px; width:100%; z-index:3; pointer-events:none; opacity:.12;
+    animation: gHud 10s linear infinite;
+  }
+  @keyframes gHud { 0%{top:0;opacity:0} 5%{opacity:.12} 95%{opacity:.12} 100%{top:100%;opacity:0} }
+  .g-corner { position:fixed; width:44px; height:44px; z-index:3; pointer-events:none; }
+  .g-corner-tl { top:14px;left:14px;border-top:1px solid var(--gold);border-left:1px solid var(--gold); }
+  .g-corner-tr { top:14px;right:14px;border-top:1px solid var(--gold);border-right:1px solid var(--gold); }
+  .g-corner-bl { bottom:14px;left:14px;border-bottom:1px solid var(--gold);border-left:1px solid var(--gold); }
+  .g-corner-br { bottom:14px;right:14px;border-bottom:1px solid var(--gold);border-right:1px solid var(--gold); }
+
+  /* ── PAGE WRAPPER ── */
+  .gal-page {
+    position: relative; z-index: 10;
+    max-width: 1100px; margin: 0 auto;
+    padding: 56px 20px 90px;
+    animation: galIn .7s cubic-bezier(.16,1,.3,1) both;
+  }
+  @keyframes galIn { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ── HEADER ── */
+  .gal-header {
+    text-align: center; margin-bottom: 44px;
+    padding-bottom: 28px; border-bottom: 1px solid var(--border);
+  }
+  .gal-sys-tag {
+    font-family: 'Orbitron', monospace; font-size: 9px;
+    letter-spacing: .25em; color: var(--muted); text-transform: uppercase;
+    margin-bottom: 14px; display: flex; align-items: center; justify-content: center; gap: 10px;
+  }
+  .gal-sys-tag::before,.gal-sys-tag::after { content:''; width:40px; height:1px; }
+  .gal-sys-tag::before { background: linear-gradient(90deg,transparent,var(--gold3)); }
+  .gal-sys-tag::after  { background: linear-gradient(90deg,var(--gold3),transparent); }
+  .gal-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(22px,5vw,32px); font-weight: 700;
+    color: var(--gold2); letter-spacing: .06em;
+    text-shadow: 0 0 40px rgba(201,168,76,.35); margin-bottom: 10px;
+  }
+  .gal-title i { color: var(--gold); margin-right: 10px; font-size: .85em; }
+  .gal-subtitle {
+    font-family: 'Rajdhani', sans-serif; font-size: 13px;
+    letter-spacing: .18em; color: var(--muted); text-transform: uppercase;
+  }
+  .gal-count-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(201,168,76,.08); border: 1px solid var(--border);
+    border-radius: 2px; padding: 4px 12px; margin-top: 14px;
+    font-family: 'Orbitron', monospace; font-size: 10px;
+    color: var(--gold); letter-spacing: .15em;
+  }
+  .gal-count-badge .dot {
+    width:5px; height:5px; border-radius:50%; background:var(--gold);
+    animation: gPing 2s ease-in-out infinite;
+  }
+  @keyframes gPing { 0%,100%{box-shadow:0 0 4px var(--gold)} 50%{box-shadow:0 0 12px var(--gold)} }
+
+  /* ── FILTER TABS ── */
+  .filter-bar {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    justify-content: center; margin-bottom: 36px;
+  }
+  .filter-btn {
+    font-family: 'Orbitron', monospace; font-size: 9px;
+    letter-spacing: .18em; text-transform: uppercase;
+    padding: 8px 18px; border-radius: 2px; cursor: pointer;
+    border: 1px solid var(--border2); background: transparent;
+    color: var(--muted); transition: all .2s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .filter-btn:hover { border-color: var(--border); color: var(--gold); background: rgba(201,168,76,.05); }
+  .filter-btn.active {
+    border-color: var(--gold); color: var(--gold2);
+    background: rgba(201,168,76,.10);
+    box-shadow: 0 0 12px rgba(201,168,76,.12);
+  }
+
+  /* ── GALLERY GRID ── */
+  .gal-grid {
+    columns: 3 280px; column-gap: 14px;
+  }
+
+     /* Wide screenshot items — 2 column span */
+.gal-item.gal-wide {
+    column-span: all;
+    max-width: 100%;
+}
+.gal-item.gal-wide img {
+    max-height: 280px;
+    object-fit: cover;
+    object-position: top left;
+}
+  .gal-item {
+    break-inside: avoid; margin-bottom: 14px;
+    position: relative; overflow: hidden;
+    border: 1px solid var(--border2); border-radius: 2px;
+    cursor: pointer; background: var(--dark3);
+    animation: itemIn .5s cubic-bezier(.16,1,.3,1) both;
+    animation-delay: var(--item-delay,0s);
+    transition: border-color .25s, box-shadow .25s, transform .25s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  @keyframes itemIn {
+    from { opacity:0; transform: scale(.96); }
+    to   { opacity:1; transform: scale(1); }
+  }
+  .gal-item:hover {
+    border-color: var(--border3);
+    box-shadow: 0 8px 32px rgba(201,168,76,.12);
+    transform: translateY(-3px);
+  }
+  .gal-item.hidden { display: none; }
+
+  .gal-item img {
+    width: 100%; display: block;
+    transition: transform .4s cubic-bezier(.16,1,.3,1), filter .4s;
+    filter: brightness(.88) saturate(.85);
+  }
+  .gal-item:hover img {
+    transform: scale(1.04);
+    filter: brightness(1) saturate(1.05);
+  }
+
+  /* overlay on hover */
+  .gal-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 40%, rgba(4,6,10,.85) 100%);
+    opacity: 0; transition: opacity .3s;
+    display: flex; flex-direction: column;
+    justify-content: flex-end; padding: 14px;
+  }
+  .gal-item:hover .gal-overlay { opacity: 1; }
+  .gal-overlay-title {
+    font-family: 'Orbitron', monospace; font-size: 11px;
+    color: var(--gold2); letter-spacing: .1em;
+    line-height: 1.3; margin-bottom: 4px;
+  }
+  .gal-overlay-cat {
+    font-family: 'Share Tech Mono', monospace; font-size: 10px;
+    color: var(--muted); letter-spacing: .15em; text-transform: uppercase;
+  }
+  .gal-overlay-icon {
+    position: absolute; top: 12px; right: 12px;
+    width: 32px; height: 32px; border-radius: 2px;
+    background: rgba(4,6,10,.7); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--gold); font-size: 12px;
+    opacity: 0; transform: scale(.8);
+    transition: opacity .3s, transform .3s;
+  }
+  .gal-item:hover .gal-overlay-icon { opacity: 1; transform: scale(1); }
+
+  /* category tag chip */
+  .gal-cat-chip {
+    position: absolute; top: 10px; left: 10px;
+    font-family: 'Orbitron', monospace; font-size: 7px;
+    letter-spacing: .15em; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 2px;
+    background: rgba(4,6,10,.75); border: 1px solid var(--border2);
+    color: var(--gold3); backdrop-filter: blur(4px);
+    transition: opacity .3s;
+  }
+  .gal-item:hover .gal-cat-chip { opacity: 0; }
+
+  /* empty state */
+  .gal-empty {
+    display: none; text-align: center;
+    padding: 60px 20px; border: 1px dashed var(--border2); border-radius: 2px;
+  }
+  .gal-empty.show { display: block; }
+  .gal-empty i { font-size: 32px; color: var(--muted); display: block; margin-bottom: 14px; }
+  .gal-empty p {
+    font-family: 'Orbitron', monospace; font-size: 11px;
+    color: var(--muted); letter-spacing: .15em;
+  }
+
+  /* ── FOOTER ── */
+  .gal-footer-tag {
+    text-align: center; margin-top: 52px;
+    padding-top: 24px; border-top: 1px solid var(--border2);
+    font-family: 'Orbitron', monospace; font-size: 8px;
+    color: var(--muted); letter-spacing: .2em;
+  }
+
+  /* ── LIGHTBOX ── */
+  #lightbox {
+    position: fixed; inset: 0; z-index: 99999;
+    background: rgba(4,6,10,.95); backdrop-filter: blur(14px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity .3s;
+  }
+  #lightbox.open { opacity: 1; pointer-events: all; }
+
+  .lb-inner {
+    position: relative; max-width: min(92vw,900px); width: 100%;
+    max-height: 92vh;
+    display: flex; flex-direction: column; align-items: center;
+    animation: lbIn .35s cubic-bezier(.16,1,.3,1) both;
+  }
+  @keyframes lbIn { from{transform:scale(.93);opacity:0} to{transform:scale(1);opacity:1} }
+
+  #lb-img {
+    max-width: 100%; max-height: 78vh;
+    object-fit: contain; border: 1px solid var(--border);
+    border-radius: 2px; display: block;
+    box-shadow: 0 0 60px rgba(201,168,76,.12);
+  }
+
+  .lb-meta {
+    margin-top: 14px; text-align: center;
+  }
+  .lb-title {
+    font-family: 'Orbitron', monospace; font-size: 13px;
+    color: var(--gold2); letter-spacing: .08em; margin-bottom: 4px;
+  }
+  .lb-cat {
+    font-family: 'Share Tech Mono', monospace; font-size: 11px;
+    color: var(--muted); letter-spacing: .15em; text-transform: uppercase;
+  }
+
+  /* nav arrows */
+  .lb-arrow {
+    position: fixed; top: 50%; transform: translateY(-50%);
+    width: 44px; height: 44px; border-radius: 2px;
+    background: rgba(13,18,32,.8); border: 1px solid var(--border2);
+    color: var(--muted); font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all .2s; z-index: 100001;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .lb-arrow:hover { border-color: var(--border); color: var(--gold); background: rgba(201,168,76,.08); }
+  #lb-prev { left: 16px; }
+  #lb-next { right: 16px; }
+
+  /* close */
+  #lb-close {
+    position: fixed; top: 16px; right: 16px;
+    width: 40px; height: 40px; border-radius: 2px;
+    background: rgba(13,18,32,.8); border: 1px solid var(--border2);
+    color: var(--muted); font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all .2s; z-index: 100001;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #lb-close:hover { border-color: rgba(209,2,9,.4); color: #ff4444; background: rgba(209,2,9,.08); }
+
+  /* lb counter */
+  #lb-counter {
+    position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+    font-family: 'Orbitron', monospace; font-size: 9px;
+    letter-spacing: .2em; color: var(--muted); z-index: 100001;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width:600px) {
+    .gal-page { padding: 40px 12px 70px; }
+    .gal-grid { columns: 2 140px; column-gap: 10px; }
+    .gal-item { margin-bottom: 10px; }
+    .lb-arrow { width:36px;height:36px;font-size:13px; }
+    #lb-prev { left:6px; } #lb-next { right:6px; }
+  }
+</style>
+
+<!-- Background -->
+<div id="gal-bg">
+  <div id="gal-stars"></div>
+  <div class="g-scanlines"></div>
+  <div class="g-orb g-orb1"></div>
+  <div class="g-orb g-orb2"></div>
+</div>
+<div class="g-hud-line"></div>
+<div class="g-corner g-corner-tl"></div>
+<div class="g-corner g-corner-tr"></div>
+<div class="g-corner g-corner-bl"></div>
+<div class="g-corner g-corner-br"></div>
+
+<!-- Lightbox -->
+<div id="lightbox" role="dialog" aria-modal="true">
+  <div id="lb-counter">01 / 01</div>
+  <button id="lb-close" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+  <button class="lb-arrow" id="lb-prev" aria-label="Previous"><i class="fa-solid fa-chevron-left"></i></button>
+  <button class="lb-arrow" id="lb-next" aria-label="Next"><i class="fa-solid fa-chevron-right"></i></button>
+  <div class="lb-inner">
+    <img id="lb-img" src="" alt="">
+    <div class="lb-meta">
+      <div class="lb-title" id="lb-title"></div>
+      <div class="lb-cat" id="lb-cat"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAGE ── -->
+<div class="gal-page">
+
+  <!-- Header -->
+  <div class="gal-header">
+    <div class="gal-sys-tag">SYS :: MEDIA_VAULT</div>
+    <h1 class="gal-title"><i class="fa-solid fa-images"></i>GALLERY</h1>
+    <div class="gal-subtitle">Personal · Projects · Moments</div>
+    <div class="gal-count-badge">
+      <span class="dot"></span>
+      <span id="gal-count-display">LOADING...</span>
+    </div>
+  </div>
+
+  <!-- Filter -->
+  <div class="filter-bar" id="filterBar">
+    <button class="filter-btn active" data-filter="all">ALL</button>
+    <button class="filter-btn" data-filter="personal"><i class="fa-solid fa-user-secret"></i> PERSONAL</button>
+    <button class="filter-btn" data-filter="project"><i class="fa-solid fa-code"></i> PROJECTS</button>
+    <button class="filter-btn" data-filter="setup"><i class="fa-solid fa-laptop-code"></i> SETUP</button>
+    <button class="filter-btn" data-filter="event"><i class="fa-solid fa-flag"></i> EVENTS</button>
+  </div>
+
+  <!-- Grid -->
+  <div class="gal-grid" id="galGrid">
+
+    <!--
+    ╔══════════════════════════════════════════════════════════════════╗
+    ║  ADD PHOTOS                                                     ║
+    ║  Copy one <div class="gal-item"> block and change:              ║
+    ║    data-cat  → personal | project | setup | event               ║
+    ║    data-title → caption shown in lightbox                       ║
+    ║    src       → image path or URL                                ║
+    ║    alt       → alt text                                         ║
+    ╚══════════════════════════════════════════════════════════════════╝
+    -->
+
+    <!-- ── PERSONAL ── -->
+       <div class="gal-item" data-cat="personal" data-title="Foysal">
+      <span class="gal-cat-chip">Personal</span>
+      <img src="/assets/image/red.png" alt="Foysal Mahmud" loading="lazy">
+      <div class="gal-overlay">
+        <div class="gal-overlay-icon"><i class="fa-solid fa-expand"></i></div>
+        <div class="gal-overlay-title">Foysal Mahmud</div>
+        <div class="gal-overlay-cat">// PERSONAL</div>
+      </div>
+       </div>
+       
+    <div class="gal-item" data-cat="personal" data-title="Profile Shot">
+      <span class="gal-cat-chip">Personal</span>
+      <img src="/assets/image/pp2.jpg" alt="Foysal Profile Shot" loading="lazy">
+      <div class="gal-overlay">
+        <div class="gal-overlay-icon"><i class="fa-solid fa-expand"></i></div>
+        <div class="gal-overlay-title">Profile Shot</div>
+        <div class="gal-overlay-cat">// PERSONAL</div>
+      </div>
+    </div>
+
+       <div class="gal-item" data-cat="personal" data-title="Foysal">
+      <span class="gal-cat-chip">Event</span>
+      <img src="/assets/image/shikho.jpg" alt="Foysal Mahmud" loading="lazy">
+      <div class="gal-overlay">
+        <div class="gal-overlay-icon"><i class="fa-solid fa-expand"></i></div>
+        <div class="gal-overlay-title">at Shikho Podcast</div>
+        <div class="gal-overlay-cat">// PERSONAL</div>
+      </div>
+       </div>
+       
+       <div class="gal-item" data-cat="event" data-title="at AIUB robotics workshop">
+      <span class="gal-cat-chip">Event</span>
+      <img src="/assets/image/FA.jpeg" alt="Foysal's photo" loading="lazy">
+      <div class="gal-overlay">
+        <div class="gal-overlay-icon"><i class="fa-solid fa-expand"></i></div>
+        <div class="gal-overlay-title">at AIUB robotics workshop</div>
+        <div class="gal-overlay-cat">// PERSONAL</div>
+      </div>
+       </div>
+       
+       <div class="gal-item gal-wide" data-cat="project" data-title="Web development">
+      <span class="gal-cat-chip">Project</span>
+      <img src="/assets/image/asf25.png" alt="Foysal's web dev" loading="lazy">
+      <div class="gal-overlay">
+        <div class="gal-overlay-icon"><i class="fa-solid fa-expand"></i></div>
+        <div class="gal-overlay-title">Web development</div>
+        <div class="gal-overlay-cat">// PROJECT</div>
+      </div>
+       </div>
+       
+    <div class="gal-item" data-cat="personal" data-title="Foysal">
+      <span class="gal-cat-chip">Personal</span>
+      <img src="/assets/image/foysal.jpg" alt="Foysal Mahmud" loading="lazy">
+      <div class="gal-overlay">
+        <div class="gal-overlay-icon"><i class="fa-solid fa-expand"></i></div>
+        <div class="gal-overlay-title">Foysal</div>
+        <div class="gal-overlay-cat">// PERSONAL</div>
+      </div>
+    </div>
+
+     <div class="gal-item" data-cat="personal" data-title="Notre Dame Science Club official website dev">
+      <span class="gal-cat-chip">Project</span>
+      <img src="/assets/image/ndsc.png" alt="Foysal Mahmud" loading="lazy">
+      <div class="gal-overlay">
+        <div class="gal-overlay-icon"><i class="fa-solid fa-expand"></i></div>
+        <div class="gal-overlay-title">Notre Dame Science Club</div>
+        <div class="gal-overlay-cat">// Project</div>
+      </div>
+       </div>
+       
+    <div class="gal-item" data-cat="personal" data-title="Foysal Mahmud">
+      <span class="gal-cat-chip">Personal</span>
+      <img src="/assets/image/foysal00.jpg" alt="Foysal Mahmud" loading="lazy">
+      <div class="gal-overlay">
+        <div class="gal-overlay-icon"><i class="fa-solid fa-expand"></i></div>
+        <div class="gal-overlay-title">Foysal Mahmud</div>
+        <div class="gal-overlay-cat">// PERSONAL</div>
+      </div>
+    </div>
+
+       <div class="gal-item" data-cat="project" data-title="Cover — Cyber Operations">
+      <span class="gal-cat-chip">Project</span>
+      <img src="/assets/image/newcover.jpg" alt="Cyber Cover | Foysal's photo" loading="lazy">
+      <div class="gal-overlay">
+        <div class="gal-overlay-icon"><i class="fa-solid fa-expand"></i></div>
+        <div class="gal-overlay-title">Cover — Cyber Operations</div>
+        <div class="gal-overlay-cat">// PROJECT</div>
+      </div>
+       </div>
+
+       <div class="gal-item" data-cat="personal" data-title="E-commerce site Dev">
+      <span class="gal-cat-chip">Project</span>
+      <img src="/assets/image/mango.png" alt="E-commerce site development" loading="lazy">
+      <div class="gal-overlay">
+        <div class="gal-overlay-icon"><i class="fa-solid fa-expand"></i></div>
+        <div class="gal-overlay-title">E-commerce site</div>
+        <div class="gal-overlay-cat">// Project</div>
+      </div>
+       </div>
+       
+    <div class="gal-item" data-cat="personal" data-title="2025 Photo">
+      <span class="gal-cat-chip">Personal</span>
+      <img src="/assets/image/2025-05-19.webp" alt="Foysal's photo" loading="lazy">
+      <div class="gal-overlay">
+        <div class="gal-overlay-icon"><i class="fa-solid fa-expand"></i></div>
+        <div class="gal-overlay-title">2025 Photo</div>
+        <div class="gal-overlay-cat">// PERSONAL</div>
+      </div>
+    </div>
+
+    <!-- ── PROJECT ── -->
+    <div class="gal-item" data-cat="project" data-title="Hacker Workspace">
+      <span class="gal-cat-chip">Project</span>
+      <img src="/assets/image/hacker.jpg" alt="Foysal Hacker Workspace" loading="lazy">
+      <div class="gal-overlay">
+        <div class="gal-overlay-icon"><i class="fa-solid fa-expand"></i></div>
+        <div class="gal-overlay-title">Hacker Workspace</div>
+        <div class="gal-overlay-cat">// PROJECT</div>
+      </div>
+    </div>
+
+       <div class="gal-item gal-wide" data-cat="project" data-title="AI workplace">
+      <span class="gal-cat-chip">Project</span>
+      <img src="/assets/image/project.jpg" alt="Foysal's AI workplace" loading="lazy">
+      <div class="gal-overlay">
+        <div class="gal-overlay-icon"><i class="fa-solid fa-expand"></i></div>
+        <div class="gal-overlay-title">AI Workplace</div>
+        <div class="gal-overlay-cat">// PROJECT</div>
+      </div>
+       </div>
+
+       <div class="gal-item" data-cat="personal" data-title="at NDC">
+      <span class="gal-cat-chip">Personal</span>
+      <img src="/assets/image/admin.jpg" alt="Foysal NDC" loading="lazy">
+      <div class="gal-overlay">
+        <div class="gal-overlay-icon"><i class="fa-solid fa-expand"></i></div>
+        <div class="gal-overlay-title">Funny moment at NDC</div>
+        <div class="gal-overlay-cat">// PERSONAL</div>
+      </div>
+       </div>
+    <!--
+      ── ADD MORE ITEMS BELOW ──
+      Replace src with actual image paths, e.g.:
+      /assets/image/myimage.jpg
+
+      <div class="gal-item" data-cat="setup" data-title="My Battle Station">
+        <span class="gal-cat-chip">Setup</span>
+        <img src="/assets/image/setup1.jpg" alt="My Setup" loading="lazy">
+        <div class="gal-overlay">
+          <div class="gal-overlay-icon"><i class="fa-solid fa-expand"></i></div>
+          <div class="gal-overlay-title">My Battle Station</div>
+          <div class="gal-overlay-cat">// SETUP</div>
+        </div>
+      </div>
+    -->
+
+  </div>
+
+  <!-- Empty state -->
+  <div class="gal-empty" id="galEmpty">
+    <i class="fa-solid fa-image-slash"></i>
+    <p>// NO IMAGES FOUND IN THIS CATEGORY</p>
+  </div>
+
+  <div class="gal-footer-tag">// FOYSAL MAHMUD · MEDIA VAULT · END OF LOG</div>
+</div>
+
+<script>
+(function () {
+
+  /* ── Stars / particles ── */
+  const starsEl = document.getElementById('gal-stars');
+  for (let i = 0; i < 110; i++) {
+    const s = document.createElement('div'); s.className = 'g-star';
+    const sz = Math.random() * 2 + 0.5;
+    s.style.cssText = `width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${2+Math.random()*5}s;--delay:${Math.random()*6}s;--min:${0.04+Math.random()*0.08};--max:${0.3+Math.random()*0.5};`;
+    starsEl.appendChild(s);
+  }
+  for (let i = 0; i < 16; i++) {
+    const p = document.createElement('div'); p.className = 'g-particle';
+    const sz = Math.random() * 2.5 + 0.8;
+    p.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random()*100}%;bottom:0;--pd:${8+Math.random()*12}s;--pdelay:${Math.random()*12}s;--po:${0.08+Math.random()*0.14};`;
+    starsEl.appendChild(p);
+  }
+
+  /* ── Gather items & set animation delay ── */
+  const allItems = Array.from(document.querySelectorAll('.gal-item'));
+  allItems.forEach((el, i) => el.style.setProperty('--item-delay', (i * 0.055) + 's'));
+
+  /* ── Count badge ── */
+  const countEl = document.getElementById('gal-count-display');
+  function updateCount(visible) {
+    if (countEl) countEl.textContent = visible + ' IMAGE' + (visible !== 1 ? 'S' : '') + ' LOADED';
+  }
+  updateCount(allItems.length);
+
+  /* ── Filter ── */
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const emptyEl = document.getElementById('galEmpty');
+  let activeFilter = 'all';
+  let visibleItems = [...allItems];
+
+  function applyFilter(filter) {
+    activeFilter = filter;
+    visibleItems = [];
+    allItems.forEach(el => {
+      const cat = el.getAttribute('data-cat');
+      const show = filter === 'all' || cat === filter;
+      el.classList.toggle('hidden', !show);
+      if (show) visibleItems.push(el);
+    });
+    emptyEl.classList.toggle('show', visibleItems.length === 0);
+    updateCount(visibleItems.length);
+  }
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', function () {
+      filterBtns.forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      applyFilter(this.getAttribute('data-filter'));
+    });
+  });
+
+  /* ── Lightbox ── */
+  const lb      = document.getElementById('lightbox');
+  const lbImg   = document.getElementById('lb-img');
+  const lbTitle = document.getElementById('lb-title');
+  const lbCat   = document.getElementById('lb-cat');
+  const lbCount = document.getElementById('lb-counter');
+  const lbClose = document.getElementById('lb-close');
+  const lbPrev  = document.getElementById('lb-prev');
+  const lbNext  = document.getElementById('lb-next');
+  let currentIdx = 0;
+
+  function openLb(idx) {
+    currentIdx = idx;
+    const el  = visibleItems[idx];
+    const img = el.querySelector('img');
+    lbImg.src   = img.src;
+    lbImg.alt   = img.alt;
+    lbTitle.textContent = el.getAttribute('data-title') || img.alt;
+    lbCat.textContent   = '// ' + (el.getAttribute('data-cat') || '').toUpperCase();
+    lbCount.textContent = (idx + 1).toString().padStart(2,'0') + ' / ' + visibleItems.length.toString().padStart(2,'0');
+    lb.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLb() {
+    lb.classList.remove('open');
+    document.body.style.overflow = '';
+    setTimeout(() => { lbImg.src = ''; }, 300);
+  }
+
+  function navigate(dir) {
+    currentIdx = (currentIdx + dir + visibleItems.length) % visibleItems.length;
+    lbImg.style.opacity = '0';
+    setTimeout(() => {
+      openLb(currentIdx);
+      lbImg.style.opacity = '1';
+    }, 150);
+    lbImg.style.transition = 'opacity .15s';
+  }
+
+  allItems.forEach((el, i) => {
+    el.addEventListener('click', () => {
+      const vIdx = visibleItems.indexOf(el);
+      if (vIdx !== -1) openLb(vIdx);
+    });
+  });
+
+  lbClose.addEventListener('click', closeLb);
+  lbPrev.addEventListener('click', () => navigate(-1));
+  lbNext.addEventListener('click', () => navigate(1));
+
+  lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
+
+  /* Keyboard navigation */
+  document.addEventListener('keydown', e => {
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'Escape')      closeLb();
+    if (e.key === 'ArrowLeft')   navigate(-1);
+    if (e.key === 'ArrowRight')  navigate(1);
+  });
+
+  /* Touch swipe in lightbox */
+  let tsX = 0;
+  lb.addEventListener('touchstart', e => { tsX = e.touches[0].clientX; }, { passive: true });
+  lb.addEventListener('touchend', e => {
+    const dx = tsX - e.changedTouches[0].clientX;
+    if (Math.abs(dx) > 44) navigate(dx > 0 ? 1 : -1);
+  }, { passive: true });
+
+})();
+</script>
