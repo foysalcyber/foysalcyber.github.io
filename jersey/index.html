@@ -107,6 +107,8 @@ h1 em{font-style:normal;color:var(--red)}
 .field.invalid input,.field.invalid select{border-color:var(--red2)}
 .field.invalid .err{display:block}
 
+.hint{font-family:var(--mono);font-size:.62rem;color:var(--muted);margin-top:7px;line-height:1.5}
+
 .check-row{display:flex;align-items:center;gap:12px;cursor:pointer;padding:14px 15px;
   background:var(--ink2);border:1px solid var(--line2);border-radius:8px;transition:border-color .2s,background .2s}
 .check-row:hover{border-color:var(--red2)}
@@ -208,7 +210,7 @@ h1 em{font-style:normal;color:var(--red)}
     <div class="stat-text">
       <div class="stat-label">Reserved so far</div>
       <div class="stat-num" id="counterNum">—</div>
-      <div class="stat-sub">Jerseys ordered by classmates</div>
+      <div class="stat-sub">jerseys claimed by classmates</div>
     </div>
   </div>
 </section>
@@ -220,7 +222,8 @@ h1 em{font-style:normal;color:var(--red)}
       <div class="field" id="f-name">
         <label for="name">Nickname</label>
         <input type="text" id="name" placeholder="e.g. Foysal" autocomplete="name">
-        <div class="err">Enter the nickname to be printed on your jersey.</div>
+        <div class="hint">One word only — exactly what you type here will be printed on the back.</div>
+        <div class="err" id="nameErr">Enter the nickname to be printed on your jersey.</div>
       </div>
 
       <div class="field" id="f-roll">
@@ -232,7 +235,7 @@ h1 em{font-style:normal;color:var(--red)}
       <div class="field" id="f-group">
         <label class="check-row">
           <input type="checkbox" id="group11">
-          <span class="checkmark"><i class="fa-solid fa-check"></i></span><br>
+          <span class="checkmark"><i class="fa-solid fa-check"></i></span>
           <span class="check-text">I confirm I'm a student of <strong>Group 11</strong></span>
         </label>
         <div class="err">This form is only for Group 11 students.</div>
@@ -324,12 +327,22 @@ function setError(id, on){
 function validate(){
   let ok = true;
   const name = document.getElementById("name").value.trim();
+  const nameErr = document.getElementById("nameErr");
+  const nameWords = name.split(/\s+/).filter(Boolean);
+  let nameInvalid = false;
+  if(name.length < 2){
+    nameErr.textContent = "Enter the nickname to be printed on your jersey.";
+    nameInvalid = true;
+  } else if(nameWords.length > 1){
+    nameErr.textContent = "Only one word, please — whatever you enter will be printed exactly as-is on the back.";
+    nameInvalid = true;
+  }
+  setError("f-name", nameInvalid); if(nameInvalid) ok = false;
   const roll = document.getElementById("roll").value.trim();
   const group11 = document.getElementById("group11").checked;
   const phone = document.getElementById("phone").value.trim();
   const size = form.querySelector('input[name="size"]:checked');
 
-  setError("f-name", name.length < 2); if(name.length < 2) ok = false;
   setError("f-roll", roll.length < 1); if(roll.length < 1) ok = false;
   setError("f-group", !group11); if(!group11) ok = false;
 
