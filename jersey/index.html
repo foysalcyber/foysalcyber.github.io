@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+<title>Squad Kit — Jersey Reservation | Foysal</title>
+<meta name="description" content="Reserve your college jersey — fill in your details and lock in your size.">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Unbounded:wght@300;400;700;900&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+    
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+*:focus,
+*:focus-visible,
+button:focus,
+a:focus,
+input:focus,
+select:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+:root{
+  --ink:#04060a;--ink2:#080c13;--panel:#0c111a;--panel2:#10161f;
+  --red:#ff1744;--red2:#ff4569;--red3:rgba(255,23,68,.12);
+  --gold:#ffb020;--gold2:#ffd166;
+  --line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.15);
+  --muted:#5b6272;--mid:#8990a0;--light:#c7ccd6;--white:#eef1f6;
+  --mono:'DM Mono',monospace;--disp:'Unbounded',sans-serif;--body:'Syne',sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{background:var(--ink);color:var(--white);font-family:var(--body);overflow-x:hidden;min-height:100vh}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select{font-family:inherit;color:inherit}
+
+.noise{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.025;
+  background-image:url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iLjc1IiBudW1PY3RhdmVzPSIzIiBzdGl0Y2hUaWxlcz0ic3RpdGNoIi8+PC9maWx0ZXI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsdGVyPSJ1cmwoI2EpIi8+PC9zdmc+');
+  mix-blend-mode:screen}
+.spot{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(900px at 50% -10%,rgba(255,23,68,.10),transparent 45%),
+             radial-gradient(700px at 100% 100%,rgba(255,176,32,.06),transparent 50%)}
+
+/* ── NAV ── */
+nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;
+  padding:18px clamp(20px,5vw,56px);background:rgba(4,6,10,.7);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line)}
+.brand{font-family:var(--disp);font-weight:700;font-size:.95rem;letter-spacing:.5px}
+.brand span{color:var(--red)}
+.home-btn{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:.68rem;
+  letter-spacing:1px;text-transform:uppercase;color:var(--light);border:1px solid var(--line2);
+  padding:9px 16px;border-radius:100px;transition:border-color .25s,color .25s,background .25s}
+.home-btn:hover{border-color:var(--red);color:var(--white);background:var(--red3)}
+.home-btn i{font-size:.7rem;transition:transform .25s}
+.home-btn:hover i{transform:translateX(3px)}
+
+/* ── HERO ── */
+.hero{position:relative;z-index:1;padding:clamp(40px,7vw,80px) clamp(20px,5vw,56px) 20px;
+  text-align:center;max-width:760px;margin:0 auto}
+.eyebrow{font-family:var(--mono);font-size:.68rem;letter-spacing:3px;text-transform:uppercase;
+  color:var(--gold);margin-bottom:18px;display:flex;align-items:center;justify-content:center;gap:10px}
+.eyebrow::before,.eyebrow::after{content:'';width:26px;height:1px;background:var(--gold);opacity:.5}
+h1{font-family:var(--disp);font-weight:900;font-size:clamp(2rem,6vw,3.4rem);line-height:1.08;
+  letter-spacing:-1px;margin-bottom:16px}
+h1 em{font-style:normal;color:var(--red)}
+.hero-sub{font-size:1rem;color:var(--mid);line-height:1.7;max-width:520px;margin:0 auto 34px}
+
+/* ── JERSEY BADGE (signature element) ── */
+.badge-wrap{display:flex;justify-content:center;margin-bottom:8px}
+.jersey-badge{position:relative;width:min(86vw,360px);margin:0 auto;
+  filter:drop-shadow(0 28px 50px rgba(255,23,68,.4))}
+.jersey-badge svg{display:block;width:100%;height:auto}
+.jb-content{position:absolute;left:16%;right:16%;top:40%;bottom:11%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  gap:2px}
+.jb-crest{width:26px;height:26px;border-radius:50%;border:1.5px solid rgba(255,255,255,.6);
+  display:flex;align-items:center;justify-content:center;margin-bottom:8px;
+  background:rgba(255,255,255,.06)}
+.jb-crest i{font-size:.68rem;color:#fff}
+.jb-label{font-family:var(--mono);font-size:.58rem;letter-spacing:2.6px;color:rgba(255,255,255,.8);
+  text-transform:uppercase;margin-bottom:2px;white-space:nowrap}
+.jb-num{font-family:var(--disp);font-weight:900;font-size:clamp(2.2rem,9vw,3.4rem);line-height:1;
+  color:#fff;text-shadow:0 4px 18px rgba(0,0,0,.4);font-variant-numeric:tabular-nums;
+  -webkit-text-stroke:.5px rgba(255,255,255,.15)}
+.jb-sub{font-family:var(--mono);font-size:.56rem;letter-spacing:1.2px;color:rgba(255,255,255,.7);
+  margin-top:6px;line-height:1.5;max-width:92%}
+
+/* ── FORM ── */
+.formwrap{position:relative;z-index:1;max-width:560px;margin:30px auto 90px;padding:0 20px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+  padding:clamp(26px,5vw,44px);position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--red2),transparent)}
+.field{margin-bottom:20px}
+.field label{display:block;font-family:var(--mono);font-size:.68rem;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--mid);margin-bottom:9px}
+.field input,.field select{width:100%;background:var(--ink2);border:1px solid var(--line2);
+  border-radius:8px;padding:13px 15px;font-size:.92rem;color:var(--white);transition:border-color .2s,background .2s}
+.field input::placeholder{color:var(--muted)}
+.field input:focus,.field select:focus{outline:none;border-color:var(--red);background:#0d1420}
+.field select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238990a0' stroke-width='1.6' fill='none'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 15px center}
+.err{font-family:var(--mono);font-size:.65rem;color:var(--red2);margin-top:7px;display:none}
+.field.invalid input,.field.invalid select{border-color:var(--red2)}
+.field.invalid .err{display:block}
+
+.check-row{display:flex;align-items:center;gap:12px;cursor:pointer;padding:14px 15px;
+  background:var(--ink2);border:1px solid var(--line2);border-radius:8px;transition:border-color .2s,background .2s}
+.check-row:hover{border-color:var(--red2)}
+.check-row input{position:absolute;opacity:0;width:0;height:0}
+.checkmark{flex:0 0 auto;width:20px;height:20px;border-radius:5px;border:1.5px solid var(--line2);
+  display:flex;align-items:center;justify-content:center;transition:.2s;background:var(--ink)}
+.checkmark i{font-size:.6rem;color:#fff;opacity:0;transform:scale(.5);transition:.2s}
+.check-row input:checked ~ .checkmark{background:var(--red);border-color:var(--red)}
+.check-row input:checked ~ .checkmark i{opacity:1;transform:scale(1)}
+.check-row input:checked ~ .check-text{color:var(--white)}
+.check-text{font-size:.85rem;color:var(--light);line-height:1.4}
+.field.invalid .check-row{border-color:var(--red2)}
+
+.size-row{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.size-opt{position:relative}
+.size-opt input{position:absolute;opacity:0;width:100%;height:100%;cursor:pointer;margin:0}
+.size-opt span{display:flex;align-items:center;justify-content:center;padding:12px 0;
+  border:1px solid var(--line2);border-radius:8px;font-family:var(--mono);font-size:.78rem;
+  color:var(--light);background:var(--ink2);transition:.2s}
+.size-opt input:checked + span{background:var(--red);border-color:var(--red);color:#fff;
+  box-shadow:0 6px 18px -6px rgba(255,23,68,.6)}
+.size-opt:hover span{border-color:var(--red2)}
+
+.submit-btn{width:100%;padding:16px;border-radius:8px;background:var(--red);color:#fff;
+  font-family:var(--disp);font-weight:700;font-size:.9rem;letter-spacing:.5px;
+  display:flex;align-items:center;justify-content:center;gap:10px;margin-top:8px;
+  transition:transform .2s,box-shadow .2s,background .2s}
+.submit-btn:hover{background:var(--red2);transform:translateY(-2px);box-shadow:0 14px 30px -12px rgba(255,23,68,.6)}
+.submit-btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.submit-btn .spin{width:15px;height:15px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;
+  border-radius:50%;animation:spin .7s linear infinite;display:none}
+.submit-btn.loading .spin{display:inline-block}
+.submit-btn.loading .btxt{display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.formmsg{font-family:var(--mono);font-size:.72rem;color:var(--red2);text-align:center;
+  margin-top:14px;display:none}
+.formmsg.show{display:block}
+
+/* ── SUCCESS ── */
+.success{display:none;text-align:center;padding:10px 4px 4px}
+.success.show{display:block}
+.success .tick{width:64px;height:64px;border-radius:50%;background:var(--red3);
+  border:1px solid var(--red);display:flex;align-items:center;justify-content:center;
+  margin:0 auto 20px;font-size:1.5rem;color:var(--red2)}
+.success h2{font-family:var(--disp);font-size:1.4rem;margin-bottom:10px}
+.success p{color:var(--mid);font-size:.9rem;line-height:1.7;margin-bottom:22px}
+.order-id{font-family:var(--mono);font-size:.85rem;letter-spacing:1px;color:var(--gold);
+  background:var(--ink2);border:1px dashed var(--line2);border-radius:8px;padding:12px;margin-bottom:26px}
+.success .home-cta{display:inline-flex;align-items:center;gap:8px;background:var(--red);
+  color:#fff;padding:13px 26px;border-radius:100px;font-family:var(--disp);font-weight:700;font-size:.82rem}
+
+/* ── FOOTER PROMO ── */
+.promo{position:relative;z-index:1;text-align:center;padding:0 20px 70px}
+.promo-line{font-family:var(--mono);font-size:.7rem;color:var(--muted);margin-bottom:16px;
+  letter-spacing:.5px}
+.promo-btn{display:inline-flex;align-items:center;gap:10px;border:1px solid var(--line2);
+  border-radius:100px;padding:13px 24px;font-family:var(--mono);font-size:.72rem;
+  letter-spacing:1px;text-transform:uppercase;color:var(--light);transition:.25s}
+.promo-btn:hover{border-color:var(--gold);color:var(--gold2);background:rgba(255,176,32,.06)}
+
+@media(max-width:480px){
+  .size-row{grid-template-columns:repeat(3,1fr)}
+}
+</style>
+</head>
+<body>
+
+<div class="noise"></div>
+<div class="spot"></div>
+
+<nav>
+  <div class="brand">FOYSAL<span>.</span>cyber</div>
+  <a class="home-btn" href="https://foysalcyber.github.io" target="_blank" rel="noopener">
+    Main Portfolio <i class="fa-solid fa-arrow-right"></i>
+  </a>
+</nav>
+
+<section class="hero">
+  <div class="eyebrow">College Jersey Program</div>
+  <h1>Reserve your <em>jersey</em> before slots run out</h1>
+  <p class="hero-sub">Fill in your details below to lock in your size for this year's college jersey. One entry per student — your info goes straight into our order sheet.</p>
+
+  <div class="badge-wrap">
+    <div class="jersey-badge">
+      <svg viewBox="0 0 300 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Jersey icon">
+        <defs>
+          <linearGradient id="jerseyFill" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ff3a5e"/>
+            <stop offset="55%" stop-color="#d4102f"/>
+            <stop offset="100%" stop-color="#7a0a1e"/>
+          </linearGradient>
+          <linearGradient id="sleeveShade" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity=".18"/>
+            <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+
+        <path d="M120,14 C127,24 138,30 150,30 C162,30 173,24 180,14 L228,54 L300,96 L270,152 L230,120 L230,306 L70,306 L70,120 L30,152 L0,96 L72,54 Z"
+              fill="url(#jerseyFill)"/>
+
+        <path d="M228,54 L300,96 L270,152 L230,120 Z" fill="url(#sleeveShade)"/>
+        <path d="M72,54 L0,96 L30,152 L70,120 Z" fill="url(#sleeveShade)"/>
+
+        <path d="M118,52 L70,86 M138,44 L100,72 M162,44 L200,72 M182,52 L230,86"
+              stroke="rgba(255,255,255,.22)" stroke-width="2" stroke-linecap="round"/>
+
+        <path d="M120,14 C127,24 138,30 150,30 C162,30 173,24 180,14"
+              fill="none" stroke="rgba(255,255,255,.45)" stroke-width="3"/>
+
+        <line x1="70" y1="120" x2="70" y2="306" stroke="rgba(255,255,255,.12)" stroke-width="2" stroke-dasharray="1 7" stroke-linecap="round"/>
+        <line x1="230" y1="120" x2="230" y2="306" stroke="rgba(255,255,255,.12)" stroke-width="2" stroke-dasharray="1 7" stroke-linecap="round"/>
+      </svg>
+
+      <div class="jb-content">
+        <div class="jb-crest"><i class="fa-solid fa-shirt"></i></div>
+        <div class="jb-label">Reserved so far</div>
+        <div class="jb-num" id="counterNum">—</div>
+        <div class="jb-sub">jerseys claimed by classmates</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="formwrap">
+  <div class="card">
+
+    <form id="jerseyForm" novalidate>
+      <div class="field" id="f-name">
+        <label for="name">Full Name</label>
+        <input type="text" id="name" placeholder="e.g. Foysal Mahmud" autocomplete="name">
+        <div class="err">Please enter your full name.</div>
+      </div>
+
+      <div class="field" id="f-roll">
+        <label for="roll">College Roll</label>
+        <input type="text" id="roll" placeholder="e.g. 12711068" inputmode="numeric">
+        <div class="err">Please enter your college roll number.</div>
+      </div>
+
+      <div class="field" id="f-group">
+        <label class="check-row">
+          <input type="checkbox" id="group11">
+          <span class="checkmark"><i class="fa-solid fa-check"></i></span>
+          <span class="check-text">I confirm I'm a student of <strong>Group 11</strong></span>
+        </label>
+        <div class="err">This form is only for Group 11 students.</div>
+      </div>
+
+      <div class="field" id="f-phone">
+        <label for="phone">Phone Number</label>
+        <input type="tel" id="phone" placeholder="e.g. 01XXXXXXXXX" inputmode="tel" autocomplete="tel">
+        <div class="err">Please enter a valid phone number.</div>
+      </div>
+
+      <div class="field" id="f-size">
+        <label>T-Shirt Size</label>
+        <div class="size-row">
+          <label class="size-opt"><input type="radio" name="size" value="S"><span>S</span></label>
+          <label class="size-opt"><input type="radio" name="size" value="M"><span>M</span></label>
+          <label class="size-opt"><input type="radio" name="size" value="L"><span>L</span></label>
+          <label class="size-opt"><input type="radio" name="size" value="XL"><span>XL</span></label>
+          <label class="size-opt"><input type="radio" name="size" value="XXL"><span>XXL</span></label>
+          <label class="size-opt"><input type="radio" name="size" value="3XL"><span>3XL</span></label>
+        </div>
+        <div class="err">Please select a size.</div>
+      </div>
+
+      <button type="submit" class="submit-btn" id="submitBtn">
+        <span class="spin"></span>
+        <span class="btxt"><i class="fa-solid fa-shirt"></i>&nbsp; Reserve My Jersey</span>
+      </button>
+
+      <div class="formmsg" id="formMsg"></div>
+    </form>
+
+    <div class="success" id="successBox">
+      <div class="tick"><i class="fa-solid fa-check"></i></div>
+      <h2>You're on the list!</h2>
+      <p>Thanks — your jersey order has been recorded. Keep your order ID for reference when collecting your kit.</p>
+      <div class="order-id" id="orderIdText"></div>
+      <a class="home-cta" href="https://foysalcyber.github.io" target="_blank" rel="noopener">
+        Visit Foysal's Portfolio <i class="fa-solid fa-arrow-up-right-from-square"></i>
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<div class="promo">
+  <div class="promo-line">This reservation page was built &amp; maintained by Foysal</div>
+  <a class="promo-btn" href="https://foysalcyber.github.io" target="_blank" rel="noopener">
+    <i class="fa-solid fa-user-shield"></i> foysalcyber.github.io
+  </a>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+import {
+  getFirestore, doc, runTransaction, getDoc, serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBRa4k1rFiB2-ZV2_n7E2_TIsn-kMhjJL8",
+  authDomain: "admin-panel-acc49.firebaseapp.com",
+  projectId: "admin-panel-acc49",
+  storageBucket: "admin-panel-acc49.firebasestorage.app",
+  messagingSenderId: "672594130533",
+  appId: "1:672594130533:web:fd5c5cb602a4d5e9fe388c"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const COUNTER_DOC = doc(db, "jerseyOrders", "_meta");
+const counterEl = document.getElementById("counterNum");
+
+// Show current count on load
+getDoc(COUNTER_DOC).then(snap => {
+  const n = snap.exists() ? (snap.data().count || 0) : 0;
+  counterEl.textContent = n;
+}).catch(() => { counterEl.textContent = "0"; });
+
+const form = document.getElementById("jerseyForm");
+const submitBtn = document.getElementById("submitBtn");
+const formMsg = document.getElementById("formMsg");
+const successBox = document.getElementById("successBox");
+
+function setError(id, on){
+  document.getElementById(id).classList.toggle("invalid", !!on);
+}
+
+function validate(){
+  let ok = true;
+  const name = document.getElementById("name").value.trim();
+  const roll = document.getElementById("roll").value.trim();
+  const group11 = document.getElementById("group11").checked;
+  const phone = document.getElementById("phone").value.trim();
+  const size = form.querySelector('input[name="size"]:checked');
+
+  setError("f-name", name.length < 2); if(name.length < 2) ok = false;
+  setError("f-roll", roll.length < 1); if(roll.length < 1) ok = false;
+  setError("f-group", !group11); if(!group11) ok = false;
+
+  const phoneDigits = phone.replace(/\D/g, "");
+  const phoneOk = phoneDigits.length >= 10 && phoneDigits.length <= 14;
+  setError("f-phone", !phoneOk); if(!phoneOk) ok = false;
+
+  setError("f-size", !size); if(!size) ok = false;
+
+  return ok ? { name, roll, group11, phone, size: size.value } : null;
+}
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  formMsg.classList.remove("show");
+  const data = validate();
+  if(!data) return;
+
+  submitBtn.classList.add("loading");
+  submitBtn.disabled = true;
+
+  try{
+    const orderNumber = await runTransaction(db, async (tx) => {
+      const snap = await tx.get(COUNTER_DOC);
+      const current = snap.exists() ? (snap.data().count || 0) : 0;
+      const next = current + 1;
+      tx.set(COUNTER_DOC, { count: next }, { merge: true });
+
+      const orderId = "JSY-" + String(next).padStart(4, "0");
+      const orderRef = doc(db, "jerseyOrders", orderId);
+      tx.set(orderRef, {
+        name: data.name,
+        roll: data.roll,
+        group11: data.group11,
+        phone: data.phone,
+        size: data.size,
+        orderNumber: next,
+        createdAt: serverTimestamp()
+      });
+      return next;
+    });
+
+    const orderIdStr = "JSY-" + String(orderNumber).padStart(4, "0");
+    counterEl.textContent = orderNumber;
+    document.getElementById("orderIdText").textContent = "Order ID: " + orderIdStr;
+    form.style.display = "none";
+    successBox.classList.add("show");
+
+  }catch(err){
+    console.error(err);
+    formMsg.textContent = "Something went wrong — please try again in a moment.";
+    formMsg.classList.add("show");
+  }finally{
+    submitBtn.classList.remove("loading");
+    submitBtn.disabled = false;
+  }
+});
+</script>
+
+</body>
+</html>
