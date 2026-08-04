@@ -42,6 +42,20 @@ section.card .hint{color:var(--muted);font-size:.72rem;margin-bottom:14px}
 .status{font-size:.78rem;color:var(--muted)}
 .status.ok{color:#4ade80}
 .status.bad{color:#ff6b81}
+.jersey-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.jersey-count{font-size:.8rem;color:var(--muted)}
+.jersey-actions{display:flex;gap:8px}
+.jersey-actions .btn{padding:9px 14px;font-size:.78rem}
+.jersey-list{max-height:560px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding-right:2px}
+.jersey-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;border:1px solid var(--line);border-radius:9px;padding:13px 14px;background:rgba(255,255,255,.02)}
+.jersey-top{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.jersey-id{font-family:monospace;font-size:.72rem;color:var(--red);letter-spacing:.5px}
+.jersey-size{font-size:.68rem;font-weight:700;background:rgba(255,23,68,.15);color:#ff8a9d;padding:2px 8px;border-radius:100px}
+.jersey-name{font-weight:600;font-size:.92rem;margin-bottom:3px}
+.jersey-meta{font-size:.75rem;color:var(--muted);margin-bottom:3px}
+.jersey-meta.warn{color:#ffb020}
+.jersey-time{font-size:.68rem;color:#525968}
+.jersey-del{flex:0 0 auto}
 </style>
 </head>
 <body>
@@ -126,6 +140,19 @@ section.card .hint{color:var(--muted);font-size:.72rem;margin-bottom:14px}
     <label>Welcome message<textarea id="c-wel"></textarea></label>
     <label>Suggestion chips (one per line)<textarea id="c-sug"></textarea></label>
   </section>
+
+  <section class="card" id="jerseyCard">
+    <h2><i class="fa-solid fa-shirt"></i> Jersey Orders</h2>
+    <div class="hint">Squad Kit রিজার্ভেশন পেজ থেকে আসা লাইভ অর্ডার লিস্ট। এই সেকশন উপরের "Save Changes" বাটনের সাথে সম্পর্কিত না — এখানে সব কিছু সাথে সাথে অ্যাপ্লাই হয়।</div>
+    <div class="jersey-toolbar">
+      <span class="jersey-count" id="jerseyCount">Loading…</span>
+      <div class="jersey-actions">
+        <button type="button" class="btn ghost" id="jerseyRefreshBtn"><i class="fa-solid fa-rotate"></i> Refresh</button>
+        <button type="button" class="btn ghost" id="jerseyExportBtn"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
+      </div>
+    </div>
+    <div id="jerseyList" class="jersey-list"></div>
+  </section>
 </div>
 
 <div class="savebar" id="savebar" style="display:none">
@@ -138,7 +165,7 @@ section.card .hint{color:var(--muted);font-size:.72rem;margin-bottom:14px}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, collection, getDocs, query, orderBy, deleteDoc } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBRa4k1rFiB2-ZV2_n7E2_TIsn-kMhjJL8",
@@ -152,6 +179,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const DOCREF = doc(db, 'site', 'main');
+const JERSEY_COL = collection(db, 'jerseyOrders');
 
 const DEFAULTS = {
   hero:{experience:3,clients:50,bugs:180,projects:120},
@@ -261,6 +289,94 @@ function gather(){
 
 function setStatus(msg,cls){const s=$('status');s.textContent=msg;s.className='status'+(cls?' '+cls:'');}
 
+function fmtWhen(o){
+  if(o.createdAt && typeof o.createdAt.toDate==='function'){
+    return o.createdAt.toDate().toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  }
+  return '—';
+}
+
+function renderJerseyOrders(orders){
+  $('jerseyCount').textContent = orders.length + (orders.length===1?' order':' orders');
+  const listEl=$('jerseyList');
+  if(!orders.length){ listEl.innerHTML='<div class="hint">এখনো কোনো অর্ডার আসেনি।</div>'; return; }
+  listEl.innerHTML = orders.map(o=>{
+    const groupText = o.group11 ? 'Group 11 ✓' : 'Group 11 ✗ (unconfirmed)';
+    return '<div class="jersey-row" data-id="'+escAttr(o.id)+'">'
+      +'<div class="jersey-main">'
+        +'<div class="jersey-top"><span class="jersey-id">'+escAttr(o.id)+'</span><span class="jersey-size">'+escAttr(o.size||'?')+'</span></div>'
+        +'<div class="jersey-name">'+escAttr(o.name||'—')+'</div>'
+        +'<div class="jersey-meta'+(o.group11?'':' warn')+'">Roll: '+escAttr(o.roll||'—')+' &nbsp;•&nbsp; '+escAttr(o.phone||'—')+' &nbsp;•&nbsp; '+groupText+'</div>'
+        +'<div class="jersey-time">'+fmtWhen(o)+'</div>'
+      +'</div>'
+      +'<button type="button" class="del jersey-del" data-id="'+escAttr(o.id)+'">Delete</button>'
+    +'</div>';
+  }).join('');
+  listEl.querySelectorAll('.jersey-del').forEach(btn=>{
+    btn.onclick=async()=>{
+      if(!confirm('অর্ডার '+btn.dataset.id+' ডিলিট করতে চাও? এটা ফেরানো যাবে না।')) return;
+      btn.disabled=true; btn.textContent='...';
+      try{
+        await deleteDoc(doc(db,'jerseyOrders',btn.dataset.id));
+        btn.closest('.jersey-row').remove();
+        const remaining=listEl.querySelectorAll('.jersey-row').length;
+        $('jerseyCount').textContent = remaining + (remaining===1?' order':' orders');
+        if(!remaining) listEl.innerHTML='<div class="hint">এখনো কোনো অর্ডার আসেনি।</div>';
+      }catch(e){
+        console.error('Delete error:', e);
+        alert('Delete failed: '+e.message);
+        btn.disabled=false; btn.textContent='Delete';
+      }
+    };
+  });
+}
+
+async function loadJerseyOrders(){
+  $('jerseyCount').textContent='Loading…';
+  $('jerseyList').innerHTML='';
+  try{
+    const q=query(JERSEY_COL, orderBy('orderNumber','desc'));
+    const snap=await getDocs(q);
+    const orders=[];
+    snap.forEach(d=>orders.push({id:d.id, ...d.data()}));
+    renderJerseyOrders(orders);
+  }catch(e){
+    console.error('Jersey load error:', e);
+    $('jerseyCount').textContent='Load failed';
+    $('jerseyList').innerHTML='<div class="hint" style="color:#ff6b81">'+escAttr(e.message)+'</div>';
+  }
+}
+
+function csvEscape(v){ v=String(v==null?'':v); if(/[",\n]/.test(v)){ v='"'+v.replace(/"/g,'""')+'"'; } return v; }
+
+$('jerseyRefreshBtn').onclick=loadJerseyOrders;
+$('jerseyExportBtn').onclick=async()=>{
+  const exportBtn=$('jerseyExportBtn');
+  exportBtn.disabled=true;
+  try{
+    const q=query(JERSEY_COL, orderBy('orderNumber','asc'));
+    const snap=await getDocs(q);
+    const rows=[['Order ID','Name','Roll','Phone','Size','Group 11','Submitted']];
+    snap.forEach(d=>{
+      const o=d.data();
+      const when=o.createdAt && typeof o.createdAt.toDate==='function' ? o.createdAt.toDate().toISOString() : '';
+      rows.push([d.id,o.name,o.roll,o.phone,o.size,o.group11?'Yes':'No',when]);
+    });
+    const csv=rows.map(r=>r.map(csvEscape).join(',')).join('\n');
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download='jersey-orders-'+new Date().toISOString().slice(0,10)+'.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  }catch(e){
+    console.error('Export error:', e);
+    alert('Export failed: '+e.message);
+  }finally{
+    exportBtn.disabled=false;
+  }
+};
+
 $('loginBtn').onclick=async()=>{
   $('loginErr').textContent='';
   try{ await signInWithEmailAndPassword(auth, val('email').trim(), val('password')); }
@@ -290,6 +406,7 @@ try{
   $('saveBtn').disabled = false;
   setStatus('Load error: '+e.message,'bad');
 }
+    loadJerseyOrders();
   }else{
     $('login').style.display='flex';
     $('panel').style.display='none';
