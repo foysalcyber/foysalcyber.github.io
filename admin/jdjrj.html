@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel — Foysal Mahmud</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#04060a;--ink2:#0b1018;--panel:#0f151f;--red:#ff1744;--red2:#ff4569;--red3:rgba(255,23,68,.12);--gold:#ffb020;--gold2:#ffd166;--green:#2ecc71;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);--muted:#7a8090;--mid:#9aa0b2;--white:#edf0f5;--mono:'DM Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ink);color:var(--white);font-family:system-ui,-apple-system,sans-serif;line-height:1.5}
+#login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-box{width:100%;max-width:380px;background:var(--ink2);border:1px solid var(--line);border-radius:12px;padding:36px 28px}
+.login-box h1{font-size:1.3rem;margin-bottom:6px}
+.login-box p{color:var(--muted);font-size:.8rem;margin-bottom:22px}
+label{display:block;font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin:14px 0 6px}
+input,textarea,select{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:7px;color:var(--white);padding:11px 13px;font-family:inherit;font-size:.9rem;outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--red)}
+textarea{min-height:80px;resize:vertical;font-size:.82rem}
+button{cursor:pointer;font-family:inherit}
+.btn{background:var(--red);color:#fff;border:none;border-radius:7px;padding:12px 20px;font-weight:600;font-size:.9rem;transition:.2s}
+.btn:hover{opacity:.9}
+.btn.ghost{background:transparent;border:1px solid var(--line2);color:var(--white)}
+.btn.ghost:hover{border-color:var(--red);color:#fff}
+.btn.small{padding:7px 12px;font-size:.75rem;border-radius:6px}
+.btn.confirm{background:var(--green);color:#04140a}
+.btn.confirm:hover{background:#3ae082}
+.err{color:#ff6b81;font-size:.78rem;margin-top:12px;min-height:1em}
+#panel{max-width:980px;margin:0 auto;padding:20px 18px 120px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 0;border-bottom:1px solid var(--line);margin-bottom:20px;position:sticky;top:0;background:var(--ink);z-index:10}
+.top h1{font-size:1.05rem}
+.top .who{color:var(--muted);font-size:.72rem}
+section.card{background:var(--ink2);border:1px solid var(--line);border-radius:12px;padding:22px;margin-bottom:18px}
+section.card h2{font-size:.95rem;color:var(--red);margin-bottom:4px}
+section.card .hint{color:var(--muted);font-size:.72rem;margin-bottom:14px;line-height:1.6}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:640px){.grid4{grid-template-columns:1fr 1fr}}
+.row-card{border:1px solid var(--line);border-radius:9px;padding:14px;margin-bottom:12px;background:rgba(255,255,255,.02)}
+.row-card label{margin-top:8px}
+.row-card label:first-child{margin-top:0}
+.add{background:rgba(255,23,68,.12);border:1px dashed rgba(255,23,68,.4);color:#ff8a9d;border-radius:8px;padding:10px;width:100%;font-size:.82rem}
+.del{background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:6px 12px;font-size:.72rem;margin-top:10px}
+.del:hover{border-color:var(--red);color:#ff6b81}
+.savebar{position:fixed;bottom:0;left:0;right:0;background:rgba(4,6,10,.96);border-top:1px solid var(--line);padding:14px 18px;backdrop-filter:blur(10px)}
+.mw{max-width:980px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.status{font-size:.78rem;color:var(--muted)}
+.status.ok{color:#4ade80}
+.status.bad{color:#ff6b81}
+
+/* ── JERSEY ADMIN ── */
+.jersey-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.jersey-stats{display:flex;gap:10px;flex-wrap:wrap}
+.stat-pill{font-family:var(--mono);font-size:.68rem;letter-spacing:.5px;border-radius:100px;padding:7px 12px;border:1px solid var(--line2);display:flex;align-items:center;gap:6px}
+.stat-pill.pending{color:var(--gold2);background:rgba(255,176,32,.08);border-color:rgba(255,176,32,.25)}
+.stat-pill.confirmed{color:var(--green);background:rgba(46,204,113,.08);border-color:rgba(46,204,113,.25)}
+.stat-pill.total{color:var(--mid);background:rgba(255,255,255,.04)}
+.jersey-actions{display:flex;gap:8px;flex-wrap:wrap}
+.jersey-actions .btn{padding:9px 14px;font-size:.78rem}
+.search-wrap{position:relative;flex:1;min-width:220px;max-width:420px}
+.search-wrap i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.8rem}
+.search-wrap input{padding-left:34px;background:var(--panel);border-color:var(--line2);font-size:.82rem}
+.search-wrap input::placeholder{color:var(--muted)}
+.tabs{display:flex;gap:8px;margin:14px 0 14px;border-bottom:1px solid var(--line);padding-bottom:0}
+.tab{padding:10px 16px;font-size:.78rem;font-weight:600;color:var(--muted);border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-1px;transition:.2s;display:flex;align-items:center;gap:7px}
+.tab.active{color:var(--white);border-bottom-color:var(--red)}
+.tab small{background:rgba(255,255,255,.08);padding:2px 7px;border-radius:100px;font-size:.68rem}
+.tab.active small{background:var(--red);color:#fff}
+.tab.pending small{color:var(--gold2)}
+.tab.confirmed small{color:var(--green)}
+.tab.active.confirmed{border-bottom-color:var(--green)}
+.jersey-list{max-height:640px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding-right:2px}
+.jersey-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;border:1px solid var(--line);border-radius:10px;padding:14px;background:rgba(255,255,255,.02);transition:.2s}
+.jersey-row:hover{border-color:var(--line2);background:rgba(255,255,255,.035)}
+.jersey-row.confirmed-row{border-left:3px solid var(--green)}
+.jersey-row.pending-row{border-left:3px solid var(--gold)}
+.jersey-top{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.jersey-id{font-family:var(--mono);font-size:.7rem;color:var(--red2);letter-spacing:.5px;background:rgba(255,23,68,.08);padding:2px 7px;border-radius:4px;border:1px solid rgba(255,23,68,.18)}
+.jersey-size{font-size:.68rem;font-weight:700;background:rgba(255,176,32,.12);color:var(--gold2);padding:2px 8px;border-radius:100px;border:1px solid rgba(255,176,32,.22)}
+.jersey-badge{font-family:var(--mono);font-size:.6rem;letter-spacing:.8px;text-transform:uppercase;padding:3px 8px;border-radius:100px;display:inline-flex;align-items:center;gap:4px}
+.jersey-badge.nagad{background:rgba(255,138,61,.1);color:#ff8a3d;border:1px solid rgba(255,138,61,.25)}
+.jersey-badge.cash{background:rgba(255,255,255,.06);color:var(--mid);border:1px solid var(--line2)}
+.jersey-name{font-weight:700;font-size:.95rem;margin-bottom:4px}
+.jersey-meta{font-size:.76rem;color:var(--mid);margin-bottom:3px;line-height:1.5}
+.jersey-meta b{color:var(--white);font-weight:600}
+.trx{font-family:var(--mono);font-size:.76rem;color:var(--gold2);background:rgba(255,176,32,.08);padding:3px 7px;border-radius:4px;letter-spacing:.3px;border:1px dashed rgba(255,176,32,.22);display:inline-block;margin-top:4px;cursor:pointer}
+.trx:hover{background:rgba(255,176,32,.14)}
+.jersey-time{font-family:var(--mono);font-size:.66rem;color:#525968;margin-top:6px}
+.jersey-acts{display:flex;flex-direction:column;gap:6px;flex:0 0 auto;align-items:stretch;min-width:96px}
+.empty{padding:30px;text-align:center;color:var(--muted);font-size:.82rem;border:1px dashed var(--line2);border-radius:10px;background:rgba(255,255,255,.02)}
+</style>
+</head>
+<body>
+<div id="login">
+  <div class="login-box">
+    <h1><i class="fa-solid fa-shield-halved" style="color:var(--red)"></i> Admin Panel</h1>
+    <p>Portfolio content control — authorized access only.</p>
+    <label>Email</label>
+    <input type="email" id="email" placeholder="you@example.com" autocomplete="username">
+    <label>Password</label>
+    <input type="password" id="password" placeholder="........" autocomplete="current-password">
+    <div style="margin-top:20px"><button class="btn" id="loginBtn" style="width:100%">Login</button></div>
+    <div class="err" id="loginErr"></div>
+  </div>
+</div>
+
+<div id="panel" style="display:none">
+  <div class="top">
+    <div><h1>Site Content Manager</h1><div class="who" id="who"></div></div>
+    <button class="btn ghost" id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+  </div>
+
+  <section class="card">
+    <h2>Hero Stats</h2>
+    <div class="hint">Hero + About stats strip-এর সংখ্যা।</div>
+    <div class="grid4">
+      <label>Yrs Experience<input type="number" id="h-exp"></label>
+      <label>Clients<input type="number" id="h-cli"></label>
+      <label>Bugs Found<input type="number" id="h-bug"></label>
+      <label>Projects<input type="number" id="h-prj"></label>
+    </div>
+  </section>
+  <section class="card">
+    <h2>Threat Map Stats</h2>
+    <div class="hint">Live Threat Map-এর নিচের ৪টা স্ট্যাট।</div>
+    <div class="grid4">
+      <label>Vulnerabilities<input type="number" id="t-vul"></label>
+      <label>Ports Scanned<input type="number" id="t-por"></label>
+      <label>Exploits Found<input type="number" id="t-exp"></label>
+      <label>Systems Tested<input type="number" id="t-sys"></label>
+    </div>
+  </section>
+  <section class="card">
+    <h2>About</h2>
+    <div class="hint">প্যারাগ্রাফে HTML (যেমন &lt;b&gt;) ব্যবহার করা যাবে। ট্যাগ কমা দিয়ে আলাদা করো।</div>
+    <label>Paragraph 1<textarea id="a-p1"></textarea></label>
+    <label>Paragraph 2<textarea id="a-p2"></textarea></label>
+    <label>Paragraph 3<textarea id="a-p3"></textarea></label>
+    <label>Tags (comma separated)<input id="a-tags"></label>
+  </section>
+  <section class="card">
+    <h2>Services</h2>
+    <div class="hint">প্রতিটি সার্ভিস কার্ড।</div>
+    <div id="services"></div>
+  </section>
+  <section class="card">
+    <h2>Gallery</h2>
+    <div class="hint">গ্যালারি ইমেজ।</div>
+    <div id="gallery"></div>
+  </section>
+  <section class="card">
+    <h2>Reviews</h2>
+    <div class="hint">ক্লায়েন্ট রিভিউ।</div>
+    <div id="reviews"></div>
+  </section>
+  <section class="card">
+    <h2>FAQ</h2>
+    <div class="hint">প্রশ্ন ও উত্তর।</div>
+    <div id="faq"></div>
+  </section>
+  <section class="card">
+    <h2>Chatbot</h2>
+    <div class="hint">ওয়েলকাম মেসেজ ও সাজেশন চিপস (প্রতি লাইনে একটি)।</div>
+    <label>Welcome message<textarea id="c-wel"></textarea></label>
+    <label>Suggestion chips (one per line)<textarea id="c-sug"></textarea></label>
+  </section>
+
+  <!-- JERSEY ORDERS — NEW ORGANIZED SYSTEM -->
+  <section class="card" id="jerseyCard" style="border-color:rgba(255,176,32,.18)">
+    <h2><i class="fa-solid fa-shirt" style="color:var(--gold)"></i> Jersey Orders — Verification System</h2>
+    <div class="hint">
+      <b style="color:var(--gold2)">Nagad 01778866172</b> — ৳500 jersey + ৳8 cashout = <b style="color:var(--gold2)">৳508 Send Money</b> | Cash = <b>৳500</b> হাতে। সব অর্ডার প্রথমে <b style="color:var(--gold2)">Pending</b> আসবে, তুমি Transaction ID / Number মিলিয়ে <b style="color:var(--green)">Confirm</b> করলে Main (Confirmed) লিস্টে যাবে। ইউজার তার Roll দিয়ে স্ট্যাটাস চেক করলে সাথে সাথে Pending → Confirmed দেখতে পাবে।
+    </div>
+
+    <div class="jersey-toolbar">
+      <div class="jersey-stats" id="jerseyStats">
+        <span class="stat-pill total"><i class="fa-solid fa-layer-group"></i> Total: <b id="statTotal">0</b></span>
+        <span class="stat-pill pending"><i class="fa-solid fa-clock"></i> Pending: <b id="statPending">0</b></span>
+        <span class="stat-pill confirmed"><i class="fa-solid fa-circle-check"></i> Confirmed: <b id="statConfirmed">0</b></span>
+      </div>
+      <div class="jersey-actions">
+        <button type="button" class="btn ghost small" id="jerseyRefreshBtn"><i class="fa-solid fa-rotate"></i> Refresh</button>
+        <button type="button" class="btn ghost small" id="jerseyExportBtn"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
+      </div>
+    </div>
+
+    <div class="search-wrap" style="margin-bottom:12px">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" id="jerseySearch" placeholder="Search by Roll / Name / Phone / TrxID / Order ID …">
+    </div>
+
+    <div class="tabs">
+      <button type="button" class="tab pending active" id="tabPending" onclick="switchTab('pending')"><i class="fa-solid fa-clock"></i> Pending <small id="tabPendingCount">0</small></button>
+      <button type="button" class="tab confirmed" id="tabConfirmed" onclick="switchTab('confirmed')"><i class="fa-solid fa-circle-check"></i> Main / Confirmed <small id="tabConfirmedCount">0</small></button>
+    </div>
+
+    <div id="jerseyList" class="jersey-list"></div>
+    <div id="jerseyEmpty" class="empty" style="display:none"></div>
+  </section>
+</div>
+
+<div class="savebar" id="savebar" style="display:none">
+  <div class="mw">
+    <span class="status" id="status">Ready.</span>
+    <button class="btn" id="saveBtn"><i class="fa-solid fa-floppy-disk"></i> Save Changes</button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, collection, getDocs, query, orderBy, deleteDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+
+const firebaseConfig={apiKey:"AIzaSyBRa4k1rFiB2-ZV2_n7E2_TIsn-kMhjJL8",authDomain:"admin-panel-acc49.firebaseapp.com",projectId:"admin-panel-acc49",storageBucket:"admin-panel-acc49.firebasestorage.app",messagingSenderId:"672594130533",appId:"1:672594130533:web:fd5c5cb602a4d5e9fe388c"};
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
+const DOCREF=doc(db,'site','main');
+const JERSEY_COL=collection(db,'jerseyOrders');
+
+const DEFAULTS={hero:{experience:3,clients:50,bugs:180,projects:120},threat:{vulns:24,ports:1842,exploits:7,systems:15},about:{paragraphs:["Hi, I'm <b>Foysal Mahmud</b> - a professional Cyber Security Specialist and Ethical Hacker with over <b>3 years</b> of hands-on experience. Currently a student at <b>Notre Dame College, Dhaka</b>, pursuing cybersecurity alongside my studies.","I specialize in identifying vulnerabilities, securing networks, and protecting digital assets from cyber threats. My expertise spans <b>penetration testing, ethical hacking, web development,</b> and full-cycle cybersecurity consulting for individuals and organizations.","Every assessment begins with reconnaissance and ends with a detailed <b>remediation plan</b>. Security is not a one-time fix - it's an ongoing commitment. I'm here to be your trusted partner in that journey."],tags:["Notre Dame College","Dhaka, BD","3+ Yrs Experience","NDC IT Team","Open to Work","Kali Linux","Burp Suite","OSINT"]},services:[{label:"// Service 01",line1:"ETHICAL",line2:"HACKING",desc:"I simulate real-world cyberattacks on your systems - with full authorization - to uncover critical weaknesses before malicious actors can exploit them. Every test ends with a detailed PDF report, risk-rated findings, and a clear remediation roadmap.",img:"https://foysal1627.github.io/assets/image/ethical.png"},{label:"// Service 02",line1:"PENETRATION",line2:"TESTING",desc:"Deep-dive security assessments using both automated tools and advanced manual techniques. I test web apps, networks, APIs, and mobile apps - delivering actionable reports with PoC evidence for every vulnerability discovered.",img:"https://foysal1627.github.io/assets/image/penetration.png"},{label:"// Service 03",line1:"SECURITY",line2:"CONSULTING",desc:"End-to-end cybersecurity consulting - from threat modeling and risk assessment to incident response planning. I help businesses build a strong, lasting security posture tailored to their specific risk landscape.",img:"https://foysal1627.github.io/assets/image/secure.png"},{label:"// Service 04",line1:"WEB",line2:"DEVELOPMENT",desc:"Custom web development solutions focused on security, performance, and modern aesthetics. From responsive landing pages to complex web applications, I build digital experiences that are both functional and secure by design.",img:"https://foysal1627.github.io/assets/image/webdev.png"},{label:"// Service 05",line1:"OSINT &",line2:"RECON",desc:"Advanced open-source intelligence gathering and digital footprint analysis. I help organizations understand what data is publicly exposed - and what a sophisticated attacker could learn before launching an attack.",img:"https://foysal1627.github.io/assets/image/osint.png"}],gallery:[{img:"https://foysal1627.github.io/assets/image/FA.jpeg",category:"// Event",label:"AIUB Robotics"},{img:"https://foysal1627.github.io/assets/image/asf25.png",category:"// Project",label:"Web Development"},{img:"https://foysal1627.github.io/assets/image/mango.png",category:"// Project",label:"Web Development"},{img:"https://foysal1627.github.io/assets/image/ndsc.png",category:"// Project",label:"Web Development"}],reviews:[{stars:5,text:"Foysal did an outstanding job on our web application security audit. He found critical vulnerabilities our internal team had completely missed - including an SQL injection that could have exposed our entire user database.",name:"Rafiqul Islam",role:"CEO, TechStart BD"},{stars:5,text:"Professional, fast, and extremely knowledgeable. Foysal helped us secure our e-commerce platform before launch, finding 3 critical and 7 medium-risk issues. The penetration test report was detailed, clear, and very actionable.",name:"Sakib Hossain",role:"CTO, ShopEasy"},{stars:5,text:"Working with Foysal was great from start to finish. He explained every finding in plain language, provided PoC screenshots, and gave a clear remediation roadmap. Will definitely work again.",name:"Nusrat Jahan",role:"IT Manager, FinServ Ltd"},{stars:5,text:"Hired Foysal for OSINT investigation and network security. He delivered a well-organized report within the timeline. Communication was excellent and quality of work exceeded expectations.",name:"Arif Chowdhury",role:"Founder, SecureNet Solutions"}],faq:[{q:"What services do you offer?",a:"I offer ethical hacking, web application penetration testing, network security assessments, OSINT investigations, vulnerability scanning, and ongoing cybersecurity consulting. One-time audit or long-term partner - I can help."},{q:"How do I get started?",a:"Reach out via WhatsApp, Facebook, or email. I'll respond within 24 hours to discuss requirements, define scope, and provide a quote. Everything starts with a free initial consultation."},{q:"Is ethical hacking legal?",a:"100% legal when performed with explicit written authorization. I require a signed scope-of-work agreement before any engagement. All my work is fully compliant with applicable laws."},{q:"How long does a pentest take?",a:"A basic web app audit takes 3-5 days. A full network pentest takes 1-2 weeks. OSINT investigations: 2-4 days. I give a precise timeline before we begin - no surprises."},{q:"Do you provide a detailed report?",a:"Every engagement ends with a professional PDF report: all vulnerabilities, risk rating (Critical / High / Medium / Low), PoC evidence, business impact analysis, and step-by-step remediation guidance."},{q:"What is your pricing?",a:"Pricing varies by scope and complexity. Competitive rates for individuals, startups, and enterprises. Contact me for a free quote - transparent pricing, no hidden charges."}],chatbot:{welcome:"Hey! I'm Foysal's AI assistant. Ask me anything about cybersecurity, services, or how to get in touch.",suggestions:["About Foysal?","Services?","How to hire?","Contact info?","Blogs?","Foysal's photo?"]}};
+
+const $=id=>document.getElementById(id);
+const val=id=>$(id).value;
+const num=id=>{const n=parseInt($(id).value,10);return isNaN(n)?0:n;};
+function escAttr(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function esc(s){return escAttr(s);}
+function makeList(id,fields,items,addLabel){
+  const container=$(id);container.innerHTML='';
+  const btn=document.createElement('button');btn.type='button';btn.className='add';btn.textContent=addLabel||'+ Add';container.appendChild(btn);
+  function addRow(data){
+    data=data||{};const row=document.createElement('div');row.className='row-card';
+    row.innerHTML=fields.map(f=>{const v=escAttr(data[f.key]);return f.type==='textarea'?'<label>'+f.label+'<textarea data-k="'+f.key+'">'+v+'</textarea></label>':'<label>'+f.label+'<input data-k="'+f.key+'" value="'+v+'"></label>';}).join('')+'<button type="button" class="del">Remove</button>';
+    row.querySelector('.del').onclick=()=>row.remove();container.insertBefore(row,btn);
+  }
+  (Array.isArray(items)?items:[]).forEach(addRow);btn.onclick=()=>addRow();
+  return {collect(){return [...container.querySelectorAll('.row-card')].map(r=>{const o={};r.querySelectorAll('[data-k]').forEach(el=>o[el.dataset.k]=el.value);return o;});}};
+}
+let servicesList,galleryList,reviewsList,faqList,dataReady=false;
+function fill(d){
+  $('h-exp').value=d.hero&&d.hero.experience!=null?d.hero.experience:''; $('h-cli').value=d.hero&&d.hero.clients!=null?d.hero.clients:'';
+  $('h-bug').value=d.hero&&d.hero.bugs!=null?d.hero.bugs:''; $('h-prj').value=d.hero&&d.hero.projects!=null?d.hero.projects:'';
+  $('t-vul').value=d.threat&&d.threat.vulns!=null?d.threat.vulns:''; $('t-por').value=d.threat&&d.threat.ports!=null?d.threat.ports:'';
+  $('t-exp').value=d.threat&&d.threat.exploits!=null?d.threat.exploits:''; $('t-sys').value=d.threat&&d.threat.systems!=null?d.threat.systems:'';
+  const p=(d.about&&d.about.paragraphs)||[]; $('a-p1').value=p[0]||'';$('a-p2').value=p[1]||'';$('a-p3').value=p[2]||'';
+  $('a-tags').value=((d.about&&d.about.tags)||[]).join(', '); $('c-wel').value=(d.chatbot&&d.chatbot.welcome)||''; $('c-sug').value=((d.chatbot&&d.chatbot.suggestions)||[]).join('\n');
+  servicesList=makeList('services',[{key:'label',label:'Label'},{key:'line1',label:'Title line 1'},{key:'line2',label:'Title line 2'},{key:'desc',label:'Description',type:'textarea'},{key:'img',label:'Image URL'}],d.services,'+ Add service');
+  galleryList=makeList('gallery',[{key:'img',label:'Image URL'},{key:'category',label:'Category'},{key:'label',label:'Label'}],d.gallery,'+ Add image');
+  reviewsList=makeList('reviews',[{key:'stars',label:'Stars (1-5)'},{key:'text',label:'Review text',type:'textarea'},{key:'name',label:'Name'},{key:'role',label:'Role'}],d.reviews,'+ Add review');
+  faqList=makeList('faq',[{key:'q',label:'Question'},{key:'a',label:'Answer',type:'textarea'}],d.faq,'+ Add FAQ');
+}
+function gather(){return {hero:{experience:num('h-exp'),clients:num('h-cli'),bugs:num('h-bug'),projects:num('h-prj')},threat:{vulns:num('t-vul'),ports:num('t-por'),exploits:num('t-exp'),systems:num('t-sys')},about:{paragraphs:[val('a-p1'),val('a-p2'),val('a-p3')],tags:val('a-tags').split(',').map(s=>s.trim()).filter(Boolean)},services:servicesList.collect(),gallery:galleryList.collect(),reviews:reviewsList.collect().map(r=>({stars:parseInt(r.stars,10)||5,text:r.text,name:r.name,role:r.role})),faq:faqList.collect(),chatbot:{welcome:val('c-wel'),suggestions:val('c-sug').split('\n').map(s=>s.trim()).filter(Boolean)}};}
+function setStatus(msg,cls){const s=$('status');s.textContent=msg;s.className='status'+(cls?' '+cls:'');}
+function fmtWhen(o){ if(o.createdAt && typeof o.createdAt.toDate==='function'){return o.createdAt.toDate().toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});} return '—'; }
+function fmtConfirmed(o){ if(o.confirmedAt && typeof o.confirmedAt.toDate==='function'){return o.confirmedAt.toDate().toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});} return '—'; }
+
+// ── JERSEY LOGIC ──
+let allOrders=[],currentTab='pending',searchTerm='';
+function updateStats(){
+  const pending=allOrders.filter(o=>o.status!=='confirmed').length;
+  const confirmed=allOrders.filter(o=>o.status==='confirmed').length;
+  $('statTotal').textContent=allOrders.length;
+  $('statPending').textContent=pending;
+  $('statConfirmed').textContent=confirmed;
+  $('tabPendingCount').textContent=pending;
+  $('tabConfirmedCount').textContent=confirmed;
+}
+function filteredOrders(){
+  const base=allOrders.filter(o=> currentTab==='pending' ? o.status!=='confirmed' : o.status==='confirmed');
+  if(!searchTerm) return base;
+  const t=searchTerm.toLowerCase();
+  return base.filter(o=> (o.id&&o.id.toLowerCase().includes(t)) || (o.roll&&String(o.roll).toLowerCase().includes(t)) || (o.name&&o.name.toLowerCase().includes(t)) || (o.phone&&String(o.phone).toLowerCase().includes(t)) || (o.transactionId&&String(o.transactionId).toLowerCase().includes(t)) || (o.size&&String(o.size).toLowerCase().includes(t)) || (o.jerseyNumber&&String(o.jerseyNumber).toLowerCase().includes(t)) );
+}
+function renderJersey(){
+  const list=$('jerseyList'),empty=$('jerseyEmpty');
+  const rows=filteredOrders();
+  if(!allOrders.length){
+    list.innerHTML=''; empty.style.display='block'; empty.innerHTML='<i class="fa-solid fa-inbox" style="font-size:1.4rem;margin-bottom:8px;display:block"></i>এখনো কোনো অর্ডার আসেনি।';
+    return;
+  }
+  if(!rows.length){
+    list.innerHTML=''; empty.style.display='block'; empty.textContent='No results for "'+searchTerm+'" in '+currentTab+' list.';
+    return;
+  }
+  empty.style.display='none';
+  list.innerHTML=rows.map(o=>{
+    const isConfirmed=o.status==='confirmed';
+    const trxBlock=o.paymentMethod==='nagad' ? '<div class="trx" title="Click to copy" data-trx="'+escAttr(o.transactionId||'')+'"><i class="fa-solid fa-receipt"></i> TrxID: '+(esc(o.transactionId||'—'))+' <i class="fa-solid fa-copy" style="margin-left:6px;opacity:.6"></i></div>' : '<div style="font-size:.72rem;color:var(--muted);margin-top:4px"><i class="fa-solid fa-money-bill-wave"></i> Cash — ৳500 হাতে নেবে</div>';
+    const amount=o.amount ? '৳'+o.amount : (o.paymentMethod==='nagad'?'৳508':'৳500');
+    return '<div class="jersey-row '+(isConfirmed?'confirmed-row':'pending-row')+'" data-id="'+escAttr(o.id)+'">'
+      +'<div style="flex:1;min-width:0">'
+        +'<div class="jersey-top"><span class="jersey-id">'+esc(o.id)+'</span><span class="jersey-size">'+esc(o.size||'?')+'</span><span class="jersey-size" style="background:rgba(46,204,113,.12);color:var(--green);border-color:rgba(46,204,113,.22)">#'+esc(o.jerseyNumber||'—')+(o.numberSource==='custom'?' Custom':' Roll')+'</span><span class="jersey-badge '+(o.paymentMethod==='nagad'?'nagad':'cash')+'">'+(o.paymentMethod==='nagad'?'Nagad':'Cash')+' • '+amount+'</span></div>'
+        +'<div class="jersey-name">'+esc(o.name||'—')+' <span style="font-weight:400;color:var(--muted);font-size:.78rem">— Roll: '+esc(o.roll||'—')+'</span></div>'
+        +'<div class="jersey-meta"><i class="fa-solid fa-phone" style="font-size:.68rem"></i> '+esc(o.phone||'—')+' &nbsp;•&nbsp; '+(o.group11?'Group 11 ✓':'Group 11 ✗')+'</div>'
+        +trxBlock
+        +'<div class="jersey-time"><i class="fa-regular fa-clock"></i> Ordered: '+esc(fmtWhen(o))+(isConfirmed?' &nbsp;•&nbsp; <span style="color:var(--green)"><i class="fa-solid fa-circle-check"></i> Confirmed: '+esc(fmtConfirmed(o))+'</span>':' &nbsp;•&nbsp; <span style="color:var(--gold2)">Pending verification</span>')+'</div>'
+      +'</div>'
+      +'<div class="jersey-acts">'
+        +(isConfirmed?'<span style="font-size:.72rem;color:var(--green);font-weight:700;text-align:center;padding:8px"><i class="fa-solid fa-circle-check"></i> Confirmed</span><button type="button" class="btn ghost small" data-action="unconfirm" data-id="'+escAttr(o.id)+'"><i class="fa-solid fa-rotate-left"></i> Move to Pending</button>' : '<button type="button" class="btn confirm small" data-action="confirm" data-id="'+escAttr(o.id)+'"><i class="fa-solid fa-check"></i> Confirm</button>')
+        +'<button type="button" class="del" style="margin-top:0" data-action="delete" data-id="'+escAttr(o.id)+'">Delete</button>'
+      +'</div>'
+    +'</div>';
+  }).join('');
+  // bind actions
+  list.querySelectorAll('[data-action="confirm"]').forEach(btn=>{
+    btn.onclick=async()=>{
+      const id=btn.dataset.id;
+      if(!confirm(id+' — Confirm করতে চাও? এটা Main / Confirmed লিস্টে চলে যাবে এবং ইউজার Roll দিয়ে চেক করলে Confirmed দেখবে।')) return;
+      btn.disabled=true; btn.textContent='...';
+      try{ await updateDoc(doc(db,'jerseyOrders',id),{status:'confirmed',confirmedAt:serverTimestamp()}); const o=allOrders.find(x=>x.id===id); if(o){o.status='confirmed';o.confirmedAt=new Date();} updateStats(); renderJersey(); }
+      catch(e){ alert('Confirm failed: '+e.message); btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-check"></i> Confirm'; }
+    };
+  });
+  list.querySelectorAll('[data-action="unconfirm"]').forEach(btn=>{
+    btn.onclick=async()=>{
+      const id=btn.dataset.id;
+      if(!confirm(id+' আবার Pending এ ফেরাতে চাও?')) return;
+      btn.disabled=true;
+      try{ await updateDoc(doc(db,'jerseyOrders',id),{status:'pending',confirmedAt:null}); const o=allOrders.find(x=>x.id===id); if(o){o.status='pending';o.confirmedAt=null;} updateStats(); renderJersey(); }
+      catch(e){ alert('Failed: '+e.message); btn.disabled=false; }
+    };
+  });
+  list.querySelectorAll('[data-action="delete"]').forEach(btn=>{
+    btn.onclick=async()=>{
+      const id=btn.dataset.id;
+      if(!confirm('অর্ডার '+id+' ডিলিট করতে চাও? এটা ফেরানো যাবে না।')) return;
+      btn.disabled=true; btn.textContent='...';
+      try{ await deleteDoc(doc(db,'jerseyOrders',id)); allOrders=allOrders.filter(x=>x.id!==id); updateStats(); renderJersey(); }
+      catch(e){ alert('Delete failed: '+e.message); btn.disabled=false; btn.textContent='Delete'; }
+    };
+  });
+  list.querySelectorAll('[data-trx]').forEach(el=>{
+    el.onclick=()=>{
+      const v=el.dataset.trx; if(!v) return;
+      navigator.clipboard.writeText(v).then(()=>{ const old=el.innerHTML; el.innerHTML='<i class="fa-solid fa-check"></i> Copied!'; setTimeout(()=> el.innerHTML=old,1200); });
+    };
+  });
+}
+window.switchTab=function(tab){ currentTab=tab; document.getElementById('tabPending').classList.toggle('active',tab==='pending'); document.getElementById('tabConfirmed').classList.toggle('active',tab==='confirmed'); renderJersey(); };
+$('jerseySearch').addEventListener('input',e=>{ searchTerm=e.target.value.trim(); renderJersey(); });
+
+async function loadJerseyOrders(){
+  $('statTotal').textContent='…'; $('jerseyList').innerHTML='<div class="empty">Loading…</div>'; $('jerseyEmpty').style.display='none';
+  try{
+    const snap=await getDocs(query(JERSEY_COL, orderBy('orderNumber','desc')));
+    const orders=[]; snap.forEach(d=>{ if(d.id==='_meta') return; orders.push({id:d.id, ...d.data()}); });
+    allOrders=orders;
+    updateStats(); renderJersey();
+  }catch(e){
+    console.error('Jersey load error',e);
+    $('jerseyList').innerHTML='<div class="empty" style="color:#ff6b81">'+esc(e.message)+'</div>';
+  }
+}
+function csvEscape(v){ v=String(v==null?'':v); if(/[\",\n]/.test(v)) v='"'+v.replace(/"/g,'""')+'"'; return v; }
+$('jerseyRefreshBtn').onclick=loadJerseyOrders;
+$('jerseyExportBtn').onclick=async()=>{
+  const btn=$('jerseyExportBtn'); btn.disabled=true;
+  try{
+    // export currently visible tab or all? Export all with status
+    const rows=[['Order ID','Name','Roll','Jersey Number','Number Source','Phone','Size','Payment','TrxID','Amount','Payment Status','Status','Ordered','ConfirmedAt']];
+    // fetch fresh to include latest
+    const snap=await getDocs(query(JERSEY_COL, orderBy('orderNumber','asc')));
+    snap.forEach(d=>{
+      if(d.id==='_meta') return;
+      const o=d.data();
+      const when=o.createdAt && typeof o.createdAt.toDate==='function' ? o.createdAt.toDate().toISOString() : '';
+      const conf=o.confirmedAt && typeof o.confirmedAt.toDate==='function' ? o.confirmedAt.toDate().toISOString() : '';
+      const numberSourceLabel=o.numberSource==='custom'?'Custom':(o.numberSource==='roll'?'Roll-based':'');
+      const paymentStatus=o.status==='confirmed'?'Paid':'Pending';
+      rows.push([d.id,o.name||'',o.roll||'',o.jerseyNumber||'',numberSourceLabel,o.phone||'',o.size||'',o.paymentMethod||'',o.transactionId||'',o.amount||'',paymentStatus,o.status||'pending',when,conf]);
+    });
+    const csv=rows.map(r=>r.map(csvEscape).join(',')).join('\n');
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download='jersey-orders-'+new Date().toISOString().slice(0,10)+'.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+  }catch(e){ alert('Export failed: '+e.message); } finally{ btn.disabled=false; }
+};
+
+// Auth + site content
+$('loginBtn').onclick=async()=>{ $('loginErr').textContent=''; try{ await signInWithEmailAndPassword(auth, val('email').trim(), val('password')); } catch(e){ $('loginErr').textContent=(e.code==='auth/invalid-credential'||e.code==='auth/wrong-password')?'Wrong email or password.':(e.message||'Login failed.'); } };
+$('password').addEventListener('keydown',e=>{if(e.key==='Enter')$('loginBtn').click();});
+$('logoutBtn').onclick=()=>signOut(auth);
+onAuthStateChanged(auth, async user=>{
+  if(user){
+    $('login').style.display='none'; $('panel').style.display='block'; $('savebar').style.display='block'; $('who').textContent='Signed in as '+user.email;
+    try{ const snap=await getDoc(DOCREF); const raw=snap.exists()?snap.data():DEFAULTS; fill(raw); dataReady=true; $('saveBtn').disabled=false; setStatus(snap.exists()?'Loaded from Firestore.':'Loaded defaults - click Save to publish.',''); }catch(e){ console.error(e); fill(DEFAULTS); dataReady=true; $('saveBtn').disabled=false; setStatus('Load error: '+e.message,'bad'); }
+    loadJerseyOrders();
+  } else { $('login').style.display='flex'; $('panel').style.display='none'; $('savebar').style.display='none'; }
+});
+$('saveBtn').onclick=async()=>{ if(!dataReady){setStatus('Data still loading, wait...','bad');return;} setStatus('Saving...',''); try{ await setDoc(DOCREF,gather()); setStatus('Saved. Refresh your site to see changes.','ok'); } catch(e){ setStatus('Save failed: '+e.message,'bad'); } };
+</script>
+</body>
+</html>
