@@ -358,7 +358,7 @@ $('jerseyExportBtn').onclick=async()=>{
   const btn=$('jerseyExportBtn'); btn.disabled=true;
   try{
     // export currently visible tab or all? Export all with status
-    const rows=[['Order ID','Name','Roll','Jersey Number','Number Source','Phone','Size','Payment','TrxID','Amount','Payment Status','Status','Ordered','ConfirmedAt']];
+    const rows=[['Order ID','Name','Roll','Jersey Number','Number Source','Phone','Size','Status','Ordered','ConfirmedAt']];
     // fetch fresh to include latest
     const snap=await getDocs(query(JERSEY_COL, orderBy('orderNumber','asc')));
     snap.forEach(d=>{
@@ -367,8 +367,7 @@ $('jerseyExportBtn').onclick=async()=>{
       const when=o.createdAt && typeof o.createdAt.toDate==='function' ? o.createdAt.toDate().toISOString() : '';
       const conf=o.confirmedAt && typeof o.confirmedAt.toDate==='function' ? o.confirmedAt.toDate().toISOString() : '';
       const numberSourceLabel=o.numberSource==='custom'?'Custom':(o.numberSource==='roll'?'Roll-based':'');
-      const paymentStatus=o.status==='confirmed'?'Paid':'Pending';
-      rows.push([d.id,o.name||'',o.roll||'',o.jerseyNumber||'',numberSourceLabel,o.phone||'',o.size||'',o.paymentMethod||'',o.transactionId||'',o.amount||'',paymentStatus,o.status||'pending',when,conf]);
+      rows.push([d.id,o.name||'',o.roll||'',o.jerseyNumber||'',numberSourceLabel,o.phone||'',o.size||'',o.status||'pending',when,conf]);
     });
     const csv=rows.map(r=>r.map(csvEscape).join(',')).join('\n');
     const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob);
