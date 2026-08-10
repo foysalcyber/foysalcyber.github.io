@@ -13,46 +13,26 @@
 ============================================================= -->
 <script>
   window.APP_CONFIG = {
-    // Paste your Firebase project config here (Firebase Console > Project settings > Your apps)
-    const firebaseConfig = {
+    // ✅ সঠিক syntax:
+    firebaseConfig: {
+      apiKey: "AIzaSyBO1g2BopWzKlkTXjiyIiD79xvNZ9Hrhvg",
+      authDomain: "chat-4cfa3.firebaseapp.com",
+      projectId: "chat-4cfa3",
+      storageBucket: "chat-4cfa3.firebasestorage.app",
+      messagingSenderId: "557964126598",
+      appId: "1:557964126598:web:6e6f23e0c6df6d85fa6407",
+      measurementId: "G-HT7GD7QM2S"
+    },
 
-
-    apiKey: "AIzaSyBO1g2BopWzKlkTXjiyIiD79xvNZ9Hrhvg",
-
-
-    authDomain: "chat-4cfa3.firebaseapp.com",
-
-
-    projectId: "chat-4cfa3",
-
-
-    storageBucket: "chat-4cfa3.firebasestorage.app",
-
-
-    messagingSenderId: "557964126598",
-
-
-    appId: "1:557964126598:web:6e6f23e0c6df6d85fa6407",
-
-
-    measurementId: "G-HT7GD7QM2S"
-
-
-  };
-
-    // The two people who can use this channel.
-    // "email" is NOT secret — it's just an internal identifier so each
-    // person can have their own real Firebase account. The actual
-    // password is never stored here; it's set in the Firebase Console
-    // and typed in at login time, verified by Firebase's own servers.
     people: [
       { name: "Anik",   email: "anik@gmail.com" },
       { name: "Nusrat", email: "nusrat@gamil.com" }
     ],
-    // Change this to start a fresh, separate conversation
     roomId: "private-room-01"
   };
 </script>
+
+
 <!-- ============================================================ -->
 
 <style>
