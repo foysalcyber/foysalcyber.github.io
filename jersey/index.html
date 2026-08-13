@@ -265,7 +265,7 @@ h1 em{font-style:normal;color:var(--red)}
         <div class="cd-unit"><div class="cd-num" id="cdM">--</div><div class="cd-lbl">Min</div></div>
         <div class="cd-unit"><div class="cd-num" id="cdS">--</div><div class="cd-lbl">Sec</div></div>
       </div>
-      <div class="deadline-date"><b>Fri, 14 Aug 2026 — 11:59 PM</b></div>
+      <div class="deadline-date"><b>Fri, 21 Aug 2026 — 11:59 PM</b></div>
     </div>
   </div>
   <button class="status-trigger" id="openStatusModal" type="button"><i class="fa-solid fa-magnifying-glass"></i> <b>Already ordered? Check status</b></button>
@@ -420,7 +420,7 @@ h1 em{font-style:normal;color:var(--red)}
   document.addEventListener("keydown",function(e){if(e.key==="Escape")window.closeStatusModal();});
 })();
 (function(){
-  var deadline=new Date("2026-08-14T23:59:59"),elD=document.getElementById("cdD"),elH=document.getElementById("cdH"),elM=document.getElementById("cdM"),elS=document.getElementById("cdS");
+  var deadline=new Date("2026-08-21T23:59:59"),elD=document.getElementById("cdD"),elH=document.getElementById("cdH"),elM=document.getElementById("cdM"),elS=document.getElementById("cdS");
   function pad(n){return String(n).padStart(2,"0");}
   function tick(){
     var now=new Date(),diff=deadline-now;
