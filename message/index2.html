@@ -217,6 +217,8 @@
 
   .empty-state{margin:auto;text-align:center;color:var(--text-3);font-family:var(--font-mono);font-size:12px;padding:32px 20px;}
   .empty-icon{width:48px;height:48px;border-radius:50%;border:1px dashed var(--border);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-family:var(--font-serif);font-size:18px;font-style:italic;background:rgba(255,255,255,0.04);}
+  .empty-state.loading .empty-icon{animation:emptySpin 1.4s linear infinite;}
+  @keyframes emptySpin{to{transform:rotate(360deg)}}
 
   /* ---------- composer ---------- */
   .composer{background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);padding:8px;flex-shrink:0;position:relative;}
@@ -390,7 +392,7 @@
         <div id="messages" role="log" aria-label="Messages">
           <div class="load-older-wrap" id="load-older-wrap"><button class="load-older" id="load-older">↑ Load older messages</button></div>
           <div id="msg-list"></div>
-          <div class="empty-state" id="empty-state"><div class="empty-icon" aria-hidden="true">✦</div>No messages yet.<br/>Send the first note to begin.</div>
+          <div class="empty-state" id="empty-state"><div class="empty-icon" aria-hidden="true">✦</div><span id="empty-text">No messages yet.<br/>Send the first note to begin.</span></div>
         </div>
         <button class="scroll-fab" id="scroll-fab" aria-label="Scroll to latest messages"><span aria-hidden="true">↓</span><span class="fab-count" id="fab-count">0</span></button>
       </div>
@@ -414,13 +416,13 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, addDoc, doc, getDoc, setDoc, onSnapshot, query, where, orderBy, serverTimestamp, updateDoc, getDocs, deleteDoc, writeBatch, limit as fbLimit, startAfter, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, doc, getDoc, setDoc, onSnapshot, query, orderBy, serverTimestamp, updateDoc, getDocs, deleteDoc, writeBatch, limit as fbLimit, startAfter, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const CFG = window.APP_CONFIG;
 const EMOJIS = ["😀","😂","❤️","🔥","👍","🎉","😢","😮","🙏","✨","😘","🤔","🥺","😍","🤍","🌙","☀️","🌸","🍓","💌","🫶","😊"];
 const REACT_EMOJIS = ["❤️","😂","😮","😢","🙏","🔥"];
-const LIVE_WINDOW = 60;      // live listener window (newest N)
-const OLDER_PAGE  = 40;      // how many older messages per "Load older" click
+const LIVE_WINDOW = 30;      // live listener window (newest N) — small so the first load is fast
+const OLDER_PAGE  = 30;      // how many older messages per "Load older" click
 const MAX_DOM     = 260;     // hard cap of rows kept in the DOM
 const SAFE        = 700000;  // max data-URL size that fits a Firestore doc
 
@@ -469,7 +471,7 @@ const connBanner=$("conn-banner"), connText=$("conn-text");
 let isOffline=!navigator.onLine, isFromCache=false;
 function renderConn(){
   if(isOffline){ connText.textContent="You're offline — messages will send when you reconnect."; connBanner.classList.add("show"); }
-  else if(isFromCache){ connText.textContent="Reconnecting to the channel…"; connBanner.classList.add("show"); }
+  else if(isFromCache){ connText.textContent="Connecting to the channel…"; connBanner.classList.add("show"); }
   else connBanner.classList.remove("show");
 }
 window.addEventListener("online",()=>{ isOffline=false; renderConn(); toast("Back online"); });
@@ -536,6 +538,7 @@ function startApp(person){
   document.title=`PULSE · ${partner}`;
   initPresence(); initMessages();
   listenIncoming();
+  getDoc(roomRef()).catch(()=>{});   // warm up the connection right after login
 }
 
 /* ============ helpers ============ */
@@ -565,12 +568,12 @@ function initPresence(){
     updatePresence({online:!document.hidden});
     if(!document.hidden){ unseenWhileHidden=0; document.title=`PULSE · ${partner}`; markIncomingSeen(); }
   });
-  unsubPresence=onSnapshot(presenceRef(partner),snap=> renderPeerPresence(snap.data()), ()=>{});
+  unsubPresence=onSnapshot(presenceRef(partner),snap=> renderPeerPresence(snap.data(),snap.metadata.fromCache), err=>console.error("presence error",err));
 }
 function updatePresence(extra){ setDoc(presenceRef(me),{name:me,lastActive:serverTimestamp(),online:true,...extra},{merge:true}).catch(()=>{}); }
-function renderPeerPresence(d){
+function renderPeerPresence(d,fromCache){
   const statusText=$("peer-status-text"), liveDot=$("live-dot"), statusEl=$("peer-status");
-  if(!d){ statusText.textContent="Hasn't joined yet"; liveDot.style.display="none"; return; }
+  if(!d){ statusText.textContent=fromCache?"Connecting…":"Hasn't joined yet"; liveDot.style.display="none"; return; }
   const last=d.lastActive?.toDate?d.lastActive.toDate():null;
   const online=d.online && last && (Date.now()-last.getTime()<40000);
   statusEl.classList.toggle("online",!!online);
@@ -598,6 +601,13 @@ if(window.visualViewport) window.visualViewport.addEventListener("resize",()=> s
 
 /* ============ message store ============ */
 const messagesEl=$("messages"), msgList=$("msg-list"), emptyState=$("empty-state");
+function renderEmptyState(fromCache){
+  if(rowById.size){ emptyState.style.display="none"; return; }
+  emptyState.style.display="block";
+  emptyState.classList.toggle("loading",!!fromCache);
+  const t=$("empty-text");
+  if(t) t.innerHTML = fromCache ? "Loading messages…" : "No messages yet.<br/>Send the first note to begin.";
+}
 const rowById=new Map();     // id -> row element
 const dataById=new Map();    // id -> latest data
 const seenMarked=new Set();  // A6: ids we already flagged as seen
@@ -609,6 +619,7 @@ let loadingOlder=false;
 let galleryTab="all";
 let pendingNew=0;
 let reorderQueued=false;
+let syncStallTimer=null;
 
 function isNearBottom(px=90){ return messagesEl.scrollHeight - messagesEl.scrollTop - messagesEl.clientHeight < px; }
 function scrollToBottom(smooth=false){
@@ -630,6 +641,13 @@ function initMessages(){
   unsubMessages=onSnapshot(q,{includeMetadataChanges:true},snap=>{
     const cacheNow=snap.metadata.fromCache;
     if(cacheNow!==isFromCache){ isFromCache=cacheNow; renderConn(); }
+    if(!cacheNow && syncStallTimer){ clearTimeout(syncStallTimer); syncStallTimer=null; }
+    else if(cacheNow && !syncStallTimer){
+      syncStallTimer=setTimeout(()=>{
+        syncStallTimer=null;
+        if(isFromCache) connText.textContent="Still connecting — check your internet connection.";
+      },15000);
+    }
 
     const wasNear=isNearBottom();
     let newIncoming=0, lastIncomingText="";
@@ -663,7 +681,7 @@ function initMessages(){
     if(!snap.metadata.fromCache && snap.docs.length>=LIVE_WINDOW) liveFull=true;
     if(structural) queueReorder();
 
-    emptyState.style.display = rowById.size ? "none" : "block";
+    renderEmptyState(snap.metadata.fromCache);
     refreshPinnedBar();
     markIncomingSeen();
 
@@ -678,7 +696,12 @@ function initMessages(){
       announce(`New message from ${partner}: ${String(lastIncomingText).slice(0,120)}`);
       if(document.hidden){ unseenWhileHidden+=newIncoming; document.title=`(${unseenWhileHidden}) New message · PULSE`; }
     }
-  },err=>{ console.error(err); toast("Connection problem"); });
+  },err=>{
+    console.error("messages listener error:",err);
+    toast("Connection problem — retrying…");
+    if(unsubMessages){ try{unsubMessages();}catch(_){} unsubMessages=null; }
+    if(me && !unsubMessages) setTimeout(initMessages,3000);
+  });
 }
 
 /* --- ordering + date separators (correct after prepending older pages) --- */
@@ -737,7 +760,7 @@ async function loadOlder(){
   finally{
     loadingOlder=false; btn.disabled=false; btn.textContent="↑ Load older messages";
     $("load-older-wrap").classList.toggle("show",hasMoreOlder());
-    emptyState.style.display = rowById.size ? "none" : "block";
+    renderEmptyState(isFromCache);
   }
   return added;
 }
@@ -761,7 +784,7 @@ function removeRow(id){
   const el=rowById.get(id); if(el) el.remove();
   rowById.delete(id); dataById.delete(id); seenMarked.delete(id);
   orderedIds=orderedIds.filter(x=>x!==id);
-  if(!rowById.size){ emptyState.style.display="block"; }
+  if(!rowById.size) renderEmptyState(isFromCache);
 }
 
 /* ============ pinned bar (A1 crash + A2 XSS fixed) ============ */
@@ -1067,7 +1090,7 @@ function compressImage(file,maxDim,quality){
   });
 }
 async function compressImageToFit(file){
-  for(const [d,q] of [[1280,0.72],[1000,0.6],[720,0.5],[500,0.4]]){
+  for(const [d,q] of [[1024,0.62],[820,0.5],[640,0.42],[480,0.35]]){
     const u=await compressImage(file,d,q);
     if(u.length<=SAFE) return u;
   }
@@ -1090,7 +1113,7 @@ const lightbox=$("lightbox"), lightboxImg=$("lightbox-img");
 function openLightbox(src){ lightboxImg.src=src; lightbox.classList.add("show"); }
 lightbox.addEventListener("click",()=>{ lightbox.classList.remove("show"); lightboxImg.src=""; });
 
-const MAX_MS=60000; const micBtn=$("mic-btn");
+const MAX_MS=30000; const micBtn=$("mic-btn");
 let mediaRecorder=null, chunks=[], micStream=null, recTimer=null;
 function blobToDataURL(b){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(b); }); }
 micBtn.addEventListener("click",async()=>{
@@ -1107,7 +1130,7 @@ micBtn.addEventListener("click",async()=>{
     const blob=new Blob(chunks,{type:mediaRecorder.mimeType||"audio/webm"});
     mediaRecorder=null;
     if(blob.size<300){ toast("Too short"); return; }
-    if(blob.size>SAFE*0.72){ toast("Too long — keep it under ~40s"); return; }
+    if(blob.size>SAFE*0.6){ toast("Too long — keep it under ~20s"); return; }
     toast("Sending voice…");
     try{ await sendEncodedMessage("audio", await blobToDataURL(blob)); }catch(e){ toast("Couldn't send voice"); }
   };
@@ -1272,7 +1295,7 @@ function watchAnswer(){
 }
 function listenIncoming(){
   if(incomingUnsub){ incomingUnsub(); incomingUnsub=null; }
-  const q=query(callsCol(),where("callee","==",me),where("status","==","ringing"));
+  const q=query(callsCol());   // whole subcollection — no composite index needed
   incomingUnsub=onSnapshot(q,snap=>{
     snap.docChanges().forEach(ch=>{
       const d=ch.doc.data();
@@ -1284,6 +1307,7 @@ function listenIncoming(){
         return;
       }
       if(ch.type!=="added" || !d || d.caller===me) return;
+      if(d.callee!==me || d.status!=="ringing") return;   // client-side filter
       if(callId && callRole){
         updateDoc(callRef(ch.doc.id),{status:"ended",reason:"busy",endedAt:serverTimestamp()}).catch(()=>{});
         return;
@@ -1293,7 +1317,11 @@ function listenIncoming(){
       showCallUI("incoming"); startRing("incoming");
       if(navigator.vibrate) navigator.vibrate([250,120,250]);
     });
-  },()=>{});
+  },err=>{
+    console.error("calls listener error:",err);
+    if(incomingUnsub){ try{incomingUnsub();}catch(_){} incomingUnsub=null; }
+    if(me) setTimeout(listenIncoming,3000);
+  });
 }
 async function startCall(){
   if(callId || callOverlay.classList.contains("show")){ toast("You're already on a call"); return; }
@@ -1422,7 +1450,7 @@ $("clear-btn").addEventListener("click",async()=>{
     orderedIds=[]; oldestTs=null; liveFull=false; reachedStart=true;
     msgList.querySelectorAll(".date-sep").forEach(el=>el.remove());
     $("load-older-wrap").classList.remove("show");
-    emptyState.style.display="block";
+    renderEmptyState(false);
     refreshPinnedBar();
     toast(total?`Cleared ${total} messages`:"Nothing to clear");
   }catch(e){ console.error(e); toast("Couldn't clear the chat"); }
@@ -1509,5 +1537,5 @@ document.addEventListener("keydown",(e)=>{
   else if(galleryEl.classList.contains("show")) galleryEl.classList.remove("show");
 });
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2a7582768111645',t:'MTc4NjYyMDE3MQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2a7582768111645',t:'MTc4NjYyMDE3MQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2af7a3d3c1ffc24',t:'MTc4NjcwNTQ1Mw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
