@@ -416,12 +416,12 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, addDoc, doc, getDoc, setDoc, onSnapshot, query, orderBy, serverTimestamp, updateDoc, getDocs, deleteDoc, writeBatch, limit as fbLimit, startAfter, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, doc, getDoc, setDoc, onSnapshot, query, orderBy, serverTimestamp, updateDoc, getDocs, deleteDoc, writeBatch, limit as fbLimit, startAfter, arrayUnion, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const CFG = window.APP_CONFIG;
 const EMOJIS = ["😀","😂","❤️","🔥","👍","🎉","😢","😮","🙏","✨","😘","🤔","🥺","😍","🤍","🌙","☀️","🌸","🍓","💌","🫶","😊"];
 const REACT_EMOJIS = ["❤️","😂","😮","😢","🙏","🔥"];
-const LIVE_WINDOW = 30;      // live listener window (newest N) — small so the first load is fast
+const LIVE_WINDOW = 20;      // live listener window — tiny first payload; older loads lazily
 const OLDER_PAGE  = 30;      // how many older messages per "Load older" click
 const MAX_DOM     = 260;     // hard cap of rows kept in the DOM
 const SAFE        = 700000;  // max data-URL size that fits a Firestore doc
@@ -431,6 +431,9 @@ let presenceTimer=null, unsubMessages=null, unsubPresence=null;
 let unseenWhileHidden=0; const originalTitle=document.title;
 
 const fbApp=initializeApp(CFG.firebaseConfig); auth=getAuth(fbApp); db=getFirestore(fbApp);
+if(typeof enableIndexedDbPersistence==="function"){
+  enableIndexedDbPersistence(db,{synchronizeTabs:true}).catch(()=>{});   // instant cached re-entry; falls back gracefully
+}
 const $=(id)=>document.getElementById(id);
 
 /* ============ toast + screen-reader announcer ============ */
@@ -500,7 +503,14 @@ async function doLogin(){
   if(!selectedPerson) return;
   enterBtn.disabled=true; loginError.textContent="";
   try{ await signInWithEmailAndPassword(auth, selectedPerson.email, passwordInput.value); }
-  catch(err){ loginError.textContent="Incorrect password. Try again."; passwordInput.value=""; enterBtn.disabled=false; }
+  catch(err){
+    const code=err&&err.code?String(err.code):"";
+    if(code==="auth/invalid-credential"||code==="auth/wrong-password"||code==="auth/user-not-found") loginError.textContent="Incorrect password. Try again.";
+    else if(code==="auth/network-request-failed") loginError.textContent="No internet — check your connection and try again.";
+    else if(code==="auth/too-many-requests") loginError.textContent="Too many attempts — wait a minute and try again.";
+    else loginError.textContent="Couldn't sign in. Try again.";
+    passwordInput.value=""; enterBtn.disabled=false;
+  }
 }
 $("logout-btn").addEventListener("click", async()=>{
   const ok=await showModal({title:"Log out?",message:"You'll need the password to get back into this channel.",confirmText:"Log out",icon:"→"});
@@ -539,6 +549,7 @@ function startApp(person){
   initPresence(); initMessages();
   listenIncoming();
   getDoc(roomRef()).catch(()=>{});   // warm up the connection right after login
+  sweepCalls();                      // remove stale call docs (crashed tabs) so the calls feed stays light
 }
 
 /* ============ helpers ============ */
@@ -633,7 +644,7 @@ function updateFab(){
   fab.classList.toggle("has-new", pendingNew>0);
   $("fab-count").textContent=pendingNew>99?"99+":String(pendingNew);
 }
-messagesEl.addEventListener("scroll",()=>{ if(isNearBottom()){ pendingNew=0; } updateFab(); },{passive:true});
+messagesEl.addEventListener("scroll",()=>{ if(isNearBottom()){ pendingNew=0; } updateFab(); if(messagesEl.scrollTop<120 && !loadingOlder && hasMoreOlder()) loadOlder(); },{passive:true});
 $("scroll-fab").addEventListener("click",()=>scrollToBottom(true));
 
 function initMessages(){
@@ -861,14 +872,15 @@ function buildRow(id,data){
     bubble.appendChild(q);
   }
 
-  if(data.type==="image" && data.mediaData){
+  if(data.type==="image" && (data.thumbData||data.mediaData)){
     bubble.classList.add("media");
-    const img=document.createElement("img"); img.src=data.mediaData; img.alt="Photo"; img.loading="lazy"; img.decoding="async";
-    img.addEventListener("click",(e)=>{ e.stopPropagation(); openLightbox(data.mediaData); });
+    const img=document.createElement("img"); img.src=data.thumbData||data.mediaData; img.alt="Photo"; img.loading="lazy"; img.decoding="async";
+    img.addEventListener("click",(e)=>{ e.stopPropagation(); openImage(id,data); });
     bubble.appendChild(img);
-  } else if(data.type==="audio" && data.mediaData){
+  } else if(data.type==="audio" && (data.mediaData||data.fullId)){
     bubble.classList.add("media");
-    const audio=document.createElement("audio"); audio.controls=true; audio.preload="none"; audio.src=data.mediaData;
+    const audio=document.createElement("audio"); audio.controls=true; audio.preload="none";
+    if(data.mediaData) audio.src=data.mediaData; else attachLazyAudio(audio,data.fullId);
     audio.addEventListener("click",e=>e.stopPropagation());
     bubble.appendChild(audio);
   } else {
@@ -1063,12 +1075,86 @@ async function sendMessage(){
 }
 sendBtn.addEventListener("click",sendMessage);
 
-async function sendEncodedMessage(type,dataUrl){
-  const payload={type,mediaData:dataUrl,sender:me,ts:serverTimestamp(),seenBy:[me]};
+/* ---- two-tier media: tiny thumbnail lives in the message doc (fast first load),
+        full photo/voice lives in media/{id} and loads only when opened ---- */
+const mediaRef=(id)=>doc(db,"pulse_rooms",CFG.roomId,"media",id);
+const mediaCache=new Map();
+async function getMediaData(id){
+  if(mediaCache.has(id)) return mediaCache.get(id);
+  try{
+    const snap=await getDoc(mediaRef(id));
+    if(snap.exists() && snap.data().data){ mediaCache.set(id,snap.data().data); return snap.data().data; }
+  }catch(e){}
+  return null;
+}
+function openImage(id,data){
+  const src=data.thumbData||data.mediaData||"";
+  openLightbox(src);
+  if(!src || data.mediaData || !data.fullId) return;
+  getMediaData(data.fullId).then(full=>{
+    if(full && full!==src && lightbox.classList.contains("show")) lightboxImg.src=full;
+  });
+}
+function attachLazyAudio(audio,id){
+  let loading=false;
+  audio.addEventListener("play",async()=>{
+    if(audio.src && audio.src.startsWith("data:")) return;
+    if(loading) return; loading=true;
+    const full=await getMediaData(id);
+    loading=false;
+    if(full && !audio.src) audio.src=full;
+  });
+}
+async function sendImageMessage(file){
+  toast("Preparing image…");
+  let full=null;
+  try{ full=await compressImageToFit(file); }catch(e){}
+  if(!full){ toast("Image too large — try a smaller one"); return; }
+  let thumb=full;
+  try{ thumb=await makeThumb(full); }catch(e){}
+  const id=doc(messagesCol()).id;
+  let mediaOk=true;
+  try{ await setDoc(mediaRef(id),{data:full,sender:me,ts:serverTimestamp()}); }
+  catch(e){ mediaOk=false; }
+  const payload={type:"image",thumbData:thumb,fullId:id,sender:me,ts:serverTimestamp(),seenBy:[me]};
+  if(!mediaOk) payload.mediaData=full;   // fallback: embed full if media write failed
   if(replyTo) payload.replyTo={id:replyTo.id,sender:replyTo.sender,text:replyTo.text||"",type:replyTo.type||"text"};
   cancelReply();
-  try{ await addDoc(messagesCol(),payload); scrollToBottom(); }
-  catch(e){ console.error(e); toast(type==="image"?"Couldn't send photo":"Couldn't send voice"); }
+  try{ await setDoc(msgRef(id),payload); scrollToBottom(); }
+  catch(e){ console.error(e); if(mediaOk) deleteDoc(mediaRef(id)).catch(()=>{}); toast("Couldn't send photo"); }
+}
+async function sendVoiceMessage(dataUrl){
+  const id=doc(messagesCol()).id;
+  let mediaOk=true;
+  try{ await setDoc(mediaRef(id),{data:dataUrl,sender:me,ts:serverTimestamp()}); }
+  catch(e){ mediaOk=false; }
+  const payload={type:"audio",fullId:id,sender:me,ts:serverTimestamp(),seenBy:[me]};
+  if(!mediaOk) payload.mediaData=dataUrl;
+  if(replyTo) payload.replyTo={id:replyTo.id,sender:replyTo.sender,text:replyTo.text||"",type:replyTo.type||"text"};
+  cancelReply();
+  try{ await setDoc(msgRef(id),payload); scrollToBottom(); }
+  catch(e){ console.error(e); if(mediaOk) deleteDoc(mediaRef(id)).catch(()=>{}); toast("Couldn't send voice"); }
+}
+async function makeThumb(dataUrl,maxDim=420,quality=0.55){
+  return new Promise((res,rej)=>{
+    const img=new Image();
+    img.onload=()=>{
+      let w=img.width,h=img.height;
+      if(w>maxDim||h>maxDim){ if(w>h){ h=Math.round(h*maxDim/w); w=maxDim; } else { w=Math.round(w*maxDim/h); h=maxDim; } }
+      const c=document.createElement("canvas"); c.width=w; c.height=h;
+      c.getContext("2d").drawImage(img,0,0,w,h);
+      res(c.toDataURL("image/jpeg",quality));
+    };
+    img.onerror=rej; img.src=dataUrl;
+  });
+}
+async function withRetry(fn,tries=2){
+  let lastErr;
+  for(let i=0;i<tries;i++){
+    try{ return await fn(); }
+    catch(e){ lastErr=e; await new Promise(r=>setTimeout(r,600*(i+1))); }
+  }
+  throw lastErr;
 }
 
 /* ============ image / voice (base64 — no Storage needed) ============ */
@@ -1090,7 +1176,7 @@ function compressImage(file,maxDim,quality){
   });
 }
 async function compressImageToFit(file){
-  for(const [d,q] of [[1024,0.62],[820,0.5],[640,0.42],[480,0.35]]){
+  for(const [d,q] of [[1280,0.7],[1024,0.6],[820,0.5],[640,0.42]]){
     const u=await compressImage(file,d,q);
     if(u.length<=SAFE) return u;
   }
@@ -1101,19 +1187,14 @@ $("attach-btn").addEventListener("click",()=>fileInput.click());
 fileInput.addEventListener("change",async()=>{
   const file=fileInput.files[0]; fileInput.value=""; if(!file) return;
   if(!file.type.startsWith("image/")){ toast("Please choose an image file"); return; }
-  toast("Preparing image…");
-  try{
-    const url=await compressImageToFit(file);
-    if(!url){ toast("Image too large — try a smaller one"); return; }
-    await sendEncodedMessage("image",url);
-  }catch(e){ toast("Couldn't send photo"); }
+  await sendImageMessage(file);
 });
 
 const lightbox=$("lightbox"), lightboxImg=$("lightbox-img");
 function openLightbox(src){ lightboxImg.src=src; lightbox.classList.add("show"); }
 lightbox.addEventListener("click",()=>{ lightbox.classList.remove("show"); lightboxImg.src=""; });
 
-const MAX_MS=30000; const micBtn=$("mic-btn");
+const MAX_MS=20000; const micBtn=$("mic-btn");
 let mediaRecorder=null, chunks=[], micStream=null, recTimer=null;
 function blobToDataURL(b){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsDataURL(b); }); }
 micBtn.addEventListener("click",async()=>{
@@ -1130,9 +1211,9 @@ micBtn.addEventListener("click",async()=>{
     const blob=new Blob(chunks,{type:mediaRecorder.mimeType||"audio/webm"});
     mediaRecorder=null;
     if(blob.size<300){ toast("Too short"); return; }
-    if(blob.size>SAFE*0.6){ toast("Too long — keep it under ~20s"); return; }
+    if(blob.size>SAFE*0.5){ toast("Too long — keep it under ~15s"); return; }
     toast("Sending voice…");
-    try{ await sendEncodedMessage("audio", await blobToDataURL(blob)); }catch(e){ toast("Couldn't send voice"); }
+    try{ await sendVoiceMessage(await blobToDataURL(blob)); }catch(e){ toast("Couldn't send voice"); }
   };
   mediaRecorder.start(); micBtn.classList.add("recording");
   toast("Recording… tap again to stop");
@@ -1161,7 +1242,11 @@ const callRef  = (id)=>doc(db,"pulse_rooms",CFG.roomId,"calls",id);
 const offerRef = (id)=>doc(db,"pulse_rooms",CFG.roomId,"calls",id,"offer","sdp");
 const answerRef=(id)=>doc(db,"pulse_rooms",CFG.roomId,"calls",id,"answer","sdp");
 const candCol  = (id)=>collection(db,"pulse_rooms",CFG.roomId,"calls",id,"candidates");
-const RTC_CONFIG={iceServers:[{urls:["stun:stun.l.google.com:19302","stun:stun1.l.google.com:19302"]}]};
+const RTC_CONFIG={iceServers:[
+  {urls:["stun:stun.l.google.com:19302","stun:stun1.l.google.com:19302"]},
+  {urls:"stun:stun.cloudflare.com:3478"},
+  {urls:"stun:stun.services.mozilla.com"}
+]};
 const CALL_TIMEOUT=45000, DROP_GRACE=6000;
 
 const ICON_MIC=`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></svg>`;
@@ -1170,7 +1255,7 @@ const ICON_SPEAKER=`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" 
 
 let pc=null, localStream=null, remoteStream=null;
 let callId=null, callRole=null, callAccepted=false, micMuted=false, endingCall=false;
-let callUnsubs=[], pendingCandidates=[], callWatchdog=null, ringLooper=null, ringCtx=null;
+let callUnsubs=[], pendingCandidates=[], pendingOutgoing=[], callWatchdog=null, ringLooper=null, ringCtx=null;
 let callTimerInt=null, callStartTs=null, callTimeout=null, incomingUnsub=null, speakerOn=false;
 const callOverlay=$("call-overlay"), callAudio=$("call-audio");
 
@@ -1187,6 +1272,22 @@ function showCallUI(mode){
   $("call-speaker").style.display = (mode==="ongoing" && typeof callAudio.setSinkId==="function") ? "flex" : "none";
 }
 function hideCallUI(){ callOverlay.classList.remove("show"); $("call-btn").classList.remove("active"); }
+
+/* clean up stale call docs left by crashed tabs: ringing >90s, ended >30s */
+async function sweepCalls(){
+  try{
+    const snap=await getDocs(callsCol());
+    if(snap.empty) return;
+    const batch=writeBatch(db); let n=0;
+    snap.docs.forEach(d=>{
+      const dt=d.data()||{};
+      const created=dt.createdAt&&dt.createdAt.seconds?dt.createdAt.seconds*1000:0;
+      const age=created?Date.now()-created:120001;
+      if((dt.status==="ringing"&&age>90000)||(dt.status==="ended"&&age>30000)){ batch.delete(d.ref); n++; }
+    });
+    if(n) await batch.commit();
+  }catch(e){}
+}
 
 /* ringtone generated with Web Audio — no audio files needed */
 function startRing(kind){
@@ -1227,7 +1328,10 @@ function stopCallTimer(){ if(callTimerInt){ clearInterval(callTimerInt); callTim
 function setupPC(){
   pc=new RTCPeerConnection(RTC_CONFIG);
   localStream.getTracks().forEach(t=>pc.addTrack(t,localStream));
-  pc.onicecandidate=e=>{ if(e.candidate && callId) sendCandidate(e.candidate); };
+  pc.onicecandidate=e=>{
+    if(!e.candidate) return;
+    if(callId) sendCandidate(e.candidate); else pendingOutgoing.push(e.candidate);   // never drop early candidates
+  };
   pc.ontrack=e=>{
     if(!remoteStream) remoteStream=e.streams[0];
     callAudio.srcObject=remoteStream;
@@ -1239,7 +1343,14 @@ function setupPC(){
     if(st==="connected"){ if(callWatchdog){ clearTimeout(callWatchdog); callWatchdog=null; } }
     else if((st==="disconnected"||st==="failed") && !callWatchdog && callAccepted){
       callWatchdog=setTimeout(()=>{
-        if(callId && pc && pc.connectionState!=="connected" && !endingCall){ toast("Connection lost"); endCall("dropped"); }
+        if(callId && pc && pc.connectionState!=="connected" && !endingCall){
+          if(!pc._iceRestarted){
+            pc._iceRestarted=true;
+            try{ pc.restartIce(); }catch(e){}   // one automatic recovery attempt
+            return;
+          }
+          toast("Connection lost"); endCall("dropped");
+        }
       },DROP_GRACE);
     }
   };
@@ -1288,7 +1399,12 @@ function watchCallDoc(){
 function watchAnswer(){
   const un=onSnapshot(answerRef(callId),snap=>{
     if(snap.exists() && pc && !pc.remoteDescription){
-      pc.setRemoteDescription(snap.data().sdp).then(flushCandidates).catch(()=>{});
+      pc.setRemoteDescription(snap.data().sdp).then(()=>{
+        flushCandidates();
+        if(callRole==="caller" && !callAccepted && !endingCall){
+          callAccepted=true; stopRing(); showCallUI("ongoing"); startCallTimer();   // don't depend on the status update
+        }
+      }).catch(()=>{});
     }
   },()=>{});
   callUnsubs.push(un);
@@ -1326,28 +1442,55 @@ function listenIncoming(){
 async function startCall(){
   if(callId || callOverlay.classList.contains("show")){ toast("You're already on a call"); return; }
   if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.RTCPeerConnection){ toast("Calling isn't supported in this browser"); return; }
-  try{ localStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}}); }
-  catch(e){ toast("Microphone access is blocked"); return; }
+  let stream;
+  try{ stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}}); }
+  catch(e){
+    if(e && (e.name==="NotAllowedError"||e.name==="PermissionDeniedError")) toast("Microphone blocked — allow it in the browser");
+    else if(e && e.name==="NotFoundError") toast("No microphone found");
+    else if(e && e.name==="NotReadableError") toast("Microphone is busy in another app");
+    else toast("Microphone access failed");
+    return;
+  }
+  localStream=stream;
+  try{ setupPC(); }
+  catch(e){ localStream.getTracks().forEach(t=>t.stop()); localStream=null; toast("This browser can't make calls"); return; }
+  let offer;
   try{
-    const ref=doc(callsCol()), id=ref.id;
-    setupPC();
-    const offer=await pc.createOffer();
+    offer=await Promise.race([
+      pc.createOffer(),
+      new Promise((_,rej)=>setTimeout(()=>rej(new Error("offer-timeout")),12000))
+    ]);
     await pc.setLocalDescription(offer);
-    await setDoc(offerRef(id),{sdp:pc.localDescription,from:me,ts:serverTimestamp()});
-    await setDoc(ref,{caller:me,callee:partner,callerName:me,calleeName:partner,status:"ringing",createdAt:serverTimestamp()});
-    callId=id; callRole="caller"; callAccepted=false;
-    watchCallDoc(); watchAnswer(); watchCandidates();
-    showCallUI("outgoing"); startRing("outgoing");
-    callTimeout=setTimeout(()=>{ if(callRole==="caller" && !callAccepted && !endingCall) endCall("missed"); },CALL_TIMEOUT);
-  }catch(e){ console.error(e); toast("Couldn't start the call"); endCall("ended"); }
+  }catch(e){ console.error(e); toast("Audio setup failed — try again"); endCall("ended"); return; }
+  const ref=doc(callsCol()), id=ref.id;
+  try{
+    await withRetry(()=>setDoc(ref,{caller:me,callee:partner,callerName:me,calleeName:partner,status:"ringing",createdAt:serverTimestamp()}),2);
+  }catch(e){ console.error(e); toast("No connection — can't start the call"); endCall("ended"); return; }
+  try{
+    await withRetry(()=>setDoc(offerRef(id),{sdp:pc.localDescription,from:me,ts:serverTimestamp()}),2);
+  }catch(e){
+    console.error(e);
+    updateDoc(callRef(id),{status:"ended",reason:"signaling-failed",endedAt:serverTimestamp()}).catch(()=>{});
+    toast("Couldn't start the call — try again"); endCall("ended",true); return;
+  }
+  callId=id; callRole="caller"; callAccepted=false;
+  pendingOutgoing.forEach(c=>sendCandidate(c)); pendingOutgoing=[];   // flush buffered ICE now that callId exists
+  watchCallDoc(); watchAnswer(); watchCandidates();
+  showCallUI("outgoing"); startRing("outgoing");
+  callTimeout=setTimeout(()=>{ if(callRole==="caller" && !callAccepted && !endingCall) endCall("missed"); },CALL_TIMEOUT);
 }
 async function acceptCall(){
   if(!callId || callRole!=="callee" || callAccepted || endingCall) return;
   stopRing();
   if(ringCtx && ringCtx.state==="suspended") ringCtx.resume().catch(()=>{});
-  try{ localStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}}); }
-  catch(e){ toast("Microphone is blocked"); endCall("declined"); return; }
-  callAccepted=true;
+  let stream;
+  try{ stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}}); }
+  catch(e){
+    if(e && (e.name==="NotAllowedError"||e.name==="PermissionDeniedError")) toast("Microphone blocked — allow it in the browser");
+    else toast("Microphone access failed");
+    endCall("declined"); return;
+  }
+  localStream=stream;
   try{
     setupPC();
     const off=await getDoc(offerRef(callId));
@@ -1356,12 +1499,17 @@ async function acceptCall(){
     flushCandidates();
     const ans=await pc.createAnswer();
     await pc.setLocalDescription(ans);
-    await setDoc(answerRef(callId),{sdp:pc.localDescription,from:me,ts:serverTimestamp()});
+    await withRetry(()=>setDoc(answerRef(callId),{sdp:pc.localDescription,from:me,ts:serverTimestamp()}),2);
+    callAccepted=true; showCallUI("ongoing"); startCallTimer();
     const cur=await getDoc(callRef(callId));
-    if(!cur.exists() || cur.data().status!=="ringing") throw new Error("call gone");
-    await updateDoc(callRef(callId),{status:"ongoing",acceptedAt:serverTimestamp()});
-    showCallUI("ongoing"); startCallTimer();
-  }catch(e){ console.error(e); toast("Couldn't connect the call"); endCall("declined"); }
+    if(!cur.exists()) throw new Error("call gone");
+    await withRetry(()=>updateDoc(callRef(callId),{status:"ongoing",acceptedAt:serverTimestamp()}),2);
+  }catch(e){
+    console.error("acceptCall error:",e);
+    if(e && e.message==="call gone") toast("Call already ended");
+    else toast("Couldn't connect the call");
+    endCall("declined");
+  }
 }
 function endCall(reason,silent){
   if(endingCall) return;
@@ -1482,7 +1630,7 @@ function applyFilter(q){
 const galleryEl=$("gallery"), galleryGrid=$("gallery-grid");
 function collectMedia(){
   const out=[];
-  dataById.forEach((data,id)=>{ if((data.type==="image"||data.type==="audio") && data.mediaData) out.push({id,...data}); });
+  dataById.forEach((data,id)=>{ if((data.type==="image"||data.type==="audio") && (data.mediaData||data.thumbData||data.fullId)) out.push({id,...data}); });
   return out.sort((a,b)=> tsOf(b).getTime()-tsOf(a).getTime());
 }
 function renderGallery(){
@@ -1498,18 +1646,26 @@ function renderGallery(){
       const div=document.createElement("div");
       div.className="gallery-item "+(item.type==="image"?"photo":"voice");
       if(item.type==="image"){
-        const img=document.createElement("img"); img.src=item.mediaData; img.loading="lazy"; img.decoding="async"; img.alt=`Photo from ${item.sender}`;
-        img.onclick=()=>openLightbox(item.mediaData);
+        const img=document.createElement("img"); img.src=item.thumbData||item.mediaData; img.loading="lazy"; img.decoding="async"; img.alt=`Photo from ${item.sender}`;
+        img.onclick=()=>openImage(item.id,item);
         div.appendChild(img);
       } else {
-        const a=document.createElement("audio"); a.controls=true; a.preload="none"; a.src=item.mediaData;
+        const a=document.createElement("audio"); a.controls=true; a.preload="none";
+        if(item.mediaData) a.src=item.mediaData; else attachLazyAudio(a,item.fullId);
         div.appendChild(a);
       }
       const meta=document.createElement("div"); meta.className="gitem-meta";
       const who=document.createElement("span"); who.textContent=`${item.sender} · ${fmtTime(tsOf(item))}`;
-      const dl=document.createElement("a"); dl.className="gitem-dl"; dl.href=item.mediaData;
-      dl.download=(item.type==="image"?"pulse-photo-":"pulse-voice-")+item.id+(item.type==="image"?".jpg":".webm");
-      dl.textContent="↓"; dl.title="Download"; dl.setAttribute("aria-label","Download");
+      const dl=document.createElement("a"); dl.className="gitem-dl"; dl.href="#"; dl.title="Download"; dl.setAttribute("aria-label","Download");
+      dl.textContent="↓";
+      dl.onclick=async(e)=>{
+        e.preventDefault(); e.stopPropagation();
+        const full=item.mediaData||(await getMediaData(item.fullId))||item.thumbData;
+        if(!full) return;
+        const a=document.createElement("a"); a.href=full;
+        a.download=(item.type==="image"?"pulse-photo-":"pulse-voice-")+item.id+(item.type==="image"?".jpg":".webm");
+        document.body.appendChild(a); a.click(); a.remove();
+      };
       meta.append(who,dl); div.appendChild(meta);
       frag.appendChild(div);
     });
@@ -1537,5 +1693,5 @@ document.addEventListener("keydown",(e)=>{
   else if(galleryEl.classList.contains("show")) galleryEl.classList.remove("show");
 });
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2a7582768111645',t:'MTc4NjYyMDE3MQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2af7a3d3c1ffc24',t:'MTc4NjcwNTQ1Mw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2a7582768111645',t:'MTc4NjYyMDE3MQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2af9f76dd7a0eed',t:'MTc4NjcwNjk3OA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
