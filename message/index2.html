@@ -1157,11 +1157,11 @@ async function makeThumb(dataUrl,maxDim=420,quality=0.55){
     img.onerror=rej; img.src=dataUrl;
   });
 }
-async function withRetry(fn,tries=2){
+async function withRetry(fn,tries=3){
   let lastErr;
   for(let i=0;i<tries;i++){
     try{ return await fn(); }
-    catch(e){ lastErr=e; await new Promise(r=>setTimeout(r,600*(i+1))); }
+    catch(e){ lastErr=e; await new Promise(r=>setTimeout(r,700*(i+1))); }
   }
   throw lastErr;
 }
@@ -1256,6 +1256,15 @@ const RTC_CONFIG={iceServers:[
   {urls:"stun:stun.cloudflare.com:3478"},
   {urls:"stun:stun.services.mozilla.com"}
 ]};
+/* RTCSessionDescription's type/sdp live on the prototype, NOT as own properties —
+   Firestore cannot serialize it directly (writes fail / sdp is lost). Always convert to a plain object. */
+function sdpObj(d){ return d ? {type:String(d.type||""), sdp:String(d.sdp||"")} : null; }
+function fireErrMsg(e,action){
+  const code=(e&&e.code)||(e&&e.name)||"";
+  if(code==="permission-denied") return action+" — Firestore rules are blocking it (check console)";
+  if(code==="unavailable"||code==="network-request-failed"||code==="offline") return action+" — you appear to be offline";
+  return action+" — please retry";
+}
 const CALL_TIMEOUT=45000, DROP_GRACE=6000;
 
 const ICON_MIC=`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></svg>`;
@@ -1409,12 +1418,14 @@ function watchCallDoc(){
 function watchAnswer(){
   const un=onSnapshot(answerRef(callId),snap=>{
     if(snap.exists() && pc && !pc.remoteDescription){
-      pc.setRemoteDescription(snap.data().sdp).then(()=>{
+      const ad=snap.data();
+      if(!ad.sdp || !ad.sdp.sdp) return;               // empty/old bad answer — keep waiting
+      pc.setRemoteDescription({type:ad.sdp.type, sdp:ad.sdp.sdp}).then(()=>{
         flushCandidates();
         if(callRole==="caller" && !callAccepted && !endingCall){
           callAccepted=true; stopRing(); showCallUI("ongoing"); startCallTimer();   // don't depend on the status update
         }
-      }).catch(()=>{});
+      }).catch(e=>console.error("setRemoteDescription(answer) failed:",e));
     }
   },()=>{});
   callUnsubs.push(un);
@@ -1455,6 +1466,7 @@ function listenIncoming(){
 async function startCall(){
   if(startingCall || callId || callOverlay.classList.contains("show")){ toast("You're already on a call"); return; }
   if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.RTCPeerConnection){ toast("Calling isn't supported in this browser"); return; }
+  if(!navigator.onLine){ toast("You're offline — connect to the internet first"); return; }
   startingCall=true;
   try{
     let stream;
@@ -1480,13 +1492,13 @@ async function startCall(){
     const ref=doc(callsCol()), id=ref.id;
     // offer FIRST — the callee must never see a call before its offer exists,
     // otherwise answering would fail with "couldn't connect"
-    try{ await withRetry(()=>setDoc(offerRef(id),{sdp:pc.localDescription,from:me,ts:serverTimestamp()}),2); }
-    catch(e){ console.error(e); toast("No connection — can't start the call"); endCall("ended",true); return; }
-    try{ await withRetry(()=>setDoc(ref,{caller:me,callee:partner,callerName:me,calleeName:partner,status:"ringing",createdAt:serverTimestamp()}),2); }
+    try{ await withRetry(()=>setDoc(offerRef(id),{sdp:sdpObj(offer),from:me,ts:serverTimestamp()}),3); }
+    catch(e){ console.error("offer write failed:",e); toast(fireErrMsg(e,"Can't start the call")); endCall("ended",true); return; }
+    try{ await withRetry(()=>setDoc(ref,{caller:me,callee:partner,callerName:me,calleeName:partner,status:"ringing",createdAt:serverTimestamp()}),3); }
     catch(e){
-      console.error(e);
+      console.error("call doc write failed:",e);
       deleteDoc(offerRef(id)).catch(()=>{});   // never leave a half-published call
-      toast("No connection — can't start the call"); endCall("ended",true); return;
+      toast(fireErrMsg(e,"Can't start the call")); endCall("ended",true); return;
     }
     callId=id; callRole="caller"; callAccepted=false;
     pendingOutgoing.forEach(c=>sendCandidate(c)); pendingOutgoing=[];   // flush buffered ICE now that callId exists
@@ -1516,11 +1528,13 @@ async function acceptCall(){
       await new Promise(r=>setTimeout(r,500));
     }
     if(!off || !off.exists()) throw new Error("offer missing");
-    await pc.setRemoteDescription(off.data().sdp);
+    const od=off.data();
+    if(!od.sdp || !od.sdp.sdp) throw new Error("empty offer");
+    await pc.setRemoteDescription({type:od.sdp.type, sdp:od.sdp.sdp});
     flushCandidates();
     const ans=await pc.createAnswer();
     await pc.setLocalDescription(ans);
-    await withRetry(()=>setDoc(answerRef(callId),{sdp:pc.localDescription,from:me,ts:serverTimestamp()}),2);
+    await withRetry(()=>setDoc(answerRef(callId),{sdp:sdpObj(ans),from:me,ts:serverTimestamp()}),3);
     callAccepted=true; showCallUI("ongoing"); startCallTimer();
     const cur=await getDoc(callRef(callId));
     if(cur.exists()){ try{ await withRetry(()=>updateDoc(callRef(callId),{status:"ongoing",acceptedAt:serverTimestamp()}),2); }catch(e){} }  // non-fatal
