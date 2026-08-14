@@ -1078,6 +1078,8 @@ sendBtn.addEventListener("click",sendMessage);
 /* ---- two-tier media: tiny thumbnail lives in the message doc (fast first load),
         full photo/voice lives in media/{id} and loads only when opened ---- */
 const mediaRef=(id)=>doc(db,"pulse_rooms",CFG.roomId,"media",id);
+const mediaIndexCol=()=>collection(db,"pulse_rooms",CFG.roomId,"mediaIndex");
+const mediaIndexRef=(id)=>doc(db,"pulse_rooms",CFG.roomId,"mediaIndex",id);
 const mediaCache=new Map();
 async function getMediaData(id){
   if(mediaCache.has(id)) return mediaCache.get(id);
@@ -1087,20 +1089,25 @@ async function getMediaData(id){
   }catch(e){}
   return null;
 }
-function openImage(id,data){
-  const src=data.thumbData||data.mediaData||"";
+async function openImage(id,data){
+  const src=data.thumbData||data.thumb||data.mediaData||"";
   openLightbox(src);
-  if(!src || data.mediaData || !data.fullId) return;
-  getMediaData(data.fullId).then(full=>{
-    if(full && full!==src && lightbox.classList.contains("show")) lightboxImg.src=full;
-  });
+  let full=null;
+  if(data.fullId) full=await getMediaData(data.fullId);
+  else if(data.hasFull) full=await getMediaData(id);
+  else if(data.mediaData) full=data.mediaData;
+  else{ try{ const s=await getDoc(msgRef(id)); if(s.exists()) full=s.data().mediaData||null; }catch(e){} }
+  if(full && full!==src && lightbox.classList.contains("show")) lightboxImg.src=full;
 }
-function attachLazyAudio(audio,id){
+function attachLazyAudio(audio,id,item){
   let loading=false;
   audio.addEventListener("play",async()=>{
     if(audio.src && audio.src.startsWith("data:")) return;
     if(loading) return; loading=true;
-    const full=await getMediaData(id);
+    let full=null;
+    if(item && item.mediaData) full=item.mediaData;
+    if(!full) full=await getMediaData(id);
+    if(!full){ try{ const s=await getDoc(msgRef(id)); full=s.exists()?s.data().mediaData:null; }catch(e){} }
     loading=false;
     if(full && !audio.src) audio.src=full;
   });
@@ -1121,7 +1128,8 @@ async function sendImageMessage(file){
   if(replyTo) payload.replyTo={id:replyTo.id,sender:replyTo.sender,text:replyTo.text||"",type:replyTo.type||"text"};
   cancelReply();
   try{ await setDoc(msgRef(id),payload); scrollToBottom(); }
-  catch(e){ console.error(e); if(mediaOk) deleteDoc(mediaRef(id)).catch(()=>{}); toast("Couldn't send photo"); }
+  catch(e){ console.error(e); if(mediaOk) deleteDoc(mediaRef(id)).catch(()=>{}); toast("Couldn't send photo"); return; }
+  try{ await setDoc(mediaIndexRef(id),{id,type:"image",sender:me,ts:serverTimestamp(),thumb,hasFull:mediaOk,fullEmbed:!mediaOk}); }catch(e){}
 }
 async function sendVoiceMessage(dataUrl){
   const id=doc(messagesCol()).id;
@@ -1133,7 +1141,8 @@ async function sendVoiceMessage(dataUrl){
   if(replyTo) payload.replyTo={id:replyTo.id,sender:replyTo.sender,text:replyTo.text||"",type:replyTo.type||"text"};
   cancelReply();
   try{ await setDoc(msgRef(id),payload); scrollToBottom(); }
-  catch(e){ console.error(e); if(mediaOk) deleteDoc(mediaRef(id)).catch(()=>{}); toast("Couldn't send voice"); }
+  catch(e){ console.error(e); if(mediaOk) deleteDoc(mediaRef(id)).catch(()=>{}); toast("Couldn't send voice"); return; }
+  try{ await setDoc(mediaIndexRef(id),{id,type:"audio",sender:me,ts:serverTimestamp(),thumb:null,hasFull:mediaOk,fullEmbed:!mediaOk}); }catch(e){}
 }
 async function makeThumb(dataUrl,maxDim=420,quality=0.55){
   return new Promise((res,rej)=>{
@@ -1256,6 +1265,7 @@ const ICON_SPEAKER=`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" 
 let pc=null, localStream=null, remoteStream=null;
 let callId=null, callRole=null, callAccepted=false, micMuted=false, endingCall=false;
 let callUnsubs=[], pendingCandidates=[], pendingOutgoing=[], callWatchdog=null, ringLooper=null, ringCtx=null;
+let startingCall=false; const knownCalls=new Set();   // dedup: a call doc is handled only once
 let callTimerInt=null, callStartTs=null, callTimeout=null, incomingUnsub=null, speakerOn=false;
 const callOverlay=$("call-overlay"), callAudio=$("call-audio");
 
@@ -1356,7 +1366,7 @@ function setupPC(){
   };
 }
 async function sendCandidate(c){
-  try{ await addDoc(candCol(callId),{from:me,candidate:JSON.stringify(c.toJSON?c.toJSON():c),ts:serverTimestamp()}); }catch(e){}
+  try{ await withRetry(()=>addDoc(candCol(callId),{from:me,candidate:JSON.stringify(c.toJSON?c.toJSON():c),ts:serverTimestamp()}),2); }catch(e){}
 }
 function watchCandidates(){
   const un=onSnapshot(query(candCol(callId),orderBy("ts","asc")),snap=>{
@@ -1416,6 +1426,7 @@ function listenIncoming(){
     snap.docChanges().forEach(ch=>{
       const d=ch.doc.data();
       if(ch.type==="removed"){
+        knownCalls.delete(ch.doc.id);
         if(callId===ch.doc.id && callRole==="callee" && !callAccepted && !endingCall){
           toast(d && d.reason==="missed" ? "Missed call" : "Call ended");
           endCall("ended",true);
@@ -1424,6 +1435,8 @@ function listenIncoming(){
       }
       if(ch.type!=="added" || !d || d.caller===me) return;
       if(d.callee!==me || d.status!=="ringing") return;   // client-side filter
+      if(knownCalls.has(ch.doc.id)) return;               // already handled (listener restart re-delivers docs)
+      knownCalls.add(ch.doc.id);
       if(callId && callRole){
         updateDoc(callRef(ch.doc.id),{status:"ended",reason:"busy",endedAt:serverTimestamp()}).catch(()=>{});
         return;
@@ -1440,44 +1453,47 @@ function listenIncoming(){
   });
 }
 async function startCall(){
-  if(callId || callOverlay.classList.contains("show")){ toast("You're already on a call"); return; }
+  if(startingCall || callId || callOverlay.classList.contains("show")){ toast("You're already on a call"); return; }
   if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.RTCPeerConnection){ toast("Calling isn't supported in this browser"); return; }
-  let stream;
-  try{ stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}}); }
-  catch(e){
-    if(e && (e.name==="NotAllowedError"||e.name==="PermissionDeniedError")) toast("Microphone blocked — allow it in the browser");
-    else if(e && e.name==="NotFoundError") toast("No microphone found");
-    else if(e && e.name==="NotReadableError") toast("Microphone is busy in another app");
-    else toast("Microphone access failed");
-    return;
-  }
-  localStream=stream;
-  try{ setupPC(); }
-  catch(e){ localStream.getTracks().forEach(t=>t.stop()); localStream=null; toast("This browser can't make calls"); return; }
-  let offer;
+  startingCall=true;
   try{
-    offer=await Promise.race([
-      pc.createOffer(),
-      new Promise((_,rej)=>setTimeout(()=>rej(new Error("offer-timeout")),12000))
-    ]);
-    await pc.setLocalDescription(offer);
-  }catch(e){ console.error(e); toast("Audio setup failed — try again"); endCall("ended"); return; }
-  const ref=doc(callsCol()), id=ref.id;
-  try{
-    await withRetry(()=>setDoc(ref,{caller:me,callee:partner,callerName:me,calleeName:partner,status:"ringing",createdAt:serverTimestamp()}),2);
-  }catch(e){ console.error(e); toast("No connection — can't start the call"); endCall("ended"); return; }
-  try{
-    await withRetry(()=>setDoc(offerRef(id),{sdp:pc.localDescription,from:me,ts:serverTimestamp()}),2);
-  }catch(e){
-    console.error(e);
-    updateDoc(callRef(id),{status:"ended",reason:"signaling-failed",endedAt:serverTimestamp()}).catch(()=>{});
-    toast("Couldn't start the call — try again"); endCall("ended",true); return;
-  }
-  callId=id; callRole="caller"; callAccepted=false;
-  pendingOutgoing.forEach(c=>sendCandidate(c)); pendingOutgoing=[];   // flush buffered ICE now that callId exists
-  watchCallDoc(); watchAnswer(); watchCandidates();
-  showCallUI("outgoing"); startRing("outgoing");
-  callTimeout=setTimeout(()=>{ if(callRole==="caller" && !callAccepted && !endingCall) endCall("missed"); },CALL_TIMEOUT);
+    let stream;
+    try{ stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}}); }
+    catch(e){
+      if(e && (e.name==="NotAllowedError"||e.name==="PermissionDeniedError")) toast("Microphone blocked — allow it in the browser");
+      else if(e && e.name==="NotFoundError") toast("No microphone found");
+      else if(e && e.name==="NotReadableError") toast("Microphone is busy in another app");
+      else toast("Microphone access failed");
+      return;
+    }
+    localStream=stream;
+    try{ setupPC(); }
+    catch(e){ localStream.getTracks().forEach(t=>t.stop()); localStream=null; toast("This browser can't make calls"); return; }
+    let offer;
+    try{
+      offer=await Promise.race([
+        pc.createOffer(),
+        new Promise((_,rej)=>setTimeout(()=>rej(new Error("offer-timeout")),12000))
+      ]);
+      await pc.setLocalDescription(offer);
+    }catch(e){ console.error(e); toast("Audio setup failed — try again"); endCall("ended"); return; }
+    const ref=doc(callsCol()), id=ref.id;
+    // offer FIRST — the callee must never see a call before its offer exists,
+    // otherwise answering would fail with "couldn't connect"
+    try{ await withRetry(()=>setDoc(offerRef(id),{sdp:pc.localDescription,from:me,ts:serverTimestamp()}),2); }
+    catch(e){ console.error(e); toast("No connection — can't start the call"); endCall("ended",true); return; }
+    try{ await withRetry(()=>setDoc(ref,{caller:me,callee:partner,callerName:me,calleeName:partner,status:"ringing",createdAt:serverTimestamp()}),2); }
+    catch(e){
+      console.error(e);
+      deleteDoc(offerRef(id)).catch(()=>{});   // never leave a half-published call
+      toast("No connection — can't start the call"); endCall("ended",true); return;
+    }
+    callId=id; callRole="caller"; callAccepted=false;
+    pendingOutgoing.forEach(c=>sendCandidate(c)); pendingOutgoing=[];   // flush buffered ICE now that callId exists
+    watchCallDoc(); watchAnswer(); watchCandidates();
+    showCallUI("outgoing"); startRing("outgoing");
+    callTimeout=setTimeout(()=>{ if(callRole==="caller" && !callAccepted && !endingCall) endCall("missed"); },CALL_TIMEOUT);
+  } finally{ startingCall=false; }
 }
 async function acceptCall(){
   if(!callId || callRole!=="callee" || callAccepted || endingCall) return;
@@ -1493,8 +1509,13 @@ async function acceptCall(){
   localStream=stream;
   try{
     setupPC();
-    const off=await getDoc(offerRef(callId));
-    if(!off.exists()) throw new Error("offer missing");
+    let off=null;
+    for(let i=0;i<4;i++){                 // caller writes the offer before the call doc, but a slow
+      off=await getDoc(offerRef(callId)); // sync can still delay it — give it a moment instead of failing
+      if(off.exists()) break;
+      await new Promise(r=>setTimeout(r,500));
+    }
+    if(!off || !off.exists()) throw new Error("offer missing");
     await pc.setRemoteDescription(off.data().sdp);
     flushCandidates();
     const ans=await pc.createAnswer();
@@ -1502,12 +1523,10 @@ async function acceptCall(){
     await withRetry(()=>setDoc(answerRef(callId),{sdp:pc.localDescription,from:me,ts:serverTimestamp()}),2);
     callAccepted=true; showCallUI("ongoing"); startCallTimer();
     const cur=await getDoc(callRef(callId));
-    if(!cur.exists()) throw new Error("call gone");
-    await withRetry(()=>updateDoc(callRef(callId),{status:"ongoing",acceptedAt:serverTimestamp()}),2);
+    if(cur.exists()){ try{ await withRetry(()=>updateDoc(callRef(callId),{status:"ongoing",acceptedAt:serverTimestamp()}),2); }catch(e){} }  // non-fatal
   }catch(e){
     console.error("acceptCall error:",e);
-    if(e && e.message==="call gone") toast("Call already ended");
-    else toast("Couldn't connect the call");
+    toast("Couldn't connect the call");
     endCall("declined");
   }
 }
@@ -1527,7 +1546,8 @@ function endCall(reason,silent){
 }
 function cleanupCall(id){
   callUnsubs.forEach(u=>{ try{u();}catch(e){} });
-  callUnsubs=[]; pendingCandidates=[];
+  callUnsubs=[]; pendingCandidates=[]; pendingOutgoing=[];
+  knownCalls.delete(id);
   if(pc){ try{ pc.onicecandidate=null; pc.ontrack=null; pc.oniceconnectionstatechange=null; pc.close(); }catch(e){} pc=null; }
   if(localStream){ localStream.getTracks().forEach(t=>t.stop()); localStream=null; }
   if(remoteStream){ remoteStream.getTracks().forEach(t=>t.stop()); remoteStream=null; }
@@ -1600,6 +1620,12 @@ $("clear-btn").addEventListener("click",async()=>{
     $("load-older-wrap").classList.remove("show");
     renderEmptyState(false);
     refreshPinnedBar();
+    try{
+      const delCol=async(colRef)=>{ while(true){ const s2=await getDocs(query(colRef, fbLimit(400))); if(s2.empty) break; const b2=writeBatch(db); s2.docs.forEach(d=>b2.delete(d.ref)); await b2.commit(); if(s2.size<400) break; } };
+      await delCol(collection(db,"pulse_rooms",CFG.roomId,"media"));
+      await delCol(collection(db,"pulse_rooms",CFG.roomId,"mediaIndex"));
+      idxFlagClear();
+    }catch(e){}
     toast(total?`Cleared ${total} messages`:"Nothing to clear");
   }catch(e){ console.error(e); toast("Couldn't clear the chat"); }
 });
@@ -1626,72 +1652,143 @@ function applyFilter(q){
   if(q) announce(`${hits} matching message${hits===1?"":"s"}`);
 }
 
-/* ============ media gallery ============ */
+/* ============ media gallery — indexed: fast, complete, live ============ */
 const galleryEl=$("gallery"), galleryGrid=$("gallery-grid");
-function collectMedia(){
-  const out=[];
-  dataById.forEach((data,id)=>{ if((data.type==="image"||data.type==="audio") && (data.mediaData||data.thumbData||data.fullId)) out.push({id,...data}); });
-  return out.sort((a,b)=> tsOf(b).getTime()-tsOf(a).getTime());
+let galleryItems=[], galleryCursor=null, galleryEnded=false, galleryLoading=false, galleryUnsub=null;
+const IDX_FLAG="pulseIdx_"+CFG.roomId;
+function idxFlagGet(){ try{ return localStorage.getItem(IDX_FLAG); }catch(e){ return "1"; } }
+function idxFlagSet(){ try{ localStorage.setItem(IDX_FLAG,"1"); }catch(e){} }
+function idxFlagClear(){ try{ localStorage.removeItem(IDX_FLAG); }catch(e){} }
+
+function openGallery(){
+  galleryItems=[]; galleryCursor=null; galleryEnded=false;
+  if(galleryUnsub){ try{galleryUnsub();}catch(e){} galleryUnsub=null; }
+  galleryUnsub=onSnapshot(query(mediaIndexCol(), orderBy("ts","desc"), fbLimit(60)), snap=>{
+    galleryItems=[];
+    snap.docs.forEach(d=>{ galleryItems.push({id:d.id,...d.data()}); });
+    galleryCursor=snap.docs.length?snap.docs[snap.docs.length-1]:null;
+    if(snap.docs.length<60) galleryEnded=true;
+    renderGalleryGrid();
+  },err=>{
+    console.error("media index listener error:",err);
+    renderGalleryGrid();
+  });
+  backfillMediaIndex();          // progressively index older media so it appears here too
+  galleryEl.classList.add("show");
 }
-function renderGallery(){
-  const items=collectMedia().filter(i=> galleryTab==="all" ? true : i.type===galleryTab);
-  galleryGrid.textContent="";
-  if(!items.length){
-    const d=document.createElement("div"); d.className="gallery-empty";
-    d.textContent = hasMoreOlder() ? "No media in the loaded messages. Load older messages to find more." : "No photos or voice notes yet.";
-    galleryGrid.appendChild(d);
-  } else {
-    const frag=document.createDocumentFragment();
-    items.forEach(item=>{
-      const div=document.createElement("div");
-      div.className="gallery-item "+(item.type==="image"?"photo":"voice");
-      if(item.type==="image"){
-        const img=document.createElement("img"); img.src=item.thumbData||item.mediaData; img.loading="lazy"; img.decoding="async"; img.alt=`Photo from ${item.sender}`;
-        img.onclick=()=>openImage(item.id,item);
-        div.appendChild(img);
-      } else {
-        const a=document.createElement("audio"); a.controls=true; a.preload="none";
-        if(item.mediaData) a.src=item.mediaData; else attachLazyAudio(a,item.fullId);
-        div.appendChild(a);
+function closeGallery(){
+  if(galleryUnsub){ try{galleryUnsub();}catch(e){} galleryUnsub=null; }
+  galleryEl.classList.remove("show");
+}
+async function loadMoreGallery(){
+  if(galleryLoading||galleryEnded||!galleryCursor) return;
+  galleryLoading=true;
+  try{
+    const snap=await getDocs(query(mediaIndexCol(), orderBy("ts","desc"), startAfter(galleryCursor), fbLimit(60)));
+    const seen=new Set(galleryItems.map(it=>it.id));
+    const added=[];
+    snap.docs.forEach(d=>{ if(!seen.has(d.id)) added.push({id:d.id,...d.data()}); });
+    galleryItems=galleryItems.concat(added);
+    galleryCursor=snap.docs.length?snap.docs[snap.docs.length-1]:null;
+    if(snap.docs.length<60) galleryEnded=true;
+    renderGalleryGrid();
+  }catch(e){ toast("Couldn't load more media"); }
+  finally{ galleryLoading=false; }
+}
+/* one-time background pass: creates index entries for media sent before this feature */
+async function backfillMediaIndex(){
+  if(idxFlagGet()) return;
+  let cursor=null, wrote=0, start=Date.now();
+  try{
+    while(wrote<250 && Date.now()-start<12000){
+      const q=cursor
+        ? query(messagesCol(), orderBy("ts","desc"), startAfter(cursor), fbLimit(100))
+        : query(messagesCol(), orderBy("ts","desc"), fbLimit(100));
+      const snap=await getDocs(q);
+      if(snap.empty){ idxFlagSet(); break; }
+      cursor=snap.docs[snap.docs.length-1];
+      for(const d of snap.docs){
+        const dt=d.data();
+        if(dt.type!=="image" && dt.type!=="audio") continue;
+        try{ if((await getDoc(mediaIndexRef(d.id))).exists()) continue; }catch(e){ continue; }
+        let thumb=null;
+        if(dt.type==="image"){
+          if(dt.thumbData) thumb=dt.thumbData;
+          else if(dt.mediaData){ try{ thumb=await makeThumb(dt.mediaData,200,0.5); }catch(e){} }
+        }
+        try{
+          await setDoc(mediaIndexRef(d.id),{id:d.id,type:dt.type,sender:dt.sender||"",ts:dt.ts||serverTimestamp(),thumb:thumb||null,hasFull:!!dt.fullId,fullEmbed:!!dt.mediaData});
+          wrote++;
+        }catch(e){}
       }
-      const meta=document.createElement("div"); meta.className="gitem-meta";
-      const who=document.createElement("span"); who.textContent=`${item.sender} · ${fmtTime(tsOf(item))}`;
-      const dl=document.createElement("a"); dl.className="gitem-dl"; dl.href="#"; dl.title="Download"; dl.setAttribute("aria-label","Download");
-      dl.textContent="↓";
-      dl.onclick=async(e)=>{
-        e.preventDefault(); e.stopPropagation();
-        const full=item.mediaData||(await getMediaData(item.fullId))||item.thumbData;
-        if(!full) return;
-        const a=document.createElement("a"); a.href=full;
-        a.download=(item.type==="image"?"pulse-photo-":"pulse-voice-")+item.id+(item.type==="image"?".jpg":".webm");
-        document.body.appendChild(a); a.click(); a.remove();
-      };
-      meta.append(who,dl); div.appendChild(meta);
-      frag.appendChild(div);
-    });
-    galleryGrid.appendChild(frag);
-    if(hasMoreOlder()){
-      const more=document.createElement("div"); more.className="gallery-empty";
-      const btn=document.createElement("button"); btn.className="load-older"; btn.textContent="↑ Load older history for more media";
-      btn.onclick=async()=>{ btn.disabled=true; btn.textContent="Loading…"; const n=await loadOlder(); btn.disabled=false; btn.textContent="↑ Load older history for more media"; renderGallery(); };
-      more.appendChild(btn); galleryGrid.appendChild(more);
+      if(snap.docs.length<100){ idxFlagSet(); break; }
     }
+  }catch(e){ console.error("backfill error:",e); }
+}
+function renderGalleryGrid(){
+  const items=galleryItems.filter(i=> galleryTab==="all" ? true : i.type===galleryTab);
+  galleryGrid.textContent="";
+  if(!galleryItems.length){
+    const d=document.createElement("div"); d.className="gallery-empty";
+    d.textContent="No photos or voice notes yet.";
+    galleryGrid.appendChild(d);
+    return;
+  }
+  const frag=document.createDocumentFragment();
+  items.forEach(item=>{
+    const div=document.createElement("div");
+    div.className="gallery-item "+(item.type==="image"?"photo":"voice");
+    if(item.type==="image"){
+      const img=document.createElement("img"); img.src=item.thumb||item.thumbData||""; img.loading="lazy"; img.decoding="async"; img.alt=`Photo from ${item.sender||""}`;
+      img.onclick=()=>openImage(item.id,item);
+      div.appendChild(img);
+    } else {
+      const a=document.createElement("audio"); a.controls=true; a.preload="none";
+      attachLazyAudio(a,item.id,item);
+      div.appendChild(a);
+    }
+    const meta=document.createElement("div"); meta.className="gitem-meta";
+    const who=document.createElement("span"); who.textContent=`${item.sender||""} · ${item.ts&&item.ts.toDate?fmtTime(item.ts.toDate()):""}`;
+    const dl=document.createElement("a"); dl.className="gitem-dl"; dl.href="#"; dl.title="Download"; dl.setAttribute("aria-label","Download");
+    dl.textContent="↓";
+    dl.onclick=async(e)=>{
+      e.preventDefault(); e.stopPropagation();
+      let full=null;
+      if(item.fullId) full=await getMediaData(item.fullId);
+      else if(item.hasFull) full=await getMediaData(item.id);
+      else if(item.mediaData) full=item.mediaData;
+      else{ try{ const s=await getDoc(msgRef(item.id)); full=s.exists()?s.data().mediaData:null; }catch(e){} }
+      if(!full){ toast("Media unavailable"); return; }
+      const a=document.createElement("a"); a.href=full;
+      a.download=(item.type==="image"?"pulse-photo-":"pulse-voice-")+item.id+(item.type==="image"?".jpg":".webm");
+      document.body.appendChild(a); a.click(); a.remove();
+    };
+    meta.append(who,dl); div.appendChild(meta);
+    frag.appendChild(div);
+  });
+  galleryGrid.appendChild(frag);
+  if(!galleryEnded){
+    const more=document.createElement("div"); more.className="gallery-empty";
+    const btn=document.createElement("button"); btn.className="load-older"; btn.textContent="↓ Load older media";
+    btn.onclick=async()=>{ btn.disabled=true; btn.textContent="Loading…"; await loadMoreGallery(); btn.disabled=false; btn.textContent="↓ Load older media"; };
+    more.appendChild(btn); galleryGrid.appendChild(more);
   }
 }
-$("gallery-btn").addEventListener("click",()=>{ renderGallery(); galleryEl.classList.add("show"); });
-$("gallery-close").addEventListener("click",()=>galleryEl.classList.remove("show"));
-galleryEl.addEventListener("click",(e)=>{ if(e.target===galleryEl) galleryEl.classList.remove("show"); });
+$("gallery-btn").addEventListener("click",openGallery);
+$("gallery-close").addEventListener("click",closeGallery);
+galleryEl.addEventListener("click",(e)=>{ if(e.target===galleryEl) closeGallery(); });
 document.querySelectorAll(".gtab").forEach(t=>{
   t.addEventListener("click",()=>{
     document.querySelectorAll(".gtab").forEach(x=>x.classList.remove("active"));
-    t.classList.add("active"); galleryTab=t.dataset.tab; renderGallery();
+    t.classList.add("active"); galleryTab=t.dataset.tab; renderGalleryGrid();
   });
 });
+
 document.addEventListener("keydown",(e)=>{
   if(e.key!=="Escape") return;
   if(lightbox.classList.contains("show")){ lightbox.classList.remove("show"); lightboxImg.src=""; }
-  else if(galleryEl.classList.contains("show")) galleryEl.classList.remove("show");
+  else if(galleryEl.classList.contains("show")) closeGallery();
 });
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2a7582768111645',t:'MTc4NjYyMDE3MQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script><script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2af9f76dd7a0eed',t:'MTc4NjcwNjk3OA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2a7582768111645',t:'MTc4NjYyMDE3MQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
