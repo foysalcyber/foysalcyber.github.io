@@ -1,521 +1,1065 @@
 ---
 layout: default
-title: "All Blog Posts | Foysal Mahmud"
-description: "Cybersecurity, programming, and tech insights from Foysal's official blog."
-keywords: "Ethical Hacking Blog, Foysal hacker, foysal1627, Foysal Blog, Cybersecurity, foysal cyber"
+title: "All Blog Posts & Featured Highlights | Foysal Mahmud"
+description: "Cybersecurity research, tech insights, AIUB Robotics Workshop, and Shikho 'HSC + AI' Live Launch from Foysal Mahmud's official blog."
+keywords: "Ethical Hacking Blog, Foysal hacker, foysal1627, Foysal Blog, Cybersecurity, Shikho Foysal, AIUB Robotics, foysal cyber"
 ---
 
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <title>All Blog Posts & Featured Highlights | Foysal Mahmud</title>
 
-<style>
-  :root {
-    --gold:    #c9a84c;
-    --gold2:   #f0d080;
-    --gold3:   #8a6820;
-    --dark:    #04060a;
-    --dark2:   #080c14;
-    --dark3:   #0d1220;
-    --border:  rgba(201,168,76,0.18);
-    --border2: rgba(201,168,76,0.07);
-    --text:    #e8dcc8;
-    --muted:   #6b6050;
-  }
+  <!-- SEO & Social Meta -->
+  <meta name="title" content="All Blog Posts & Featured Highlights | Foysal Mahmud">
+  <meta name="description" content="Cybersecurity research, tech insights, AIUB Robotics Workshop, and Shikho 'HSC + AI' Live Launch from Foysal Mahmud's official blog.">
+  <meta name="keywords" content="Ethical Hacking Blog, Foysal hacker, foysal1627, Foysal Blog, Cybersecurity, Shikho Foysal, AIUB Robotics, foysal cyber">
+  <meta name="author" content="Foysal Mahmud">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#04060a">
+  <link rel="canonical" href="https://foysalcyber.github.io/blog/">
 
-  /* ── Reset & Base ── */
-  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://foysalcyber.github.io/blog/">
+  <meta property="og:title" content="All Blog Posts & Featured Highlights | Foysal Mahmud">
+  <meta property="og:description" content="Cybersecurity research, AIUB Robotics Workshop, and Shikho Live Launch from Foysal Mahmud's official blog.">
+  <meta property="og:image" content="https://foysalcyber.github.io/assets/image/roboticsndcsc-1.webp">
 
-  body {
-    font-family: 'Rajdhani', sans-serif;
-    background: var(--dark);
-    color: var(--text);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+  <!-- Twitter Card -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://foysalcyber.github.io/blog/">
+  <meta property="twitter:title" content="All Blog Posts & Featured Highlights | Foysal Mahmud">
+  <meta property="twitter:description" content="Cybersecurity research, AIUB Robotics Workshop, and Shikho Live Launch from Foysal Mahmud's official blog.">
+  <meta property="twitter:image" content="https://foysalcyber.github.io/assets/image/roboticsndcsc-1.webp">
 
-  /* ── Background ── */
-  #blog-bg {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    overflow: hidden;
-    pointer-events: none;
-  }
-  #blog-stars { position: absolute; inset: 0; }
-  .b-star {
-    position: absolute;
-    border-radius: 50%;
-    background: white;
-    animation: bTwinkle var(--d, 3s) var(--delay, 0s) infinite;
-  }
-  @keyframes bTwinkle {
-    0%, 100% { opacity: var(--min, 0.1); transform: scale(1); }
-    50%       { opacity: var(--max, 0.8); transform: scale(1.3); }
-  }
-  .b-particle {
-    position: absolute;
-    border-radius: 50%;
-    background: var(--gold);
-    opacity: 0;
-    animation: bFloatUp var(--pd, 8s) var(--pdelay, 0s) ease-in infinite;
-  }
-  @keyframes bFloatUp {
-    0%   { transform: translateY(0) scale(1); opacity: 0; }
-    10%  { opacity: var(--po, 0.25); }
-    90%  { opacity: var(--po, 0.25); }
-    100% { transform: translateY(-100vh) scale(0.2); opacity: 0; }
-  }
-  .b-scanlines {
-    position: absolute; inset: 0;
-    background: repeating-linear-gradient(
-      0deg, transparent, transparent 2px,
-      rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px
-    );
-    pointer-events: none;
-  }
-  .b-orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(80px);
-    animation: bOrbDrift var(--od, 20s) ease-in-out infinite alternate;
-  }
-  .b-orb1 {
-    width: 500px; height: 500px;
-    top: -15%; left: -10%;
-    background: radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 70%);
-    --od: 25s;
-  }
-  .b-orb2 {
-    width: 400px; height: 400px;
-    bottom: -10%; right: -10%;
-    background: radial-gradient(circle, rgba(201,168,76,0.04) 0%, transparent 70%);
-    --od: 18s;
-  }
-  @keyframes bOrbDrift {
-    0%   { transform: translate(0, 0) scale(1); }
-    100% { transform: translate(30px, 20px) scale(1.1); }
-  }
+  <!-- Fonts & Font Awesome -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 
-  /* HUD scan line */
-  .b-hud-line {
-    position: fixed;
-    background: linear-gradient(90deg, transparent, var(--gold), transparent);
-    height: 1px; width: 100%;
-    z-index: 3; pointer-events: none; opacity: 0.15;
-    animation: bHudScan 8s linear infinite;
-  }
-  @keyframes bHudScan {
-    0%   { top: 0; opacity: 0; }
-    5%   { opacity: 0.15; }
-    95%  { opacity: 0.15; }
-    100% { top: 100%; opacity: 0; }
-  }
+  <style>
+    :root {
+      --gold: #c9a84c;
+      --gold-bright: #f0d080;
+      --gold-deep: #8a6820;
+      --gold-glow: rgba(201, 168, 76, 0.28);
+      --dark: #04060a;
+      --dark2: #080c14;
+      --dark3: #0d1220;
+      --border: rgba(201, 168, 76, 0.22);
+      --border2: rgba(201, 168, 76, 0.08);
+      --border-strong: rgba(201, 168, 76, 0.48);
+      --text: #e8dcc8;
+      --text-muted: #8e8473;
+      --cyan: #00e5ff;
+      --font-display: 'Orbitron', monospace, sans-serif;
+      --font-body: 'Rajdhani', sans-serif;
+      --font-mono: 'Share Tech Mono', monospace;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    }
 
-  /* HUD corners */
-  .b-corner {
-    position: fixed;
-    width: 50px; height: 50px;
-    z-index: 3; pointer-events: none;
-  }
-  .b-corner-tl { top: 14px; left: 14px; border-top: 1px solid var(--gold); border-left: 1px solid var(--gold); }
-  .b-corner-tr { top: 14px; right: 14px; border-top: 1px solid var(--gold); border-right: 1px solid var(--gold); }
-  .b-corner-bl { bottom: 14px; left: 14px; border-bottom: 1px solid var(--gold); border-left: 1px solid var(--gold); }
-  .b-corner-br { bottom: 14px; right: 14px; border-bottom: 1px solid var(--gold); border-right: 1px solid var(--gold); }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; background: var(--dark); }
 
-  /* ── Page wrapper ── */
-  .blog-page {
-    position: relative;
-    z-index: 10;
-    max-width: 760px;
-    margin: 0 auto;
-    padding: 60px 20px 80px;
-    animation: bPageIn 0.8s cubic-bezier(0.16,1,0.3,1) both;
-  }
-  @keyframes bPageIn {
-    from { opacity: 0; transform: translateY(32px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
+    body {
+      font-family: var(--font-body);
+      background: var(--dark);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
 
-  /* ── Page Header ── */
-  .blog-header {
-    text-align: center;
-    margin-bottom: 48px;
-    padding-bottom: 28px;
-    border-bottom: 1px solid var(--border);
-    position: relative;
-  }
-  .blog-sys-tag {
-    font-family: 'Orbitron', monospace;
-    font-size: 9px;
-    letter-spacing: 0.25em;
-    color: var(--muted);
-    text-transform: uppercase;
-    margin-bottom: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-  }
-  .blog-sys-tag::before,
-  .blog-sys-tag::after {
-    content: '';
-    width: 40px;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--gold3));
-  }
-  .blog-sys-tag::after {
-    background: linear-gradient(90deg, var(--gold3), transparent);
-  }
-  .blog-title {
-    font-family: 'Orbitron', monospace;
-    font-size: clamp(22px, 5vw, 32px);
-    font-weight: 700;
-    color: var(--gold2);
-    letter-spacing: 0.06em;
-    text-shadow: 0 0 40px rgba(201,168,76,0.35);
-    margin-bottom: 10px;
-  }
-  .blog-title i {
-    color: var(--gold);
-    margin-right: 10px;
-    font-size: 0.85em;
-  }
-  .blog-subtitle {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 13px;
-    letter-spacing: 0.18em;
-    color: var(--muted);
-    text-transform: uppercase;
-  }
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--dark2); }
+    ::-webkit-scrollbar-thumb {
+      background: var(--gold-deep);
+      border-radius: 4px;
+      border: 1px solid var(--border2);
+    }
+    ::-webkit-scrollbar-thumb:hover { background: var(--gold); }
 
-  /* Post count badge */
-  .post-count-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(201,168,76,0.08);
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    padding: 4px 12px;
-    font-family: 'Orbitron', monospace;
-    font-size: 10px;
-    color: var(--gold);
-    letter-spacing: 0.15em;
-    margin-top: 14px;
-  }
-  .post-count-badge .dot {
-    width: 5px; height: 5px;
-    border-radius: 50%;
-    background: var(--gold);
-    animation: bPing 2s ease-in-out infinite;
-  }
-  @keyframes bPing {
-    0%, 100% { box-shadow: 0 0 4px var(--gold); }
-    50%       { box-shadow: 0 0 12px var(--gold); }
-  }
+    /* ── CANVAS & BACKGROUND ── */
+    #blog-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
 
-  /* ── Search / Filter bar ── */
-  .blog-search-wrap {
-    margin-bottom: 32px;
-    position: relative;
-  }
-  .blog-search-wrap i.search-icon {
-    position: absolute;
-    left: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--muted);
-    font-size: 13px;
-  }
-  #blogSearch {
-    width: 100%;
-    background: rgba(13,18,32,0.8);
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    padding: 11px 14px 11px 38px;
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 14px;
-    color: var(--text);
-    letter-spacing: 0.05em;
-    outline: none;
-    transition: border-color 0.25s, box-shadow 0.25s;
-  }
-  #blogSearch::placeholder { color: var(--muted); }
-  #blogSearch:focus {
-    border-color: rgba(201,168,76,0.45);
-    box-shadow: 0 0 0 2px rgba(201,168,76,0.07), inset 0 0 12px rgba(201,168,76,0.03);
-  }
+    .b-scanlines {
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.15) 2px,
+        rgba(0, 0, 0, 0.15) 4px
+      );
+      pointer-events: none;
+      z-index: 1;
+    }
 
-  /* ── Post list ── */
-  .post-list {
-    list-style: none;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
+    .b-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .b-orb1 {
+      width: 500px; height: 500px;
+      top: -10%; left: -10%;
+      background: radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%);
+    }
+    .b-orb2 {
+      width: 450px; height: 450px;
+      bottom: -10%; right: -10%;
+      background: radial-gradient(circle, rgba(0,229,255,0.05) 0%, transparent 70%);
+    }
 
-  .post-item {
-    background: linear-gradient(135deg, rgba(13,18,32,0.95) 0%, rgba(8,12,20,0.97) 100%);
-    border: 1px solid var(--border2);
-    border-radius: 2px;
-    overflow: hidden;
-    position: relative;
-    transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
-    animation: bItemIn 0.5s cubic-bezier(0.16,1,0.3,1) both;
-    animation-delay: var(--item-delay, 0s);
-  }
-  @keyframes bItemIn {
-    from { opacity: 0; transform: translateX(-16px); }
-    to   { opacity: 1; transform: translateX(0); }
-  }
-  .post-item::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 2px;
-    background: linear-gradient(180deg, transparent, var(--gold), transparent);
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-  .post-item:hover {
-    border-color: var(--border);
-    transform: translateX(4px);
-    box-shadow: -4px 0 20px rgba(201,168,76,0.06), 0 8px 32px rgba(0,0,0,0.4);
-  }
-  .post-item:hover::before { opacity: 1; }
+    /* HUD corners */
+    .b-corner {
+      position: fixed;
+      width: 36px; height: 36px;
+      z-index: 99; pointer-events: none;
+    }
+    .b-corner-tl { top: 12px; left: 12px; border-top: 1px solid var(--gold); border-left: 1px solid var(--gold); }
+    .b-corner-tr { top: 12px; right: 12px; border-top: 1px solid var(--gold); border-right: 1px solid var(--gold); }
+    .b-corner-bl { bottom: 12px; left: 12px; border-bottom: 1px solid var(--gold); border-left: 1px solid var(--gold); }
+    .b-corner-br { bottom: 12px; right: 12px; border-bottom: 1px solid var(--gold); border-right: 1px solid var(--gold); }
 
-  .post-link {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 18px 20px;
-    text-decoration: none;
-    color: inherit;
-  }
+    /* ── NAVBAR ── */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+      background: rgba(4, 6, 10, 0.90);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      transition: all 0.3s ease;
+    }
 
-  .post-index {
-    font-family: 'Orbitron', monospace;
-    font-size: 9px;
-    color: var(--gold3);
-    letter-spacing: 0.12em;
-    min-width: 28px;
-    opacity: 0.7;
-    flex-shrink: 0;
-  }
+    .nav-inner {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
 
-  .post-info { flex: 1; min-width: 0; }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: var(--gold-bright);
+    }
 
-  .post-name {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 17px;
-    font-weight: 600;
-    color: var(--text);
-    letter-spacing: 0.04em;
-    line-height: 1.3;
-    transition: color 0.2s;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .post-item:hover .post-name { color: var(--gold2); }
+    .nav-brand-prefix { color: var(--gold); opacity: 0.8; }
 
-  .post-date {
-    font-family: 'Orbitron', monospace;
-    font-size: 10px;
-    color: var(--muted);
-    letter-spacing: 0.15em;
-    margin-top: 5px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .post-date::before {
-    content: '';
-    width: 12px;
-    height: 1px;
-    background: var(--gold3);
-    flex-shrink: 0;
-  }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      list-style: none;
+    }
 
-  .post-arrow {
-    color: var(--gold3);
-    font-size: 11px;
-    flex-shrink: 0;
-    opacity: 0;
-    transform: translateX(-6px);
-    transition: opacity 0.2s, transform 0.2s;
-  }
-  .post-item:hover .post-arrow {
-    opacity: 1;
-    transform: translateX(0);
-  }
+    .nav-link {
+      font-family: var(--font-display);
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: all 0.25s ease;
+      position: relative;
+      padding: 6px 0;
+    }
 
-  /* ── Empty state ── */
-  .blog-empty {
-    text-align: center;
-    padding: 60px 20px;
-    border: 1px dashed var(--border2);
-    border-radius: 2px;
-    display: none;
-  }
-  .blog-empty i {
-    font-size: 32px;
-    color: var(--muted);
-    margin-bottom: 14px;
-    display: block;
-  }
-  .blog-empty p {
-    font-family: 'Orbitron', monospace;
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 0.15em;
-  }
-  .blog-empty.visible { display: block; }
+    .nav-link:hover, .nav-link.active {
+      color: var(--gold-bright);
+      text-shadow: 0 0 12px var(--gold-glow);
+    }
 
-  /* ── No posts fallback ── */
-  .no-posts-msg {
-    text-align: center;
-    padding: 60px 20px;
-    border: 1px dashed var(--border2);
-    font-family: 'Orbitron', monospace;
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 0.15em;
-    line-height: 2;
-  }
+    .nav-link.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-bright));
+      box-shadow: 0 0 8px var(--gold);
+    }
 
-  /* ── Footer tag ── */
-  .blog-footer-tag {
-    text-align: center;
-    margin-top: 52px;
-    padding-top: 24px;
-    border-top: 1px solid var(--border2);
-    font-family: 'Orbitron', monospace;
-    font-size: 8px;
-    color: var(--muted);
-    letter-spacing: 0.2em;
-  }
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: var(--dark2);
+      background: linear-gradient(135deg, var(--gold), var(--gold-bright));
+      border: 1px solid var(--gold-bright);
+      border-radius: 2px;
+      box-shadow: 0 0 16px var(--gold-glow);
+      transition: all 0.3s ease;
+    }
 
-  /* ── Responsive ── */
-  @media (max-width: 500px) {
-    .blog-page { padding: 44px 14px 60px; }
-    .post-link { padding: 15px 14px; gap: 12px; }
-    .post-name { font-size: 15px; }
-    .post-index { display: none; }
-  }
-</style>
+    .nav-cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 24px rgba(201, 168, 76, 0.6);
+    }
 
-<!-- Background -->
-<div id="blog-bg">
-  <div id="blog-stars"></div>
-  <div class="b-scanlines"></div>
-  <div class="b-orb b-orb1"></div>
-  <div class="b-orb b-orb2"></div>
-</div>
-<div class="b-hud-line"></div>
-<div class="b-corner b-corner-tl"></div>
-<div class="b-corner b-corner-tr"></div>
-<div class="b-corner b-corner-bl"></div>
-<div class="b-corner b-corner-br"></div>
+    .nav-toggle {
+      display: none;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--gold);
+      width: 40px;
+      height: 40px;
+      border-radius: 2px;
+      cursor: pointer;
+      font-size: 18px;
+    }
 
-<!-- Main content -->
-<div class="blog-page">
+    /* ── MAIN CONTENT WRAPPER ── */
+    .blog-page {
+      position: relative;
+      z-index: 10;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 110px 20px 80px;
+      animation: bPageIn 0.8s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    @keyframes bPageIn {
+      from { opacity: 0; transform: translateY(32px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
-  <!-- Header -->
-  <div class="blog-header">
-    <div class="blog-sys-tag">SYS :: ARCHIVE</div>
-    <h1 class="blog-title">
-      <i class="fa-solid fa-pen-clip"></i>BLOG POSTS
-    </h1>
-    <div class="blog-subtitle">Thoughts · Research · Writeups</div>
-    <div class="post-count-badge">
-      <span class="dot"></span>
-      <span id="postCountDisplay">LOADING...</span>
-    </div>
+    /* ── BREADCRUMB ── */
+    .breadcrumb-nav {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+    }
+
+    .breadcrumb-nav a {
+      color: var(--gold);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .breadcrumb-nav a:hover {
+      color: var(--gold-bright);
+      text-decoration: underline;
+    }
+
+    .breadcrumb-sep { color: var(--border-strong); }
+
+    /* ── PAGE HEADER / HERO ── */
+    .blog-header {
+      background: linear-gradient(145deg, rgba(13, 18, 32, 0.95), rgba(8, 12, 20, 0.98));
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 38px 42px;
+      margin-bottom: 40px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 16px 45px rgba(0, 0, 0, 0.7);
+    }
+
+    .blog-header::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 360px;
+      height: 100%;
+      background: radial-gradient(circle, var(--gold-glow) 0%, transparent 70%);
+      pointer-events: none;
+      opacity: 0.5;
+    }
+
+    .blog-sys-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      color: var(--gold-bright);
+      background: rgba(201, 168, 76, 0.08);
+      border: 1px solid var(--border);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 12px;
+      border-radius: 2px;
+      margin-bottom: 14px;
+    }
+
+    .blog-title {
+      font-family: var(--font-display);
+      font-size: clamp(24px, 3.8vw, 36px);
+      font-weight: 900;
+      color: var(--gold-bright);
+      letter-spacing: 0.04em;
+      margin-bottom: 12px;
+    }
+
+    .blog-subtitle {
+      font-size: 15.5px;
+      color: #cfc4b2;
+      max-width: 820px;
+      line-height: 1.7;
+    }
+
+    .post-count-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(201,168,76,0.08);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 4px 14px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--gold-bright);
+      letter-spacing: 0.15em;
+      margin-top: 18px;
+    }
+    .post-count-badge .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+    }
+
+    /* ── CONTROLS: FILTERS & SEARCH ── */
+    .blog-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 36px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border2);
+    }
+
+    .filter-tabs {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .filter-btn {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: rgba(13, 18, 32, 0.85);
+      border: 1px solid var(--border);
+      color: #b3a998;
+      padding: 7px 16px;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: all 0.25s var(--ease);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .filter-btn:hover {
+      border-color: var(--gold);
+      color: var(--gold-bright);
+      background: rgba(201, 168, 76, 0.08);
+    }
+
+    .filter-btn.active {
+      border-color: var(--gold-bright);
+      background: linear-gradient(135deg, rgba(201, 168, 76, 0.2), rgba(13, 18, 32, 0.9));
+      color: var(--gold-bright);
+      box-shadow: 0 0 14px var(--gold-glow);
+    }
+
+    .search-box {
+      position: relative;
+      min-width: 260px;
+    }
+
+    .search-box input {
+      width: 100%;
+      background: rgba(13, 18, 32, 0.9);
+      border: 1px solid var(--border);
+      padding: 8px 14px 8px 36px;
+      border-radius: 2px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.25s;
+    }
+
+    .search-box input:focus {
+      border-color: var(--gold-bright);
+      box-shadow: 0 0 10px var(--gold-glow);
+    }
+
+    .search-box i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gold);
+      font-size: 12px;
+    }
+
+    /* ── FEATURED SPOTLIGHT CARDS ── */
+    .sec-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--gold);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .sec-title {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--gold-bright);
+      margin-bottom: 24px;
+    }
+
+    .spotlight-deck {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+      gap: 26px;
+      margin-bottom: 45px;
+    }
+
+    .feat-card {
+      background: linear-gradient(145deg, rgba(13, 18, 32, 0.94), rgba(8, 12, 20, 0.98));
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.35s var(--ease);
+      position: relative;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .feat-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--border-strong);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.8), 0 0 20px var(--gold-glow);
+    }
+
+    .feat-thumb {
+      position: relative;
+      width: 100%;
+      height: 240px;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .feat-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s var(--ease);
+    }
+
+    .feat-card:hover .feat-thumb img {
+      transform: scale(1.05);
+    }
+
+    .feat-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: rgba(4, 6, 10, 0.88);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 2px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--gold-bright);
+      letter-spacing: 0.1em;
+      z-index: 2;
+    }
+
+    .feat-body {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex-grow: 1;
+    }
+
+    .feat-date {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .feat-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--gold-bright);
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+
+    .feat-desc {
+      font-size: 14px;
+      color: #b5ac9b;
+      line-height: 1.65;
+      margin-bottom: 18px;
+    }
+
+    .feat-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .feat-card:hover .feat-action { color: var(--gold-bright); }
+
+    /* ── POST LIST ── */
+    .post-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 50px;
+    }
+
+    .post-item {
+      background: linear-gradient(135deg, rgba(13,18,32,0.95) 0%, rgba(8,12,20,0.97) 100%);
+      border: 1px solid var(--border2);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+      transition: all 0.25s var(--ease);
+    }
+    .post-item:hover {
+      border-color: var(--border);
+      transform: translateX(4px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), -4px 0 16px var(--gold-glow);
+    }
+
+    .post-link {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 22px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .post-index {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--gold-deep);
+      min-width: 28px;
+      flex-shrink: 0;
+    }
+
+    .post-info { flex: 1; min-width: 0; }
+
+    .post-name {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.35;
+      transition: color 0.2s;
+    }
+    .post-item:hover .post-name { color: var(--gold-bright); }
+
+    .post-date {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .post-arrow {
+      color: var(--gold);
+      font-size: 12px;
+      flex-shrink: 0;
+      transition: transform 0.2s;
+    }
+    .post-item:hover .post-arrow {
+      transform: translateX(4px);
+      color: var(--gold-bright);
+    }
+
+    .post-item.hidden { display: none !important; }
+
+    /* ── EMPTY STATE ── */
+    .blog-empty {
+      text-align: center;
+      padding: 50px 20px;
+      border: 1px dashed var(--border);
+      border-radius: 4px;
+      display: none;
+      margin-bottom: 40px;
+    }
+    .blog-empty i { font-size: 32px; color: var(--gold); margin-bottom: 12px; display: block; }
+    .blog-empty p { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
+    .blog-empty.visible { display: block; }
+
+    /* ── FOOTER ── */
+    .footer {
+      border-top: 1px solid var(--border);
+      background: rgba(2, 3, 5, 0.95);
+      padding: 40px 20px;
+      text-align: center;
+      position: relative;
+      z-index: 10;
+    }
+
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .footer-links a {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: var(--gold); }
+
+    .footer-copy {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.15em;
+    }
+
+    @media (max-width: 768px) {
+      .spotlight-deck { grid-template-columns: 1fr; }
+      .blog-header { padding: 24px; }
+      .nav-links {
+        display: none;
+        position: absolute;
+        top: 72px;
+        left: 0;
+        width: 100%;
+        background: rgba(4, 6, 10, 0.98);
+        border-bottom: 1px solid var(--border);
+        flex-direction: column;
+        padding: 24px;
+        gap: 16px;
+      }
+      .nav-links.show { display: flex; }
+      .nav-toggle { display: flex; align-items: center; justify-content: center; }
+      .b-corner { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Layer -->
+  <div id="blog-bg">
+    <canvas id="canvas-bg"></canvas>
+    <div class="b-scanlines"></div>
+    <div class="b-orb b-orb1"></div>
+    <div class="b-orb b-orb2"></div>
   </div>
 
-  <!-- Search -->
-  <div class="blog-search-wrap">
-    <i class="fa-solid fa-magnifying-glass search-icon"></i>
-    <input type="text" id="blogSearch" placeholder="SEARCH POSTS..." autocomplete="off" spellcheck="false">
-  </div>
+  <!-- HUD Corner Markers -->
+  <div class="b-corner b-corner-tl"></div>
+  <div class="b-corner b-corner-tr"></div>
+  <div class="b-corner b-corner-bl"></div>
+  <div class="b-corner b-corner-br"></div>
 
-  <!-- Post List (Jekyll renders this) -->
-  {% if site.posts.size > 0 %}
-  <ul class="post-list" id="postList">
-    {% for post in site.posts %}
-    <li class="post-item" style="--item-delay: {{ forloop.index0 | times: 0.06 }}s" data-title="{{ post.title | downcase }}">
-      <a style="-webkit-tap-highlight-color: transparent" class="post-link" href="{{ post.url }}">
-        <span class="post-index">{{ forloop.index | prepend: '0' | slice: -2, 2 }}</span>
-        <div class="post-info">
-          <div class="post-name">{{ post.title }}</div>
-          <div class="post-date">{{ post.date | date: "%B %d, %Y" }}</div>
-        </div>
-        <i class="fa-solid fa-chevron-right post-arrow"></i>
+  <!-- ═══════════════════════════════════════════════════════
+       NAVIGATION BAR
+       ═══════════════════════════════════════════════════════ -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="../index.html" class="nav-brand">
+        <span class="nav-brand-prefix">~/</span>FOYSAL.CYBER
       </a>
-    </li>
-    {% endfor %}
-  </ul>
 
-  <!-- Empty search state -->
-  <div class="blog-empty" id="blogEmpty">
-    <i class="fa-solid fa-magnifying-glass"></i>
-    <p>// NO RESULTS FOUND</p>
-  </div>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="../index.html" class="nav-link">Home</a></li>
+        <li><a href="../index.html#about" class="nav-link">About</a></li>
+        <li><a href="shikho/index.html" class="nav-link">Shikho Spotlight</a></li>
+        <li><a href="aiub/index.html" class="nav-link">AIUB Robotics</a></li>
+        <li><a href="../gallery/index.html" class="nav-link">Gallery</a></li>
+        <li><a href="../contact/index.html" class="nav-link">Contact</a></li>
+      </ul>
 
-  {% else %}
-  <div class="no-posts-msg">
-    <i class="fa-solid fa-terminal" style="font-size:28px;color:var(--muted);display:block;margin-bottom:14px;"></i>
-    // NO POSTS PUBLISHED YET<br>CHECK BACK SOON
-  </div>
-  {% endif %}
+      <div style="display:flex;align-items:center;gap:12px;">
+        <a href="../contact/index.html" class="nav-cta">
+          <i class="fa-solid fa-shield-halved"></i> Connect
+        </a>
+        <button class="nav-toggle" id="navToggle" aria-label="Toggle Navigation">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
 
-  <!-- Footer -->
-  <div class="blog-footer-tag">// FOYSAL MAHMUD · CYBER SECURITY · END OF LOG</div>
-</div>
+  <!-- ═══════════════════════════════════════════════════════
+       PAGE WRAPPER
+       ═══════════════════════════════════════════════════════ -->
+  <main class="blog-page">
 
-<script>
-(function () {
-  /* Stars */
-  const starsEl = document.getElementById('blog-stars');
-  for (let i = 0; i < 110; i++) {
-    const s = document.createElement('div');
-    s.className = 'b-star';
-    const sz = Math.random() * 2 + 0.5;
-    s.style.cssText = `width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${2+Math.random()*5}s;--delay:${Math.random()*5}s;--min:${0.05+Math.random()*0.1};--max:${0.4+Math.random()*0.5};`;
-    starsEl.appendChild(s);
-  }
-  /* Particles */
-  for (let i = 0; i < 18; i++) {
-    const p = document.createElement('div');
-    p.className = 'b-particle';
-    const sz = Math.random() * 2.5 + 0.8;
-    p.style.cssText = `width:${sz}px;height:${sz}px;left:${Math.random()*100}%;bottom:0;--pd:${7+Math.random()*10}s;--pdelay:${Math.random()*10}s;--po:${0.1+Math.random()*0.18};`;
-    starsEl.appendChild(p);
-  }
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb-nav" aria-label="Breadcrumb">
+      <a href="../index.html"><i class="fa-solid fa-house"></i> Home</a>
+      <span class="breadcrumb-sep">/</span>
+      <span style="color:var(--gold-bright);">Official Blog & Articles</span>
+    </nav>
 
-  /* Post count */
-  const items = document.querySelectorAll('.post-item');
-  const countEl = document.getElementById('postCountDisplay');
-  if (countEl) countEl.textContent = items.length + ' POST' + (items.length !== 1 ? 'S' : '') + ' INDEXED';
+    <!-- Header Banner -->
+    <header class="blog-header">
+      <div class="blog-sys-tag">
+        <i class="fa-solid fa-shield-halved"></i> SYS :: KNOWLEDGE BASE & HIGHLIGHTS
+      </div>
+      <h1 class="blog-title">Official Blog & Features</h1>
+      <p class="blog-subtitle">
+        Documented articles, tech research writeups, university robotics masterclasses, and educational broadcast panels.
+      </p>
+      <div class="post-count-badge">
+        <span class="dot"></span>
+        <span id="postCountDisplay">INDEXING ARTICLES...</span>
+      </div>
+    </header>
 
-  /* Search filter */
-  const searchInput = document.getElementById('blogSearch');
-  const emptyEl = document.getElementById('blogEmpty');
-  if (searchInput && items.length) {
-    searchInput.addEventListener('input', function () {
-      const q = this.value.toLowerCase().trim();
-      let visible = 0;
-      items.forEach(item => {
-        const title = item.getAttribute('data-title') || '';
-        const show = !q || title.includes(q);
-        item.style.display = show ? '' : 'none';
-        if (show) visible++;
+    <!-- Controls: Filter Tabs & Search -->
+    <div class="blog-controls">
+      <div class="filter-tabs" id="filterTabs">
+        <button class="filter-btn active" data-filter="all">All Articles</button>
+        <button class="filter-btn" data-filter="spotlight">Featured Spotlights</button>
+        <button class="filter-btn" data-filter="robotics">Robotics & Hardware</button>
+        <button class="filter-btn" data-filter="education">AI & Education</button>
+      </div>
+
+      <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="blogSearch" placeholder="Search writeups, events, topics..." aria-label="Search Blog">
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         FEATURED FLAGSHIP SPOTLIGHTS
+         ═══════════════════════════════════════════════════════ -->
+    <section>
+      <span class="sec-tag">01 // Keynotes & Features</span>
+      <h2 class="sec-title">Flagship Event Articles</h2>
+
+      <div class="spotlight-deck" id="spotlightDeck">
+
+        <!-- Flagship 1: Shikho Spotlight -->
+        <a href="shikho/index.html" class="feat-card" data-cat="education spotlight" data-title="shikho smart start hsc ai live launching with shahedin" data-desc="special guest merit student from notre dame college academic transition study frameworks ai tools">
+          <div class="feat-thumb">
+            <span class="feat-badge">// SHIKHO SPOTLIGHT · AI & EDUCATION</span>
+            <img src="https://foysalcyber.github.io/blog/assets/image/shikho-opt.jpg" alt="Shikho Smart Start HSC AI Live Launch" loading="eager">
+          </div>
+          <div class="feat-body">
+            <div>
+              <div class="feat-date"><i class="fa-regular fa-calendar"></i> November 2025 · Shikho Live Stream</div>
+              <h3 class="feat-title">Shikho 'Smart Start: HSC + AI' Launching Live</h3>
+              <p class="feat-desc">
+                Special guest appearance alongside Shahedin and merit students from Notre Dame College, sharing academic transition guidelines, study frameworks, and ethical AI integration.
+              </p>
+            </div>
+            <span class="feat-action">Read Full Feature <i class="fa-solid fa-arrow-right"></i></span>
+          </div>
+        </a>
+
+        <!-- Flagship 2: AIUB Robotics Workshop -->
+        <a href="aiub/index.html" class="feat-card" data-cat="robotics spotlight" data-title="workshop on robotics for ndsc at aiub 22 nov 2025" data-desc="notre dame college science club 66 students drone flight dynamics 3d cad robo soccer championship">
+          <div class="feat-thumb">
+            <span class="feat-badge">// AIUB ROBOTICS · HARDWARE & CAD</span>
+            <img src="https://foysalcyber.github.io/blog/assets/image/roboticsndcsc-1.webp" alt="Workshop on Robotics for NDSC at AIUB" loading="eager">
+          </div>
+          <div class="feat-body">
+            <div>
+              <div class="feat-date"><i class="fa-regular fa-calendar"></i> 22 November 2025 · AIUB Campus</div>
+              <h3 class="feat-title">Workshop on Robotics for NDSC at AIUB</h3>
+              <p class="feat-desc">
+                Official technical documentation of 66 Notre Dame College Science Club students at AIUB exploring 3D CAD modeling, quadcopter drone physics, and Robo Soccer tournament.
+              </p>
+            </div>
+            <span class="feat-action">Read Full Report <i class="fa-solid fa-arrow-right"></i></span>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════════════════
+         DYNAMIC JEKYLL POSTS & ARCHIVE
+         ═══════════════════════════════════════════════════════ -->
+    <section>
+      <span class="sec-tag">02 // Technical Archive</span>
+      <h2 class="sec-title">All Published Writeups</h2>
+
+      {% if site.posts.size > 0 %}
+      <ul class="post-list" id="postList">
+        {% for post in site.posts %}
+        <li class="post-item" data-cat="general" data-title="{{ post.title | downcase }}" data-desc="{{ post.excerpt | strip_html | downcase }}">
+          <a class="post-link" href="{{ post.url }}">
+            <span class="post-index">{{ forloop.index | prepend: '0' | slice: -2, 2 }}</span>
+            <div class="post-info">
+              <div class="post-name">{{ post.title }}</div>
+              <div class="post-date"><i class="fa-regular fa-clock"></i> {{ post.date | date: "%B %d, %Y" }}</div>
+            </div>
+            <i class="fa-solid fa-chevron-right post-arrow"></i>
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <ul class="post-list" id="postList">
+        <!-- Fallback static items matching repository content -->
+        <li class="post-item" data-cat="education spotlight" data-title="shikho smart start hsc ai live launching with shahedin" data-desc="study techniques and ai in collegiate education">
+          <a class="post-link" href="shikho/index.html">
+            <span class="post-index">01</span>
+            <div class="post-info">
+              <div class="post-name">Shikho 'Smart Start: HSC + AI' Launching Live with Shahedin</div>
+              <div class="post-date"><i class="fa-regular fa-clock"></i> November 2025 · Shikho Featured Broadcast</div>
+            </div>
+            <i class="fa-solid fa-chevron-right post-arrow"></i>
+          </a>
+        </li>
+        <li class="post-item" data-cat="robotics spotlight" data-title="workshop on robotics for ndsc at aiub 22 nov 2025" data-desc="aiub robotics workshop 3d cad and robo soccer">
+          <a class="post-link" href="aiub/index.html">
+            <span class="post-index">02</span>
+            <div class="post-info">
+              <div class="post-name">Workshop on Robotics for Notre Dame College Science Club at AIUB</div>
+              <div class="post-date"><i class="fa-regular fa-clock"></i> 22 November 2025 · AIUB Campus Archive</div>
+            </div>
+            <i class="fa-solid fa-chevron-right post-arrow"></i>
+          </a>
+        </li>
+      </ul>
+      {% endif %}
+
+      <!-- Empty State -->
+      <div class="blog-empty" id="blogEmpty">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <p>// NO ARTICLES MATCHING YOUR SEARCH QUERY</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ═══════════════════════════════════════════════════════
+       FOOTER
+       ═══════════════════════════════════════════════════════ -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-links">
+        <a href="../index.html">Main Portfolio</a>
+        <a href="shikho/index.html">Shikho Feature</a>
+        <a href="aiub/index.html">AIUB Robotics</a>
+        <a href="../gallery/index.html">Media Vault</a>
+        <a href="../contact/index.html">Contact Hub</a>
+        <a href="https://github.com/foysalcyber" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://www.facebook.com/foysal.cyber" target="_blank" rel="noopener">Facebook</a>
+      </div>
+      <p class="footer-copy">
+        © 2026 FOYSAL MAHMUD · NOTRE DAME COLLEGE, DHAKA · ALL RIGHTS RESERVED
+      </p>
+    </div>
+  </footer>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SCRIPTS
+       ═══════════════════════════════════════════════════════ -->
+  <script>
+    // ── CANVAS PARTICLES ──
+    (function initCanvas() {
+      const canvas = document.getElementById('canvas-bg');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let w = canvas.width = window.innerWidth;
+      let h = canvas.height = window.innerHeight;
+
+      window.addEventListener('resize', () => {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
       });
-      if (emptyEl) emptyEl.classList.toggle('visible', visible === 0 && q.length > 0);
-      if (countEl) countEl.textContent = (q ? visible : items.length) + ' POST' + ((q ? visible : items.length) !== 1 ? 'S' : '') + ' INDEXED';
+
+      const particles = [];
+      const count = Math.min(60, Math.floor(w / 25));
+
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x: Math.random() * w,
+          y: Math.random() * h,
+          vx: (Math.random() - 0.5) * 0.4,
+          vy: -Math.random() * 0.5 - 0.2,
+          size: Math.random() * 1.8 + 0.6,
+          alpha: Math.random() * 0.4 + 0.1
+        });
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, w, h);
+        for (let p of particles) {
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.y < 0) { p.y = h; p.x = Math.random() * w; }
+          if (p.x < 0) p.x = w;
+          if (p.x > w) p.x = 0;
+
+          ctx.fillStyle = `rgba(201, 168, 76, ${p.alpha})`;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+
+    // ── MOBILE NAVIGATION ──
+    const navToggle = document.getElementById('navToggle');
+    const navLinks = document.getElementById('navLinks');
+    if (navToggle && navLinks) {
+      navToggle.addEventListener('click', () => {
+        navLinks.classList.toggle('show');
+      });
+    }
+
+    // ── FILTERING & SEARCH ──
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const featCards = Array.from(document.querySelectorAll('.feat-card'));
+    const postItems = Array.from(document.querySelectorAll('.post-item'));
+    const searchInput = document.getElementById('blogSearch');
+    const emptyEl = document.getElementById('blogEmpty');
+    const countDisplay = document.getElementById('postCountDisplay');
+    let currentCategory = 'all';
+
+    function applyFilterAndSearch() {
+      const query = (searchInput ? searchInput.value : '').toLowerCase().trim();
+      let visibleCount = 0;
+
+      // Filter featured cards
+      featCards.forEach(card => {
+        const cat = card.getAttribute('data-cat') || '';
+        const title = card.getAttribute('data-title') || '';
+        const desc = card.getAttribute('data-desc') || '';
+
+        const matchesCat = (currentCategory === 'all' || cat.includes(currentCategory));
+        const matchesQuery = !query || title.includes(query) || desc.includes(query);
+
+        if (matchesCat && matchesQuery) {
+          card.style.display = '';
+          visibleCount++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+
+      // Filter post items
+      postItems.forEach(item => {
+        const cat = item.getAttribute('data-cat') || '';
+        const title = item.getAttribute('data-title') || '';
+        const desc = item.getAttribute('data-desc') || '';
+
+        const matchesCat = (currentCategory === 'all' || cat.includes(currentCategory));
+        const matchesQuery = !query || title.includes(query) || desc.includes(query);
+
+        if (matchesCat && matchesQuery) {
+          item.classList.remove('hidden');
+          visibleCount++;
+        } else {
+          item.classList.add('hidden');
+        }
+      });
+
+      if (emptyEl) {
+        emptyEl.classList.toggle('visible', visibleCount === 0);
+      }
+      if (countDisplay) {
+        countDisplay.textContent = `${visibleCount} ARTICLE${visibleCount !== 1 ? 'S' : ''} INDEXED`;
+      }
+    }
+
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentCategory = btn.getAttribute('data-filter');
+        applyFilterAndSearch();
+      });
     });
-  }
-})();
-</script>
+
+    if (searchInput) {
+      searchInput.addEventListener('input', applyFilterAndSearch);
+    }
+
+    // Initial count
+    applyFilterAndSearch();
+  </script>
+</body>
+</html>
