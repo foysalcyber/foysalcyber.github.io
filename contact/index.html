@@ -168,12 +168,13 @@
       --ease: cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    *, *::before, *::after {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      -webkit-font-smoothing: antialiased;
-    }
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
 
     html {
       scroll-behavior: smooth;
@@ -825,6 +826,18 @@
         display: none;
       }
     }
+        /* Remove default blue outline on click/tap, keep it for keyboard nav (accessibility) */
+    a, button, .nav-cta, .ch-card, .copy-chip, .form-submit-btn, .nav-toggle {
+      outline: none;
+    }
+
+    a:focus-visible, button:focus-visible, .nav-cta:focus-visible,
+    .ch-card:focus-visible, .copy-chip:focus-visible,
+    .form-submit-btn:focus-visible, .nav-toggle:focus-visible {
+      outline: 2px solid var(--gold-bright);
+      outline-offset: 3px;
+    }
+    
   </style>
 </head>
 <body>
