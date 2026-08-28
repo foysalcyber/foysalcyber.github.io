@@ -5,7 +5,7 @@
       xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
             http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 
-<!-- মূল হোমপেজ -->
+
 <url>
   <loc>https://foysalcyber.github.io/</loc>
   <lastmod>2026-08-01</lastmod>
@@ -13,7 +13,6 @@
   <priority>1.00</priority>
 </url>
 
-<!-- মূল ফিচার পেজ -->
 <url>
   <loc>https://foysalcyber.github.io/blog</loc>
   <lastmod>2026-08-01</lastmod>
@@ -38,12 +37,7 @@
   <changefreq>monthly</changefreq>
   <priority>0.50</priority>
 </url>
-<url>
-  <loc>https://foysalcyber.github.io/math</loc>
-  <lastmod>2026-08-01</lastmod>
-  <changefreq>monthly</changefreq>
-  <priority>0.40</priority>
-</url>
+      
 <url>
   <loc>https://foysalcyber.github.io/jersey</loc>
   <lastmod>2026-08-01</lastmod>
@@ -57,7 +51,6 @@
   <priority>0.30</priority>
 </url>
 
-<!-- ব্লগ পোস্টসমূহ -->
 <url>
   <loc>https://foysalcyber.github.io/ethical/hacking/2025/03/22/hacking_tools.html</loc>
   <lastmod>2025-03-22</lastmod>
@@ -75,26 +68,6 @@
   <lastmod>2025-03-17</lastmod>
   <changefreq>monthly</changefreq>
   <priority>0.75</priority>
-</url>
-
-<!-- ব্যক্তিগত/সেকেন্ডারি পেজ (সার্চ ইঞ্জিনে কম অগ্রাধিকার) -->
-<url>
-  <loc>https://foysalcyber.github.io/Foysal</loc>
-  <lastmod>2026-08-01</lastmod>
-  <changefreq>yearly</changefreq>
-  <priority>0.20</priority>
-</url>
-<url>
-  <loc>https://foysalcyber.github.io/Nusrat</loc>
-  <lastmod>2026-08-01</lastmod>
-  <changefreq>yearly</changefreq>
-  <priority>0.20</priority>
-</url>
-<url>
-  <loc>https://foysalcyber.github.io/raisa</loc>
-  <lastmod>2026-08-01</lastmod>
-  <changefreq>yearly</changefreq>
-  <priority>0.20</priority>
 </url>
 
 </urlset>
