@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /message/
+Disallow: /dashboard/
+
+Sitemap: https://foysalcyber.github.io/sitemap.xml
