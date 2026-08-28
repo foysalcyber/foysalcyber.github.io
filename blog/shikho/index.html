@@ -208,6 +208,7 @@
       padding: 0;
       box-sizing: border-box;
       -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
     }
 
     html {
@@ -1106,6 +1107,22 @@
         display: none;
       }
     }
+
+    /* Remove default blue outline on click/tap, keep it for keyboard nav (accessibility) */
+a, button, .nav-cta, .btn-secondary, .faq-question, .hero-media-frame,
+.shikho-media-container, .lightbox-close, .nav-toggle {
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+}
+
+a:focus-visible, button:focus-visible, .nav-cta:focus-visible,
+.btn-secondary:focus-visible, .faq-question:focus-visible,
+.hero-media-frame:focus-visible, .shikho-media-container:focus-visible,
+.lightbox-close:focus-visible, .nav-toggle:focus-visible {
+  outline: 2px solid var(--gold-bright);
+  outline-offset: 3px;
+}
   </style>
 </head>
 <body>
