@@ -1160,47 +1160,116 @@
     .lightbox-modal.active {
       display: flex;
     }
-
-    .lightbox-content {
-      max-width: 92vw;
+.lb-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 920px;
       max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-card);
       border: 1px solid var(--gold);
-      box-shadow: 0 0 50px rgba(201, 168, 76, 0.4);
       border-radius: 4px;
       overflow: hidden;
-      position: relative;
+      box-shadow: 0 0 50px rgba(201, 168, 76, 0.4);
     }
 
-    .lightbox-content img {
-      max-width: 100%;
-      max-height: 80vh;
-      display: block;
-      object-fit: contain;
+    .lb-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: rgba(4, 6, 10, 0.9);
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
     }
 
-    .lightbox-close {
-      position: absolute;
-      top: 14px;
-      right: 14px;
+    .lb-counter {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--gold);
+      letter-spacing: 0.1em;
+    }
+
+    .lb-close {
       background: rgba(4, 6, 10, 0.85);
       border: 1px solid var(--gold);
       color: var(--gold-bright);
-      width: 38px;
-      height: 38px;
+      width: 34px;
+      height: 34px;
       border-radius: 2px;
       cursor: pointer;
-      font-size: 18px;
+      font-size: 20px;
+      line-height: 1;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.2s;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
     }
 
-    .lightbox-close:hover {
+    .lb-close:hover {
       background: var(--gold);
-      color: var(--bg-darker);
+      color: #04060a;
     }
 
+    .lb-img-container {
+      width: 100%;
+      max-height: 62vh;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 1;
+    }
+
+    .lb-img-container img {
+      width: 100%;
+      height: 100%;
+      max-height: 62vh;
+      object-fit: contain;
+      display: block;
+    }
+
+    .lb-caption-bar {
+      padding: 18px 22px;
+      background: linear-gradient(180deg, rgba(13, 18, 32, 0.95), rgba(8, 12, 20, 0.98));
+      border-top: 1px solid var(--border-subtle);
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+
+    .lb-caption-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--gold);
+      letter-spacing: 0.1em;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .lb-caption-title {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--gold-bright);
+      margin-bottom: 8px;
+    }
+
+    .lb-caption-text {
+      font-size: 13px;
+      color: #cfc5b4;
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+
+    .lb-caption-meta {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: #8f8672;
+    }
+    
     @media (max-width: 900px) {
       .hero-grid {
         grid-template-columns: 1fr;
@@ -1256,7 +1325,7 @@
 
     /* Remove default blue outline on click/tap, keep it for keyboard nav (accessibility) */
 a, button, .nav-cta, .btn-secondary, .faq-question, .hero-media-frame,
-.shikho-media-container, .lightbox-close, .nav-toggle {
+.shikho-media-container, .lb-close, .nav-toggle {
   outline: none;
   -webkit-tap-highlight-color: transparent;
   -webkit-user-select: none;
@@ -1265,7 +1334,7 @@ a, button, .nav-cta, .btn-secondary, .faq-question, .hero-media-frame,
 a:focus-visible, button:focus-visible, .nav-cta:focus-visible,
 .btn-secondary:focus-visible, .faq-question:focus-visible,
 .hero-media-frame:focus-visible, .shikho-media-container:focus-visible,
-.lightbox-close:focus-visible, .nav-toggle:focus-visible {
+.lb-close:focus-visible, .nav-toggle:focus-visible {
   outline: 2px solid var(--gold-bright);
   outline-offset: 3px;
 }
@@ -1365,12 +1434,12 @@ a:focus-visible, button:focus-visible, .nav-cta:focus-visible,
 
         <div class="hero-media-wrap">
           <div class="hero-media-frame" id="heroImageTrigger" title="Click to view full high-resolution image"
-            data-img="/blog/assets/image/shikho-opt.jpg"
+            data-img="https://foysalcyber.github.io/blog/assets/image/shikho-opt.jpg"
             data-tag="// SHIKHO SPOTLIGHT"
             data-title="Shikho 'Smart Start: HSC + AI' Launching Live"
             data-desc="Special guest live broadcast featuring Shahedin alongside Foysal Mahmud and merit students from Notre Dame College, sharing academic transition frameworks and AI study strategies."
             data-meta="Shikho Live Broadcast · Special Guest Panel · Notre Dame College">
-            <img src="/blog/assets/image/shikho-opt.jpg" alt="Foysal Mahmud on Shikho Smart Start HSC + AI Live panel with Shahedin" loading="eager">
+            <img src="https://foysalcyber.github.io/blog/assets/image/shikho-opt.jpg" alt="Foysal Mahmud on Shikho Smart Start HSC + AI Live panel with Shahedin" loading="eager">
             <div class="hero-media-tag">
               <span><i class="fa-solid fa-video"></i> Shikho Studio Live Broadcast</span>
               <span><i class="fa-solid fa-expand"></i> HD View</span>
@@ -1442,7 +1511,7 @@ a:focus-visible, button:focus-visible, .nav-cta:focus-visible,
     <div class="shikho-media-container">
       <div class="shikho-video-frame" id="shikhoVideoFrame" data-yt-id="kshAtHLTDgw" onclick="playShikhoVideo()">
         <div class="shikho-live-badge"><span class="dot"></span> LIVE BROADCAST</div>
-        <img src="https://i.ytimg.com/vi/kshAtHLTDgw/maxresdefault.jpg" alt="Shikho Live Broadcast Studio Panel with Shahedin and Notre Dame College Merit Guests — click to play YouTube video" loading="lazy" onerror="this.src='/blog/assets/image/shikho-opt.jpg'">
+        <img src="https://i.ytimg.com/vi/kshAtHLTDgw/maxresdefault.jpg" alt="Shikho Live Broadcast Studio Panel with Shahedin and Notre Dame College Merit Guests — click to play YouTube video" loading="lazy" onerror="this.src='https://foysalcyber.github.io/blog/assets/image/shikho-opt.jpg'">
         <div class="shikho-play-btn"><i class="fa-solid fa-play"></i></div>
       </div>
       <div class="shikho-media-details">
