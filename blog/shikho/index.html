@@ -102,6 +102,7 @@
         "description": "Educational live broadcast hosted by Shikho with Shahedin featuring 3 special guest merit students from Notre Dame College including Foysal Mahmud.",
         "thumbnailUrl": "https://foysalcyber.github.io/assets/image/shikho-opt.jpg",
         "uploadDate": "2025-08-10T19:00:00+06:00",
+        "embedUrl": "https://www.youtube.com/embed/kshAtHLTDgw",
         "publisher": {
           "@type": "Organization",
           "name": "Shikho",
@@ -557,6 +558,7 @@
 
     .hero-media-frame {
       position: relative;
+      aspect-ratio: 16 / 9;
       border-radius: 4px;
       overflow: hidden;
       border: 1px solid var(--border-strong);
@@ -796,6 +798,150 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
+    }
+
+    /* ── VIDEO PLAYER (SHIKHO LIVE YOUTUBE EMBED) ── */
+    .shikho-video-frame {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      height: auto;
+      background: #000;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .shikho-video-frame iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    .shikho-video-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.6s var(--ease), filter 0.35s ease;
+    }
+
+    .shikho-media-container:hover .shikho-video-frame img {
+      transform: scale(1.03);
+      filter: brightness(0.75);
+    }
+
+    .shikho-play-btn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: clamp(56px, 9vw, 84px);
+      height: clamp(56px, 9vw, 84px);
+      border-radius: 50%;
+      background: rgba(4, 6, 10, 0.6);
+      border: 2px solid var(--gold-bright);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gold-bright);
+      font-size: clamp(20px, 3vw, 30px);
+      box-shadow: 0 0 0 0 var(--gold-glow);
+      transition: all 0.3s var(--ease);
+      z-index: 2;
+    }
+
+    .shikho-play-btn i { margin-left: 4px; }
+
+    .shikho-media-container:hover .shikho-play-btn {
+      background: var(--gold-bright);
+      color: #04060a;
+      box-shadow: 0 0 0 14px transparent, 0 0 30px var(--gold-glow);
+      transform: translate(-50%, -50%) scale(1.08);
+    }
+
+    .shikho-live-badge {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      background: rgba(4, 6, 10, 0.88);
+      border: 1px solid var(--gold);
+      border-radius: 2px;
+      padding: 6px 12px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--gold-bright);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      z-index: 2;
+      letter-spacing: 0.06em;
+    }
+
+    .shikho-live-badge .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #e5484d;
+      box-shadow: 0 0 8px #e5484d;
+      animation: pulseDot 1.6s ease-in-out infinite;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.35; }
+    }
+
+    .shikho-video-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 22px 30px 26px;
+      background: linear-gradient(180deg, rgba(13, 18, 32, 0.95), rgba(8, 12, 20, 0.98));
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .btn-video-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      padding: 12px 20px;
+      border-radius: 2px;
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: all 0.25s var(--ease);
+      white-space: nowrap;
+      border: 1px solid var(--border);
+    }
+
+    .btn-video-action.yt {
+      color: #04060a;
+      background: #f0d080;
+      border-color: #f0d080;
+    }
+
+    .btn-video-action.yt:hover {
+      background: #fff0c2;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 22px var(--gold-glow);
+    }
+
+    .btn-video-action.fb {
+      color: var(--gold);
+      background: rgba(201, 168, 76, 0.05);
+    }
+
+    .btn-video-action.fb:hover {
+      border-color: var(--gold-bright);
+      color: var(--gold-bright);
+      background: rgba(201, 168, 76, 0.15);
+      transform: translateY(-2px);
     }
 
     /* ── FAQ ACCORDION ── */
@@ -1218,7 +1364,12 @@ a:focus-visible, button:focus-visible, .nav-cta:focus-visible,
         </div>
 
         <div class="hero-media-wrap">
-          <div class="hero-media-frame" id="heroImageTrigger" title="Click to view full high-resolution image">
+          <div class="hero-media-frame" id="heroImageTrigger" title="Click to view full high-resolution image"
+            data-img="/blog/assets/image/shikho-opt.jpg"
+            data-tag="// SHIKHO SPOTLIGHT"
+            data-title="Shikho 'Smart Start: HSC + AI' Launching Live"
+            data-desc="Special guest live broadcast featuring Shahedin alongside Foysal Mahmud and merit students from Notre Dame College, sharing academic transition frameworks and AI study strategies."
+            data-meta="Shikho Live Broadcast · Special Guest Panel · Notre Dame College">
             <img src="/blog/assets/image/shikho-opt.jpg" alt="Foysal Mahmud on Shikho Smart Start HSC + AI Live panel with Shahedin" loading="eager">
             <div class="hero-media-tag">
               <span><i class="fa-solid fa-video"></i> Shikho Studio Live Broadcast</span>
@@ -1288,10 +1439,11 @@ a:focus-visible, button:focus-visible, .nav-cta:focus-visible,
       <p class="sec-desc">Official photographic record from the live launch studio recording with Shahedin and fellow Notre Dame College merit guests.</p>
     </section>
 
-    <div class="shikho-media-container" onclick="openLb('../../assets/image/shikho-opt.jpg', 'Shikho Live Launching Panel with Shahedin and Notre Dame College Merit Guests')">
-      <div class="shikho-media-frame">
-        <img src="/blog/assets/image/shikho-opt.jpg" alt="Shikho Live Broadcast Studio Panel with Shahedin and Notre Dame College Merit Guests" loading="lazy">
-        <div class="shikho-zoom-badge"><i class="fa-solid fa-expand"></i> Click to Zoom HD</div>
+    <div class="shikho-media-container">
+      <div class="shikho-video-frame" id="shikhoVideoFrame" data-yt-id="kshAtHLTDgw" onclick="playShikhoVideo()">
+        <div class="shikho-live-badge"><span class="dot"></span> LIVE BROADCAST</div>
+        <img src="https://i.ytimg.com/vi/kshAtHLTDgw/maxresdefault.jpg" alt="Shikho Live Broadcast Studio Panel with Shahedin and Notre Dame College Merit Guests — click to play YouTube video" loading="lazy" onerror="this.src='/blog/assets/image/shikho-opt.jpg'">
+        <div class="shikho-play-btn"><i class="fa-solid fa-play"></i></div>
       </div>
       <div class="shikho-media-details">
         <div>
@@ -1301,6 +1453,14 @@ a:focus-visible, button:focus-visible, .nav-cta:focus-visible,
         <div class="shikho-live-pill">
           <i class="fa-solid fa-circle-play" style="color:var(--gold-bright);"></i> Official Studio Broadcast
         </div>
+      </div>
+      <div class="shikho-video-actions">
+        <a class="btn-video-action yt" href="https://www.youtube.com/live/kshAtHLTDgw?si=Cp8UjyXAn65OL_1V" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();">
+          <i class="fa-brands fa-youtube"></i> Watch on YouTube
+        </a>
+        <a class="btn-video-action fb" href="https://www.facebook.com/shikho.bangladesh/posts/ssc-%E0%A6%AA%E0%A6%B0%E0%A6%AC%E0%A6%B0%E0%A7%8D%E0%A6%A4%E0%A7%80-%E0%A6%9C%E0%A6%BE%E0%A6%B0%E0%A7%8D%E0%A6%A8%E0%A6%BF-%E0%A6%95%E0%A7%87%E0%A6%AE%E0%A6%A8-%E0%A6%B9%E0%A6%93%E0%A7%9F%E0%A6%BE-%E0%A6%89%E0%A6%9A%E0%A6%BF%E0%A6%A4-%E0%A6%9A%E0%A6%B2%E0%A7%8B-%E0%A6%B8%E0%A7%87%E0%A6%87-%E0%A6%97%E0%A6%B2%E0%A7%8D%E0%A6%AA%E0%A6%87-%E0%A6%B6%E0%A7%8B%E0%A6%A8%E0%A6%BE-%E0%A6%AF%E0%A6%BE%E0%A6%95-%E0%A6%AE%E0%A7%87%E0%A6%A7%E0%A6%BE%E0%A6%AC%E0%A7%80%E0%A6%A6%E0%A7%87%E0%A6%B0-%E0%A6%AE%E0%A7%81%E0%A6%96-%E0%A6%A5%E0%A7%87%E0%A6%95%E0%A7%87-hsc-/1316143167362176/" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation();">
+          <i class="fa-brands fa-facebook"></i> Facebook post
+        </a>
       </div>
     </div>
 
@@ -1470,6 +1630,23 @@ a:focus-visible, button:focus-visible, .nav-cta:focus-visible,
       }
       draw();
     })();
+
+    // ── SHIKHO LIVE VIDEO PLAYER (CLICK-TO-LOAD YOUTUBE EMBED) ──
+    function playShikhoVideo() {
+      const frame = document.getElementById('shikhoVideoFrame');
+      if (!frame || frame.querySelector('iframe')) return;
+      const videoId = frame.getAttribute('data-yt-id');
+      const iframe = document.createElement('iframe');
+      iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+      iframe.title = 'Shikho Live Launch: স্মার্ট স্টার্ট: HSC + AI with Shahedin & Notre Dame College Guests';
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+      iframe.allowFullscreen = true;
+      iframe.loading = 'lazy';
+      frame.innerHTML = '';
+      frame.appendChild(iframe);
+      frame.onclick = null;
+      frame.style.cursor = 'default';
+    }
 
     // ── MOBILE NAVIGATION ──
     const navToggle = document.getElementById('navToggle');
