@@ -1,0 +1,773 @@
+import {
+  APP_TIME_ZONE,
+  MEAL_RATE_PAISA,
+  SLOT_ORDER,
+  WEEKDAY_NAMES,
+  buildMonthCsv,
+  calculateMonth,
+  currentDateKey,
+  currentHour,
+  daysInMonth,
+  formatMeals,
+  formatMoney,
+  formatMonthLabel,
+  makeDateKey,
+  parseDateKey,
+  parseMonthKey,
+  parseTakaToPaisa,
+  sanitizeDayEntry,
+  shiftMonth,
+  slotHalfUnits,
+  weekdayIndex,
+} from './core.js';
+
+const FIREBASE_VERSION = '11.0.2';
+const firebaseConfig = {
+  apiKey: 'AIzaSyCkUUgCehPOurUM09KjqtMfE2FEO0hFyyo',
+  authDomain: 'hostel-meal-fd287.firebaseapp.com',
+  projectId: 'hostel-meal-fd287',
+  storageBucket: 'hostel-meal-fd287.firebasestorage.app',
+  messagingSenderId: '758189177379',
+  appId: '1:758189177379:web:96d87fa60cec94ea3fcf96',
+  // The supplied value contained a line break. Analytics is not required by this app,
+  // but the corrected ID is kept here for future use.
+  measurementId: 'G-7WK2JBXNB6',
+};
+
+const $ = (selector, root = document) => root.querySelector(selector);
+const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+const icon = (name, className = '') => `<svg${className ? ` class="${className}"` : ''} aria-hidden="true"><use href="#i-${name}"></use></svg>`;
+const todayKey = () => currentDateKey(APP_TIME_ZONE);
+
+const state = {
+  mode: null,
+  user: null,
+  profile: null,
+  firebaseReady: false,
+  firebaseError: null,
+  firebase: null,
+  auth: null,
+  db: null,
+  appActive: false,
+  monthKey: todayKey().slice(0, 7),
+  selectedDate: todayKey(),
+  entries: {},
+  advancePaisa: 0,
+  summary: null,
+  activeView: 'overview',
+  calendarFilter: 'all',
+  monthGeneration: 0,
+  unsubs: [],
+  saveOperations: 0,
+  renderFrame: null,
+  confirmResolver: null,
+  mealWriteTokens: new Map(),
+};
+
+const viewMeta = {
+  overview: ['CONTROL CENTER', 'Overview'],
+  calendar: ['DAILY REGISTER', 'Meal calendar'],
+  insights: ['MONTHLY INTELLIGENCE', 'Insights'],
+  settings: ['ACCOUNT & DATA', 'Settings'],
+};
+
+const slotMeta = {
+  breakfast: { label: 'Breakfast', icon: 'sun', color: 'var(--amber)' },
+  lunch: { label: 'Lunch', icon: 'lunch', color: 'var(--primary)' },
+  dinner: { label: 'Dinner', icon: 'moon', color: 'var(--purple)' },
+};
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+function bootComplete() {
+  const boot = $('#bootScreen');
+  if (!boot || boot.classList.contains('is-leaving')) return;
+  boot.classList.add('is-leaving');
+  window.setTimeout(() => boot.remove(), 500);
+}
+
+function setButtonBusy(button, busy, label = 'Working…') {
+  if (!button) return;
+  if (busy) {
+    button.dataset.originalHtml = button.innerHTML;
+    button.disabled = true;
+    button.innerHTML = `<span>${escapeHtml(label)}</span>`;
+  } else {
+    button.disabled = false;
+    if (button.dataset.originalHtml) button.innerHTML = button.dataset.originalHtml;
+    delete button.dataset.originalHtml;
+  }
+}
+
+function setAuthAlert(message = '', type = 'error') {
+  const alert = $('#authAlert');
+  if (!message) {
+    alert.classList.add('is-hidden');
+    alert.textContent = '';
+    return;
+  }
+  alert.textContent = message;
+  alert.classList.remove('is-hidden', 'is-success');
+  if (type === 'success') alert.classList.add('is-success');
+}
+
+function toast(title, message = '', type = 'success', action = null) {
+  const region = $('#toastRegion');
+  const element = document.createElement('div');
+  element.className = `toast${type === 'error' ? ' is-error' : ''}`;
+  element.innerHTML = `
+    <span class="toast-icon">${icon(type === 'error' ? 'info' : 'check')}</span>
+    <span><strong>${escapeHtml(title)}</strong>${message ? `<small>${escapeHtml(message)}</small>` : ''}</span>
+    ${action ? `<button type="button">${escapeHtml(action.label)}</button>` : ''}
+    <i class="toast-progress"></i>`;
+  region.append(element);
+
+  let removed = false;
+  const remove = () => {
+    if (removed) return;
+    removed = true;
+    element.classList.add('is-leaving');
+    window.setTimeout(() => element.remove(), 260);
+  };
+  if (action) {
+    $('button', element)?.addEventListener('click', () => {
+      action.handler();
+      remove();
+    });
+  }
+  window.setTimeout(remove, 4_100);
+}
+
+function humanFirebaseError(error) {
+  const code = String(error?.code ?? '');
+  const messages = {
+    'auth/invalid-credential': 'The email or password is incorrect.',
+    'auth/user-not-found': 'No account was found for this email.',
+    'auth/wrong-password': 'The email or password is incorrect.',
+    'auth/email-already-in-use': 'An account already exists for this email.',
+    'auth/weak-password': 'Use a stronger password with at least 8 characters.',
+    'auth/invalid-email': 'Enter a valid email address.',
+    'auth/popup-closed-by-user': 'Google sign-in was closed before completion.',
+    'auth/popup-blocked': 'The sign-in popup was blocked by this browser.',
+    'auth/unauthorized-domain': 'Add this website domain to Firebase Authentication → Authorized domains.',
+    'auth/operation-not-allowed': 'Enable this sign-in method in Firebase Authentication first.',
+    'auth/network-request-failed': 'A network request failed. Check your connection and try again.',
+    'permission-denied': 'Firestore denied the request. Deploy the included firestore.rules file.',
+    'firestore/permission-denied': 'Firestore denied the request. Deploy the included firestore.rules file.',
+    'unavailable': 'The cloud service is temporarily unavailable.',
+    'firestore/unavailable': 'The cloud service is temporarily unavailable.',
+  };
+  return messages[code] || error?.message?.replace(/^Firebase:\s*/i, '') || 'Something went wrong. Please try again.';
+}
+
+async function initFirebase() {
+  const connection = $('#authConnectionStatus');
+  const projectStatus = $('#firebaseProjectStatus');
+  try {
+    const [appModule, authModule, firestoreModule] = await Promise.all([
+      import(`https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/firebase-app.js`),
+      import(`https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/firebase-auth.js`),
+      import(`https://www.gstatic.com/firebasejs/${FIREBASE_VERSION}/firebase-firestore.js`),
+    ]);
+
+    const app = appModule.initializeApp(firebaseConfig);
+    const auth = authModule.getAuth(app);
+    const db = firestoreModule.getFirestore(app);
+
+    state.firebase = { appModule, authModule, firestoreModule, app };
+    state.auth = auth;
+    state.db = db;
+    state.firebaseReady = true;
+
+    connection?.classList.add('is-connected');
+    connection?.classList.remove('is-offline');
+    if (connection) connection.lastElementChild.textContent = 'Secure Firebase connection ready';
+    projectStatus?.classList.add('is-connected');
+    projectStatus?.classList.remove('is-offline');
+    if (projectStatus) $('small', projectStatus).textContent = firebaseConfig.projectId;
+
+    let initialAuthResolved = false;
+    await new Promise((resolve) => {
+      authModule.onAuthStateChanged(auth, async (user) => {
+        if (!initialAuthResolved) {
+          initialAuthResolved = true;
+          resolve();
+        }
+        if (user) {
+          state.mode = 'firebase';
+          state.user = user;
+          await showApp();
+        } else if (state.mode !== 'demo') {
+          state.mode = null;
+          state.user = null;
+          showAuth();
+        }
+      });
+    });
+  } catch (error) {
+    console.error('Firebase initialization failed:', error);
+    state.firebaseError = error;
+    connection?.classList.add('is-offline');
+    connection?.classList.remove('is-connected');
+    if (connection) connection.lastElementChild.textContent = 'Cloud unavailable — demo mode still works';
+    projectStatus?.classList.add('is-offline');
+    if (projectStatus) $('small', projectStatus).textContent = 'Unavailable in this preview';
+    showAuth();
+  } finally {
+    bootComplete();
+  }
+}
+
+function showAuth() {
+  cleanupDataListeners();
+  state.appActive = false;
+  $('#appShell').classList.add('is-hidden');
+  $('#authView').classList.remove('is-hidden');
+  $('#accountPopover').classList.add('is-hidden');
+  closeSidebar();
+  bootComplete();
+}
+
+async function showApp() {
+  if (!state.user) return;
+  const firstEntry = !state.appActive;
+  state.appActive = true;
+  $('#authView').classList.add('is-hidden');
+  $('#appShell').classList.remove('is-hidden');
+  $('#demoBanner').classList.toggle('is-hidden', state.mode !== 'demo');
+  setAuthAlert();
+  updateUserInterface();
+  updateProjectAndSyncStatus();
+  navigate(validView(location.hash.slice(1)) ? location.hash.slice(1) : 'overview', false);
+
+  if (state.mode === 'firebase') await subscribeProfile();
+  if (firstEntry || !state.summary) await loadMonth(state.monthKey);
+  bootComplete();
+}
+
+function validView(value) {
+  return Object.hasOwn(viewMeta, value);
+}
+
+function cleanupDataListeners() {
+  for (const unsubscribe of state.unsubs.splice(0)) {
+    try { unsubscribe(); } catch { /* Listener was already detached. */ }
+  }
+  state.monthGeneration += 1;
+}
+
+async function subscribeProfile() {
+  if (!state.firebaseReady || !state.user || state.mode !== 'firebase') return;
+  const { doc, onSnapshot, setDoc, serverTimestamp } = state.firebase.firestoreModule;
+  const ref = doc(state.db, 'users', state.user.uid);
+  const fallbackName = state.user.displayName || state.user.email?.split('@')[0] || 'Resident';
+
+  try {
+    const unsubscribe = onSnapshot(ref, async (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.data();
+        state.profile = {
+          displayName: typeof data.displayName === 'string' ? data.displayName : fallbackName,
+          email: state.user.email || data.email || '',
+        };
+        updateUserInterface();
+      } else {
+        state.profile = { displayName: fallbackName, email: state.user.email || '' };
+        updateUserInterface();
+        try {
+          await setDoc(ref, {
+            displayName: fallbackName.slice(0, 60),
+            email: state.user.email || '',
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+          });
+        } catch (error) {
+          toast('Profile could not be initialized', humanFirebaseError(error), 'error');
+        }
+      }
+    }, (error) => {
+      state.profile = { displayName: fallbackName, email: state.user.email || '' };
+      updateUserInterface();
+      toast('Profile access failed', humanFirebaseError(error), 'error');
+    });
+    state.unsubs.push(unsubscribe);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+function displayName() {
+  return state.profile?.displayName || state.user?.displayName || state.user?.email?.split('@')[0] || 'Resident';
+}
+
+function userEmail() {
+  return state.profile?.email || state.user?.email || (state.mode === 'demo' ? 'Local preview' : '');
+}
+
+function initials(name) {
+  const parts = String(name).trim().split(/\s+/).filter(Boolean);
+  return (parts.length > 1 ? `${parts[0][0]}${parts.at(-1)[0]}` : parts[0]?.slice(0, 2) || 'ML').toUpperCase();
+}
+
+function updateUserInterface() {
+  const name = displayName();
+  const email = userEmail();
+  $$('[data-user-name]').forEach((el) => { el.textContent = name; });
+  $$('[data-user-email]').forEach((el) => { el.textContent = email; });
+  $$('[data-user-initials]').forEach((el) => { el.textContent = initials(name); });
+  $('#greetingName').textContent = name.split(/\s+/)[0] || 'Resident';
+  $('#profileNameInput').value = name;
+  $('#profileEmailInput').value = email;
+  $('#accountModeLabel').textContent = state.mode === 'demo' ? 'Browser-only demo profile' : 'Firebase cloud account';
+  const verification = $('#emailVerificationBadge');
+  if (state.mode === 'demo') {
+    verification.innerHTML = `${icon('zap')} Demo mode`;
+  } else if (state.user?.emailVerified) {
+    verification.innerHTML = `${icon('shield')} Email verified`;
+  } else {
+    verification.innerHTML = `${icon('info')} Email not verified`;
+  }
+}
+
+function updateProjectAndSyncStatus() {
+  const projectStatus = $('#firebaseProjectStatus');
+  if (state.mode === 'demo') {
+    projectStatus?.classList.remove('is-connected');
+    projectStatus?.classList.add('is-offline');
+    if (projectStatus) $('small', projectStatus).textContent = 'Demo data stays in localStorage';
+    setSyncStatus('local');
+  } else if (state.firebaseReady) {
+    projectStatus?.classList.add('is-connected');
+    projectStatus?.classList.remove('is-offline');
+    if (projectStatus) $('small', projectStatus).textContent = firebaseConfig.projectId;
+    setSyncStatus('synced');
+  }
+}
+
+function setSyncStatus(status) {
+  const element = $('#syncStatus');
+  if (!element) return;
+  const definitions = {
+    synced: ['cloud', 'Synced'],
+    saving: ['refresh', 'Saving'],
+    offline: ['cloud-off', 'Offline'],
+    local: ['cloud-off', 'Local only'],
+  };
+  const [iconName, label] = definitions[status] || definitions.synced;
+  element.classList.remove('is-saving', 'is-offline');
+  if (status === 'saving') element.classList.add('is-saving');
+  if (status === 'offline' || status === 'local') element.classList.add('is-offline');
+  element.innerHTML = `${icon(iconName)}<span>${label}</span>`;
+}
+
+function beginSave() {
+  state.saveOperations += 1;
+  setSyncStatus(state.mode === 'demo' ? 'local' : 'saving');
+}
+
+function endSave() {
+  state.saveOperations = Math.max(0, state.saveOperations - 1);
+  if (state.saveOperations === 0) {
+    setSyncStatus(state.mode === 'demo' ? 'local' : navigator.onLine ? 'synced' : 'offline');
+  }
+}
+
+function navigate(view, updateHash = true) {
+  if (!validView(view)) view = 'overview';
+  state.activeView = view;
+  $$('.app-view').forEach((el) => el.classList.toggle('is-active', el.dataset.appView === view));
+  $$('[data-view]').forEach((el) => el.classList.toggle('is-active', el.dataset.view === view));
+  const [eyebrow, title] = viewMeta[view];
+  $('#pageEyebrow').textContent = eyebrow;
+  $('#pageTitle').textContent = title;
+  if (updateHash && location.hash !== `#${view}`) history.pushState(null, '', `#${view}`);
+  $('#accountPopover').classList.add('is-hidden');
+  closeSidebar();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function selectAuthTab(tab) {
+  const signIn = tab === 'signin';
+  $('#signInTab').classList.toggle('is-active', signIn);
+  $('#signUpTab').classList.toggle('is-active', !signIn);
+  $('#signInTab').setAttribute('aria-selected', String(signIn));
+  $('#signUpTab').setAttribute('aria-selected', String(!signIn));
+  $('#signInForm').classList.toggle('is-hidden', !signIn);
+  $('#signUpForm').classList.toggle('is-hidden', signIn);
+  setAuthAlert();
+}
+
+function openSidebar() {
+  $('#sidebar').classList.add('is-open');
+  $('#sidebarBackdrop').classList.add('is-open');
+}
+
+function closeSidebar() {
+  $('#sidebar')?.classList.remove('is-open');
+  $('#sidebarBackdrop')?.classList.remove('is-open');
+}
+
+function openModal(id) {
+  const modal = $(`#${id}`);
+  if (!modal) return;
+  modal.classList.remove('is-hidden');
+  document.body.classList.add('modal-open');
+  window.setTimeout(() => $('input,button', modal)?.focus(), 50);
+}
+
+function closeModal(id) {
+  $(`#${id}`)?.classList.add('is-hidden');
+  if (!document.querySelector('.modal-layer:not(.is-hidden)')) document.body.classList.remove('modal-open');
+}
+
+function requestConfirm({ title, message, confirmLabel = 'Confirm', danger = true }) {
+  const modal = $('#confirmModal');
+  $('#confirmTitle').textContent = title;
+  $('#confirmMessage').textContent = message;
+  $('#confirmActionButton').textContent = confirmLabel;
+  $('#confirmActionButton').className = `button ${danger ? 'button-danger' : 'button-primary'}`;
+  openModal('confirmModal');
+  return new Promise((resolve) => { state.confirmResolver = resolve; });
+}
+
+function resolveConfirm(result) {
+  closeModal('confirmModal');
+  const resolver = state.confirmResolver;
+  state.confirmResolver = null;
+  resolver?.(result === 'confirm');
+}
+
+function updateMonthControls() {
+  const label = formatMonthLabel(state.monthKey);
+  $('#topMonthLabel').textContent = label;
+  $('#monthPicker').value = state.monthKey;
+  $('#overviewSubtitle').textContent = `Here is your precise meal position for ${label}.`;
+  $('#calendarMonthKicker').textContent = label.toUpperCase();
+  $('#calendarMonthTitle').textContent = `${daysInMonth(state.monthKey)}-day monthly register`;
+  $('#calendarSubtitle').textContent = `Toggle a slot only when that meal was eaten. ${label} has ${daysInMonth(state.monthKey)} days.`;
+  $('#advanceModalCaption').textContent = `Enter the amount paid to the hostel authority for ${label}.`;
+  $('#quickFillCaption').textContent = `Choose an action for ${label}. You can still change any slot afterward.`;
+  $('#clearMonthCaption').textContent = `Delete entries and advance for ${label}`;
+}
+
+async function loadMonth(monthKey) {
+  try { parseMonthKey(monthKey); } catch { return; }
+  const oldSelectedDay = (() => {
+    try { return parseDateKey(state.selectedDate).day; } catch { return 1; }
+  })();
+  state.monthKey = monthKey;
+  const current = todayKey();
+  const day = current.startsWith(`${monthKey}-`)
+    ? parseDateKey(current).day
+    : Math.min(oldSelectedDay, daysInMonth(monthKey));
+  state.selectedDate = makeDateKey(monthKey, day);
+  state.entries = {};
+  state.advancePaisa = 0;
+  state.monthGeneration += 1;
+  const generation = state.monthGeneration;
+  state.unsubs = state.unsubs.filter((unsubscribe) => {
+    // Profile listener is intentionally resubscribed when showApp runs; all month
+    // listeners are cleared below through a complete listener refresh.
+    try { unsubscribe(); } catch { /* no-op */ }
+    return false;
+  });
+  if (state.mode === 'firebase') await subscribeProfile();
+
+  updateMonthControls();
+  requestRender();
+
+  if (state.mode === 'demo') {
+    loadDemoMonth(monthKey);
+    return;
+  }
+  if (!state.firebaseReady || !state.user) return;
+
+  const {
+    collection,
+    doc,
+    onSnapshot,
+    serverTimestamp,
+    setDoc,
+  } = state.firebase.firestoreModule;
+  const monthRef = doc(state.db, 'users', state.user.uid, 'months', monthKey);
+  const daysRef = collection(state.db, 'users', state.user.uid, 'months', monthKey, 'days');
+  let monthCreationAttempted = false;
+
+  const monthUnsub = onSnapshot(monthRef, async (snapshot) => {
+    if (generation !== state.monthGeneration) return;
+    if (snapshot.exists()) {
+      const value = snapshot.data().advancePaisa;
+      state.advancePaisa = Number.isSafeInteger(value) && value >= 0 ? value : 0;
+      requestRender();
+    } else if (!monthCreationAttempted) {
+      monthCreationAttempted = true;
+      try {
+        await setDoc(monthRef, {
+          monthKey,
+          advancePaisa: 0,
+          mealRatePaisa: MEAL_RATE_PAISA,
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        });
+      } catch (error) {
+        toast('Month could not be initialized', humanFirebaseError(error), 'error');
+      }
+    }
+  }, (error) => {
+    if (generation !== state.monthGeneration) return;
+    setSyncStatus('offline');
+    toast('Month access failed', humanFirebaseError(error), 'error');
+  });
+
+  const daysUnsub = onSnapshot(daysRef, { includeMetadataChanges: true }, (snapshot) => {
+    if (generation !== state.monthGeneration) return;
+    const nextEntries = {};
+    for (const documentSnapshot of snapshot.docs) {
+      const dateKey = documentSnapshot.id;
+      try {
+        if (!dateKey.startsWith(`${monthKey}-`)) continue;
+        parseDateKey(dateKey);
+        nextEntries[dateKey] = sanitizeDayEntry(documentSnapshot.data());
+      } catch { /* Ignore malformed IDs even if legacy data exists. */ }
+    }
+    state.entries = nextEntries;
+    requestRender();
+    setSyncStatus(snapshot.metadata.hasPendingWrites ? 'saving' : navigator.onLine ? 'synced' : 'offline');
+  }, (error) => {
+    if (generation !== state.monthGeneration) return;
+    setSyncStatus('offline');
+    toast('Meal records could not be loaded', humanFirebaseError(error), 'error');
+  });
+
+  state.unsubs.push(monthUnsub, daysUnsub);
+}
+
+function demoStorageKey(monthKey) {
+  return `meal-ledger:demo:${monthKey}`;
+}
+
+function seedDemoMonth(monthKey) {
+  const current = todayKey();
+  let end = 0;
+  if (monthKey < current.slice(0, 7)) end = daysInMonth(monthKey);
+  if (monthKey === current.slice(0, 7)) end = parseDateKey(current).day;
+  const entries = {};
+  for (let day = 1; day <= end; day += 1) {
+    const dateKey = makeDateKey(monthKey, day);
+    entries[dateKey] = {
+      breakfast: day % 6 !== 0,
+      lunch: day % 5 !== 0,
+      dinner: day % 7 !== 0 && day % 11 !== 0,
+    };
+  }
+  return { version: 1, advancePaisa: 4_000_00, entries };
+}
+
+function loadDemoMonth(monthKey) {
+  let data = null;
+  try { data = JSON.parse(localStorage.getItem(demoStorageKey(monthKey)) || 'null'); } catch { data = null; }
+  if (!data) {
+    data = seedDemoMonth(monthKey);
+    localStorage.setItem(demoStorageKey(monthKey), JSON.stringify(data));
+  }
+  state.advancePaisa = Number.isSafeInteger(data.advancePaisa) && data.advancePaisa >= 0 ? data.advancePaisa : 0;
+  state.entries = {};
+  for (const [dateKey, entry] of Object.entries(data.entries || {})) {
+    try {
+      if (parseDateKey(dateKey).monthKey === monthKey) state.entries[dateKey] = sanitizeDayEntry(entry);
+    } catch { /* Skip invalid demo entries. */ }
+  }
+  requestRender();
+  setSyncStatus('local');
+}
+
+function saveDemoMonth() {
+  localStorage.setItem(demoStorageKey(state.monthKey), JSON.stringify({
+    version: 1,
+    advancePaisa: state.advancePaisa,
+    entries: state.entries,
+  }));
+}
+
+function requestRender() {
+  if (state.renderFrame) return;
+  state.renderFrame = requestAnimationFrame(() => {
+    state.renderFrame = null;
+    renderAll();
+  });
+}
+
+function renderAll() {
+  state.summary = calculateMonth(state.monthKey, state.entries, state.advancePaisa);
+  updateMonthControls();
+  renderGreeting();
+  renderMetrics();
+  renderSelectedDay();
+  renderCalendar();
+  renderRecentActivity();
+  renderCharts();
+  renderInsights();
+}
+
+function renderGreeting() {
+  const hour = currentHour(APP_TIME_ZONE);
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  $('#greetingText').textContent = greeting;
+}
+
+function renderMetrics() {
+  const summary = state.summary;
+  $('#metricMeals').textContent = formatMeals(summary.actualHalfUnits);
+  $('#metricActiveDays').textContent = summary.activeDays;
+  $('#metricMealsMax').textContent = `of ${formatMeals(summary.maximumHalfUnits)} possible`;
+  $('#metricCost').textContent = formatMoney(summary.spentPaisa);
+  $('#metricAdvance').textContent = formatMoney(summary.advancePaisa);
+
+  const usePercent = summary.advancePaisa > 0 ? (summary.spentPaisa / summary.advancePaisa) * 100 : 0;
+  $('#metricAdvanceUse').textContent = summary.advancePaisa ? `${Math.round(usePercent)}% used` : 'Not set';
+  $('#advanceUsageText').textContent = summary.advancePaisa ? `${Math.round(usePercent)}% of ${formatMoney(summary.advancePaisa)}` : 'No advance set';
+  $('#advanceUsageBar').style.width = `${Math.min(100, usePercent)}%`;
+
+  const due = summary.balancePaisa < 0;
+  const balanceCard = $('#balanceMetricCard');
+  balanceCard.classList.toggle('is-due', due);
+  $('#balanceMetricLabel').textContent = due ? 'AMOUNT DUE' : 'REMAINING';
+  $('#metricBalance').textContent = formatMoney(Math.abs(summary.balancePaisa));
+  $('#balanceMetricHint').innerHTML = due
+    ? '<i class="status-mark status-danger"></i> Advance exceeded'
+    : '<i class="status-mark status-good"></i> Advance is sufficient';
+  $('.metric-icon svg', balanceCard)?.querySelector('use')?.setAttribute('href', due ? '#i-arrow-down' : '#i-arrow-up');
+
+  const percent = summary.completionPercent;
+  $('#mealProgressPercent').textContent = `${Math.round(percent)}%`;
+  $('#mealProgressRing').style.strokeDashoffset = String(389.56 * (1 - Math.min(100, percent) / 100));
+  for (const slot of SLOT_ORDER) {
+    $(`#${slot}Total`).textContent = formatMeals(summary.slotTotals[slot].halfUnits);
+    $(`#${slot}Days`).textContent = `${summary.slotTotals[slot].checkedDays} days`;
+  }
+
+  $('#calendarInlineMeals').textContent = formatMeals(summary.actualHalfUnits);
+  $('#calendarInlineCost').textContent = formatMoney(summary.spentPaisa);
+  $('#allDayCount').textContent = summary.days;
+  $('#loggedDayCount').textContent = summary.activeDays;
+  $('#emptyDayCount').textContent = summary.days - summary.activeDays;
+}
+
+function formatHumanDate(dateKey, includeYear = false) {
+  const { year, month, day } = parseDateKey(dateKey);
+  return new Intl.DateTimeFormat('en-US', {
+    timeZone: 'UTC',
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    ...(includeYear ? { year: 'numeric' } : {}),
+  }).format(new Date(Date.UTC(year, month - 1, day)));
+}
+
+function specialRuleText(dateKey) {
+  const weekday = weekdayIndex(dateKey);
+  if (weekday === 5) return '2× FRIDAY LUNCH';
+  if (weekday === 2) return '2× TUESDAY DINNER';
+  if (weekday === 0) return '1.5× SUNDAY DINNER';
+  return '';
+}
+
+function mealToggleMarkup(dateKey, slot, entry, variant = 'day') {
+  const meta = slotMeta[slot];
+  const halfUnits = slotHalfUnits(dateKey, slot);
+  const on = entry[slot];
+  if (variant === 'selected') {
+    return `<button class="selected-meal-toggle${on ? ' is-on' : ''}" data-meal-toggle data-date="${dateKey}" data-slot="${slot}" type="button" aria-pressed="${on}" aria-label="${on ? 'Unmark' : 'Mark'} ${meta.label} on ${formatHumanDate(dateKey)}">
+      <span class="meal-mini-icon">${icon(meta.icon)}</span>
+      <span><strong>${meta.label}</strong><small>${formatMeals(halfUnits)} meal${halfUnits === 2 ? '' : 's'}</small></span>
+      <em>${formatMoney(halfUnits * 2_600)}</em>
+      <span class="toggle-box">${icon('check')}</span>
+    </button>`;
+  }
+  return `<button class="day-meal-toggle${on ? ' is-on' : ''}" data-meal-toggle data-date="${dateKey}" data-slot="${slot}" type="button" aria-pressed="${on}" aria-label="${on ? 'Unmark' : 'Mark'} ${meta.label} on ${formatHumanDate(dateKey)}">
+    ${icon(meta.icon)}<span>${meta.label}</span><small>${formatMeals(halfUnits)}</small><i class="day-check">${icon('check')}</i>
+  </button>`;
+}
+
+function renderSelectedDay() {
+  const item = state.summary.daily.find((day) => day.dateKey === state.selectedDate) || state.summary.daily[0];
+  if (!item) return;
+  state.selectedDate = item.dateKey;
+  const current = todayKey();
+  const relative = item.dateKey === current ? 'TODAY' : item.dateKey < current ? 'PAST' : 'UPCOMING';
+  $('#selectedDayTitle').textContent = relative === 'TODAY' ? 'Today' : 'Selected day';
+  $('#selectedDayDate').textContent = formatHumanDate(item.dateKey);
+  $('#selectedDayBadge').textContent = relative;
+  $('#selectedDayToggles').innerHTML = SLOT_ORDER.map((slot) => mealToggleMarkup(item.dateKey, slot, item.entry, 'selected')).join('');
+  $('#selectedDayMeals').textContent = `${formatMeals(item.actualHalfUnits)} meal${item.actualHalfUnits === 2 ? '' : 's'}`;
+  $('#selectedDayCost').textContent = formatMoney(item.costPaisa);
+  $('#previousDayButton').disabled = item.day === 1;
+  $('#nextDayButton').disabled = item.day === state.summary.days;
+}
+
+function renderCalendar() {
+  const grid = $('#calendarGrid');
+  const current = todayKey();
+  let visible = state.summary.daily;
+  if (state.calendarFilter === 'logged') visible = visible.filter((day) => day.actualHalfUnits > 0);
+  if (state.calendarFilter === 'empty') visible = visible.filter((day) => day.actualHalfUnits === 0);
+
+  $('#calendarEmptyState').classList.toggle('is-hidden', visible.length > 0);
+  grid.classList.toggle('is-hidden', visible.length === 0);
+  if (!visible.length) {
+    grid.innerHTML = '';
+    return;
+  }
+
+  grid.innerHTML = visible.map((item, index) => {
+    const special = specialRuleText(item.dateKey);
+    const firstOffset = state.calendarFilter === 'all' && index === 0 ? ((item.weekday + 6) % 7) + 1 : null;
+    return `<article class="day-card${item.actualHalfUnits ? ' has-meals' : ''}${item.dateKey === current ? ' is-today' : ''}${item.dateKey > current ? ' is-future' : ''}"${firstOffset ? ` style="grid-column-start:${firstOffset}"` : ''} data-day-card="${item.dateKey}">
+      <div class="day-card-head">
+        <button class="day-number" data-select-date="${item.dateKey}" type="button" aria-label="Select ${formatHumanDate(item.dateKey)}"><strong>${String(item.day).padStart(2, '0')}</strong><span>${WEEKDAY_NAMES[item.weekday].slice(0, 3).toUpperCase()}</span></button>
+        <span class="day-total-badge">${formatMeals(item.actualHalfUnits)} M</span>
+      </div>
+      <div class="special-rule${special ? '' : ' is-none'}">${icon('zap')}<span>${special || 'STANDARD DAY'}</span></div>
+      <div class="day-meals">${SLOT_ORDER.map((slot) => mealToggleMarkup(item.dateKey, slot, item.entry)).join('')}</div>
+      <div class="day-card-footer"><span>${item.actualHalfUnits ? 'LOGGED' : 'NO MEALS'}</span><strong>${formatMoney(item.costPaisa)}</strong></div>
+    </article>`;
+  }).join('');
+}
+
+function renderRecentActivity() {
+  const recent = state.summary.daily.filter((day) => day.actualHalfUnits > 0).reverse().slice(0, 5);
+  const container = $('#recentActivity');
+  if (!recent.length) {
+    container.innerHTML = `<div class="empty-state">${icon('lunch')}<strong>No meals logged yet</strong><p>Use Quick Entry or the calendar to start this month.</p></div>`;
+    return;
+  }
+  container.innerHTML = recent.map((item) => `
+    <div class="recent-row">
+      <span class="recent-date"><strong>${String(item.day).padStart(2, '0')}</strong><small>${WEEKDAY_NAMES[item.weekday].slice(0, 3).toUpperCase()}</small></span>
+      <span class="recent-day-name"><strong>${formatHumanDate(item.dateKey)}</strong><small>${specialRuleText(item.dateKey) || 'Standard meal values'}</small></span>
+      ${SLOT_ORDER.map((slot) => `<span class="recent-slot${item.entry[slot] ? ' is-on' : ''}"><i></i>${slotMeta[slot].label} ${item.entry[slot] ? formatMeals(item.values[slot]) : '—'}</span>`).join('')}
+      <span class="recent-total"><strong>${formatMeals(item.actualHalfUnits)} meals</strong><small>${formatMoney(item.costPaisa)}</small></span>
+    </div>`).join('');
+}
+
+function lineChartMarkup(summary, gradientSuffix = '') {
+  const width = 1000;
+  const height = 260;
+  const padding = 13;
+  let cumulative = 0;
+  const values = summary.daily.map((item) => {
+    cumulative += item.costPaisa;
+    return cumulative;
+  });
+  if (cumulative === 0) {
+    return `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" role="img" aria-label="No spending logged"><text class="empty-chart-label" x="${width / 2}" y="${height / 2}">NO COST DATA YET</text></svg>`;
+  }
+  const max = cumulative;
+  const points = values.map((value, index)
