@@ -1,0 +1,20 @@
+{
+  "name": "Meal Ledger — Hostel Meal Tracker",
+  "short_name": "Meal Ledger",
+  "description": "Precise hostel meal tracking, monthly billing and advance balance calculation.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#06080c",
+  "theme_color": "#07090e",
+  "lang": "en",
+  "categories": ["finance", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "assets/icons/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

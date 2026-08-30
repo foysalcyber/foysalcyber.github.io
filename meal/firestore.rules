@@ -1,0 +1,84 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function owns(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    function validProfile(userId) {
+      let data = request.resource.data;
+      return owns(userId)
+        && data.keys().hasAll(['displayName', 'email', 'updatedAt'])
+        && data.keys().hasOnly(['displayName', 'email', 'createdAt', 'updatedAt'])
+        && data.displayName is string
+        && data.displayName.size() >= 2
+        && data.displayName.size() <= 60
+        && data.email is string
+        && data.email == request.auth.token.email
+        && data.updatedAt is timestamp
+        && (!data.keys().hasAny(['createdAt']) || data.createdAt is timestamp);
+    }
+
+    function validMonth(monthId) {
+      let data = request.resource.data;
+      return monthId.matches('^[0-9]{4}-(0[1-9]|1[0-2])$')
+        && data.keys().hasAll(['monthKey', 'advancePaisa', 'mealRatePaisa', 'updatedAt'])
+        && data.keys().hasOnly(['monthKey', 'advancePaisa', 'mealRatePaisa', 'createdAt', 'updatedAt'])
+        && data.monthKey == monthId
+        && data.advancePaisa is int
+        && data.advancePaisa >= 0
+        && data.advancePaisa <= 100000000
+        && data.mealRatePaisa is int
+        && data.mealRatePaisa == 5200
+        && data.updatedAt is timestamp
+        && (!data.keys().hasAny(['createdAt']) || data.createdAt is timestamp);
+    }
+
+    function validDay(monthId, dateId) {
+      let data = request.resource.data;
+      return dateId.matches('^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$')
+        && dateId.matches('^' + monthId + '-(0[1-9]|[12][0-9]|3[01])$')
+        && data.keys().hasAll(['dateKey', 'updatedAt'])
+        && data.keys().hasOnly(['dateKey', 'breakfast', 'lunch', 'dinner', 'updatedAt'])
+        && data.dateKey == dateId
+        && data.updatedAt is timestamp
+        && (!data.keys().hasAny(['breakfast']) || data.breakfast is bool)
+        && (!data.keys().hasAny(['lunch']) || data.lunch is bool)
+        && (!data.keys().hasAny(['dinner']) || data.dinner is bool);
+    }
+
+    match /users/{userId} {
+      allow read: if owns(userId);
+      allow create: if validProfile(userId);
+      allow update: if validProfile(userId)
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['displayName', 'updatedAt']);
+      allow delete: if owns(userId);
+
+      match /months/{monthId} {
+        allow read: if owns(userId);
+        allow create: if owns(userId) && validMonth(monthId);
+        allow update: if owns(userId)
+          && validMonth(monthId)
+          && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['advancePaisa', 'updatedAt']);
+        allow delete: if owns(userId);
+
+        match /days/{dateId} {
+          allow read: if owns(userId);
+          allow create: if owns(userId) && validDay(monthId, dateId);
+          allow update: if owns(userId)
+            && validDay(monthId, dateId)
+            && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['breakfast', 'lunch', 'dinner', 'updatedAt']);
+          allow delete: if owns(userId);
+        }
+      }
+    }
+  }
+}
