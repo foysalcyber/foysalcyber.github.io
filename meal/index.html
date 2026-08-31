@@ -1,0 +1,1440 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#07090e">
+  <meta name="color-scheme" content="dark light">
+  <title>Meal Ledger — Hostel &amp; Mess Meal Tracker with Firebase Billing</title>
+
+  <!-- Primary SEO -->
+  <meta name="description" content="Meal Ledger is a precise hostel and mess meal tracker: numeric room profiles, exact Firebase-synced billing, monthly advance tracking and verified administrator activity monitoring — free and installable as a PWA.">
+  <meta name="keywords" content="meal ledger, Rongdhonu hostel meal, meal ledger foysal mahmud, foysal hacker, foysal cyber, foysal mahmud, rongdhonu chatrabas, hostel meal tracker, mess meal manager, meal management app, hostel meal calculator, mess bill calculator, meal count app, hostel management system, mess management software, meal cost tracker, dormitory meal app, Firebase meal tracker, PWA meal tracker, monthly meal advance tracker, hostel admin dashboard">
+  <meta name="author" content="Foysal Mahmud">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta name="googlebot" content="index, follow">
+  <meta name="bingbot" content="index, follow">
+  <link rel="canonical" href="https://foysalcyber.github.io/meal/">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Meal Ledger">
+  <meta property="og:title" content="Meal Ledger — Rongdhonu Hostel &amp; Mess Meal Tracker with Firebase Billing">
+  <meta property="og:description" content="Track Rongdhonu hostel meals with numeric room profiles, exact Firebase-synced billing, monthly advance tracking and verified admin activity monitoring.">
+  <meta property="og:url" content="https://foysalcyber.github.io/meal/">
+  <meta property="og:image" content="https://foysalcyber.github.io/meal/assets/icons/icon-512.png">
+  <meta property="og:image:width" content="512">
+  <meta property="og:image:height" content="512">
+  <meta property="og:locale" content="en_US">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Meal Ledger — Hostel &amp; Mess Meal Tracker">
+  <meta name="twitter:description" content="Precise hostel and mess meal tracking with Firebase billing, advance payments and admin oversight — free installable PWA.">
+  <meta name="twitter:image" content="https://foysalcyber.github.io/meal/assets/icons/icon-512.png">
+
+  <!-- Structured data (JSON-LD) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Meal Ledger",
+    "url": "https://foysalcyber.github.io/meal/",
+    "description": "A precise hostel and mess meal tracker with numeric room profiles, exact Firebase-synced billing, monthly advance tracking and verified administrator activity monitoring.",
+    "applicationCategory": "LifestyleApplication",
+    "operatingSystem": "Any (Progressive Web App)",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "author": {
+      "@type": "Person",
+      "name": "Foysal Mahmud",
+      "url": "https://foysalcyber.github.io/"
+    }
+  }
+  </script>
+
+  <link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Meal Ledger">
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Readability and touch-accessibility overrides. Kept here so this single
+       file can replace the deployed index.html without changing app logic. -->
+  <style id="readability-and-touch-fixes">
+    /* Remove the browser's blue tap flash while retaining a branded keyboard focus. */
+    *, *::before, *::after {
+      -webkit-tap-highlight-color: transparent !important;
+    }
+    button, a, input, label, [role="button"], [role="tab"] {
+      -webkit-tap-highlight-color: transparent !important;
+      touch-action: manipulation;
+    }
+    button, a {
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    :focus { outline: none; }
+    :focus-visible {
+      outline: 2px solid var(--primary) !important;
+      outline-offset: 3px !important;
+      box-shadow: 0 0 0 4px var(--primary-soft);
+    }
+    input:focus-visible {
+      outline: none !important;
+      box-shadow: none;
+    }
+    svg, button svg, a svg { pointer-events: none; }
+
+    /* Readable type scale — no important interface copy is below 10px. */
+    body { font-size: 16px; }
+    .eyebrow { font-size: 11px; line-height: 1.5; }
+    .brand-copy strong { font-size: 15px; }
+    .brand-copy small { font-size: 10px; line-height: 1.35; }
+    .button { min-height: 48px; padding-inline: 20px; font-size: 13px; }
+    .text-button { min-height: 32px; font-size: 12px; }
+    .icon-button { width: 44px; height: 44px; }
+    .icon-button.small { width: 40px; height: 40px; }
+
+    /* Authentication */
+    .secure-label, .connection-note { font-size: 10px; }
+    .auth-hero > p:last-of-type { font-size: clamp(16px, 1.25vw, 18px); }
+    .auth-rules span, .preview-topline { font-size: 9px; }
+    .auth-rules small { font-size: 11px; }
+    .preview-main-stat span { font-size: 13px; }
+    .preview-main-stat small, .preview-footer { font-size: 10px; }
+    .auth-showcase-footer, .auth-copyright { font-size: 9px; }
+    .auth-tab { min-height: 48px; font-size: 13px; }
+    .form-alert { font-size: 13px; }
+    .form-heading > p:last-child { font-size: 14px; line-height: 1.55; }
+    .field { font-size: 13px; }
+    .input-shell { min-height: 52px; }
+    .input-shell input { font-size: 15px; }
+    .check-row { font-size: 12px; line-height: 1.55; }
+    .custom-check { width: 19px; height: 19px; }
+    .password-meter { grid-template-columns: 86px 1fr; }
+    .password-meter span, .auth-separator { font-size: 10px; }
+    .auth-fineprint { font-size: 11px; }
+
+    /* Sidebar, header and navigation */
+    .nav-caption { font-size: 9px; }
+    .nav-link { min-height: 50px; font-size: 13px; }
+    .sidebar-rate-card > span { font-size: 9px; }
+    .sidebar-rate-card > p { font-size: 10px; line-height: 1.5; }
+    .sidebar-rate-card > strong small { font-size: 11px; }
+    .sidebar-profile-copy strong { font-size: 12px; }
+    .sidebar-profile-copy small { font-size: 10px; }
+    .page-identity span { font-size: 9px; }
+    .page-identity strong { font-size: 15px; }
+    .sync-status { font-size: 10px; min-height: 38px; }
+    .month-picker-label { font-size: 11px; }
+    .demo-banner { font-size: 12px; line-height: 1.5; }
+    .view-heading > div > p:last-child { font-size: 14px; line-height: 1.65; }
+
+    /* Dashboard cards */
+    .metric-label { font-size: 10px; }
+    .metric-index { font-size: 9px; }
+    .metric-bottom { font-size: 11px; line-height: 1.4; }
+    .metric-bottom small { font-size: 10px; }
+    .inline-action { min-height: 30px; font-size: 10px; }
+    .panel-kicker { font-size: 9px; }
+    .panel-heading h2 { font-size: 19px; }
+    .panel-note { font-size: 10px; }
+    .meal-ring span { font-size: 10px; }
+    .slot-breakdown span:not(.slot-dot) { font-size: 12px; }
+    .slot-breakdown strong { font-size: 14px; }
+    .slot-breakdown small { font-size: 10px; }
+    .advance-usage > div:first-child { font-size: 11px; }
+    .advance-usage strong { font-size: 10px; }
+    .selected-date-line { font-size: 12px; }
+    .date-badge { font-size: 9px; }
+    .selected-meal-toggle { min-height: 56px; }
+    .selected-meal-toggle strong { font-size: 12px; }
+    .selected-meal-toggle small, .selected-meal-toggle > em { font-size: 10px; }
+    .selected-day-total { font-size: 11px; }
+    .selected-day-total b { font-size: 11px; }
+    .selected-day-total em { font-size: 14px; }
+    .trend-badge, .chart-axis { font-size: 10px; }
+    .quick-action-list > button { min-height: 72px; }
+    .quick-action-list strong { font-size: 12px; }
+    .quick-action-list small { font-size: 10px; }
+    .recent-row { min-height: 70px; font-size: 11px; }
+    .recent-date small { font-size: 9px; }
+    .recent-day-name strong { font-size: 11px; }
+    .recent-day-name small { font-size: 9px; }
+    .empty-state strong { font-size: 13px; }
+    .empty-state p { font-size: 11px; }
+
+    /* Calendar */
+    .filter-chip { min-height: 40px; padding-inline: 14px; font-size: 11px; }
+    .filter-chip span { font-size: 9px; }
+    .calendar-legend { font-size: 10px; }
+    .calendar-panel-heading > div:first-child span { font-size: 10px; }
+    .calendar-panel-heading h2 { font-size: 20px; }
+    .calendar-summary-inline small { font-size: 9px; }
+    .calendar-summary-inline strong { font-size: 15px; }
+    .weekday-row span { min-height: 40px; font-size: 10px; }
+    .day-number { min-height: 30px; background: transparent; color: inherit; padding: 0; }
+    .day-number strong { font-size: 18px; }
+    .day-number span { font-size: 9px; }
+    .day-total-badge { font-size: 10px; }
+    .special-rule { min-height: 24px; height: auto; font-size: 9px; }
+    .day-meal-toggle { min-height: 40px; height: auto; grid-template-columns: 20px 1fr auto 20px; }
+    .day-meal-toggle > span { font-size: 10px; }
+    .day-meal-toggle > small { font-size: 9px; }
+    .day-check { width: 18px; height: 18px; }
+    .day-card-footer { font-size: 9px; }
+    .day-card-footer strong { font-size: 11px; }
+    .day-card, .day-placeholder { min-height: 225px; }
+    .calendar-empty h3 { font-size: 16px; }
+    .calendar-empty p { font-size: 12px; }
+
+    /* Insights */
+    .insight-strip span { font-size: 9px; }
+    .insight-strip small { font-size: 10px; }
+    .chart-legend, .chart-footer-stat span { font-size: 10px; }
+    .chart-footer-stat small { font-size: 10px; }
+    .slot-donut-visual span { font-size: 10px; }
+    .slot-legend-row span { font-size: 11px; }
+    .slot-legend-row strong { font-size: 12px; }
+    .weekday-bar > span, .weekday-bar-track i::before { font-size: 10px; }
+    .locked-pill { font-size: 9px; }
+    .rule-list strong { font-size: 11px; }
+    .rule-list small { font-size: 9px; }
+    .rule-list b { font-size: 11px; }
+    .rule-formula span { font-size: 9px; }
+    .rule-formula code { font-size: 11px; }
+    .rule-formula small { font-size: 9px; line-height: 1.5; }
+
+    /* Settings, menus, modals and notifications */
+    .settings-card-heading h2 { font-size: 17px; }
+    .settings-card-heading p { font-size: 11px; }
+    .setting-row strong { font-size: 12px; }
+    .setting-row small { font-size: 10px; }
+    .setting-value, .theme-segment button { font-size: 10px; }
+    .locked-settings span { font-size: 10px; }
+    .locked-settings strong { font-size: 13px; }
+    .locked-settings small { font-size: 9px; }
+    .account-meta, .verification-badge { font-size: 10px; }
+    .data-actions > button { min-height: 72px; }
+    .data-actions strong, .security-list strong { font-size: 11px; }
+    .data-actions small, .security-list small { font-size: 9px; }
+    .project-status strong { font-size: 11px; }
+    .project-status small { font-size: 9px; }
+    .app-footer { font-size: 9px; }
+    .popover-user strong { font-size: 12px; }
+    .popover-user small { font-size: 10px; }
+    .account-popover > button { min-height: 44px; font-size: 11px; }
+    .modal-card > p:not(.eyebrow) { font-size: 13px; }
+    .field > small { font-size: 10px; }
+    .advance-preview { font-size: 11px; }
+    .advance-preview strong { font-size: 12px; }
+    .quick-fill-options > button { min-height: 76px; }
+    .quick-fill-options strong { font-size: 12px; }
+    .quick-fill-options small { font-size: 10px; }
+    .toast strong { font-size: 11px; }
+    .toast small { font-size: 10px; }
+    .toast button { min-height: 40px; font-size: 10px; }
+
+    /* Laptop widths: prioritize readable cards instead of squeezing 7 columns. */
+    @media (max-width: 1500px) {
+      .calendar-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .weekday-row, .day-placeholder { display: none; }
+      .day-card { min-height: 225px; }
+    }
+
+    /* Touch devices need larger hit areas and no focus ring after a tap. */
+    @media (pointer: coarse) {
+      :focus-visible { outline: none !important; box-shadow: none !important; }
+      button, .month-shift, .password-toggle { min-height: 44px; }
+      .day-meal-toggle { min-height: 48px; }
+      .filter-chip { min-height: 44px; }
+    }
+
+    @media (max-width: 720px) {
+      body { font-size: 16px; }
+      .topbar { min-height: 70px; }
+      .month-switcher { height: 44px; grid-template-columns: 42px minmax(118px, 1fr) 42px; }
+      .month-picker-label { font-size: 12px; }
+      .demo-banner { font-size: 11px; }
+      .view-heading h1 { font-size: clamp(34px, 10vw, 42px); }
+      .view-heading > div > p:last-child { font-size: 14px; }
+      .view-heading-actions .button { min-height: 50px; }
+      .metric-card { min-height: 170px; }
+      .metric-label { font-size: 10px; letter-spacing: .07em; }
+      .metric-bottom { font-size: 11px; }
+      .metric-bottom small { font-size: 10px; }
+      .panel-kicker { font-size: 10px; }
+      .panel-heading h2 { font-size: 19px; }
+      .selected-meal-toggle { min-height: 58px; }
+      .calendar-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .day-card { min-height: 250px; padding: 14px 12px; }
+      .day-meal-toggle { min-height: 47px; }
+      .mobile-bottom-nav { height: 72px; }
+      .mobile-bottom-nav button { font-size: 10px; gap: 5px; }
+      .mobile-bottom-nav button svg { width: 20px; height: 20px; }
+      .auth-panel-wrap { padding-inline: 20px; }
+      .form-heading > p:last-child { font-size: 13px; }
+      .auth-fineprint { font-size: 10px; }
+    }
+
+    @media (max-width: 540px) {
+      .calendar-grid { grid-template-columns: 1fr; }
+      .day-card { min-height: 242px; padding: 15px; }
+      .day-meal-toggle { min-height: 48px; padding-inline: 11px; }
+      .day-meal-toggle > span { font-size: 11px; }
+      .day-meal-toggle > small { font-size: 10px; }
+      .special-rule { font-size: 10px; }
+    }
+
+    @media (max-width: 390px) {
+      .view-stage { padding-inline: 12px; }
+      .metric-card { padding: 14px 12px; }
+      .metric-card > strong { font-size: 23px; }
+      .metric-bottom { font-size: 10px; }
+      .button { padding-inline: 14px; }
+    }
+
+    .room-setup-card { width: min(100%, 440px); }
+    .room-setup-error { min-height: 18px; margin: -5px 0 0 !important; color: var(--primary) !important; font-size: 10px !important; }
+
+    /* Secure administrator workspace */
+    .admin-gateway-card { grid-column: 1 / -1; border-color: rgba(255,54,95,.2); background: linear-gradient(135deg, var(--primary-soft), var(--surface) 48%); }
+    .admin-gateway-body { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .admin-gateway-body > span { display: flex; flex-direction: column; }
+    .admin-gateway-body strong { font-size: 12px; }
+    .admin-gateway-body small { margin-top: 3px; color: var(--muted); font-size: 10px; }
+
+    .admin-access-strip {
+      min-height: 70px;
+      display: grid;
+      grid-template-columns: 42px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 13px;
+      margin-bottom: 14px;
+      padding: 12px 17px;
+      border: 1px solid rgba(82,217,155,.18);
+      border-radius: var(--radius);
+      background: linear-gradient(100deg, var(--green-soft), var(--surface) 42%);
+    }
+    .admin-access-icon { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 11px; background: var(--green-soft); color: var(--green); }
+    .admin-access-icon svg { width: 18px; height: 18px; }
+    .admin-access-strip > span:nth-child(2) { min-width: 0; display: flex; flex-direction: column; }
+    .admin-access-strip strong { font-size: 11px; }
+    .admin-access-strip small { margin-top: 2px; color: var(--muted); font-size: 10.5px; }
+    .admin-live-badge { display: inline-flex; align-items: center; gap: 7px; padding: 7px 10px; border-radius: 99px; background: var(--green-soft); color: var(--green); font-family: var(--mono); font-size: 10px; letter-spacing: .06em; }
+    .admin-live-badge i { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 9px var(--green); animation: adminPulse 1.8s ease-in-out infinite; }
+    @keyframes adminPulse { 50% { opacity: .38; } }
+
+    .admin-metric-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 13px; margin-bottom: 14px; }
+    .admin-metric-card { min-height: 126px; display: grid; grid-template-columns: 44px 1fr; align-items: center; gap: 13px; padding: 18px; border: 1px solid var(--line); border-radius: var(--radius); background: linear-gradient(145deg, var(--surface), var(--surface-2)); box-shadow: var(--shadow-soft); }
+    .admin-metric-icon { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 11px; background: var(--primary-soft); color: var(--primary); }
+    .admin-metric-icon.active { color: var(--green); background: var(--green-soft); }
+    .admin-metric-icon.recent { color: var(--blue); background: var(--blue-soft); }
+    .admin-metric-icon.room { color: var(--amber); background: var(--amber-soft); }
+    .admin-metric-icon svg { width: 18px; height: 18px; }
+    .admin-metric-card > span:last-child { min-width: 0; display: flex; flex-direction: column; }
+    .admin-metric-card small { color: var(--muted); font-family: var(--mono); font-size: 10px; letter-spacing: .06em; }
+    .admin-metric-card strong { margin: 5px 0 2px; font-family: var(--mono); font-size: 27px; line-height: 1.1; }
+    .admin-metric-card em { overflow: hidden; color: var(--muted); font-size: 10.5px; font-style: normal; text-overflow: ellipsis; white-space: nowrap; }
+
+    .admin-insight-grid { display: grid; grid-template-columns: 1.25fr .75fr; gap: 14px; margin-bottom: 14px; }
+    .admin-usage-panel, .admin-security-panel { min-height: 224px; }
+    .admin-activity-distribution { display: flex; flex-direction: column; gap: 13px; }
+    .admin-activity-distribution > div { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 7px 12px; }
+    .admin-activity-distribution span { display: flex; align-items: center; gap: 8px; color: var(--text-soft); font-size: 11px; }
+    .admin-activity-distribution span i { width: 7px; height: 7px; border-radius: 50%; }
+    .admin-activity-distribution i.active { background: var(--green); }
+    .admin-activity-distribution i.recent { background: var(--blue); }
+    .admin-activity-distribution i.idle { background: var(--muted-2); }
+    .admin-activity-distribution strong { font-family: var(--mono); font-size: 11px; }
+    .admin-distribution-track { grid-column: 1 / -1; height: 5px; overflow: hidden; border-radius: 9px; background: var(--surface-3); }
+    .admin-distribution-track i { display: block; width: 0; height: 100%; border-radius: inherit; transition: width .55s var(--ease); }
+    .admin-distribution-track i.active { background: var(--green); }
+    .admin-distribution-track i.recent { background: var(--blue); }
+    .admin-distribution-track i.idle { background: var(--muted-2); }
+    .admin-security-panel { display: grid; grid-template-columns: 48px 1fr; align-items: start; gap: 15px; background: linear-gradient(145deg, var(--primary-soft), var(--surface) 62%); border-color: rgba(255,54,95,.18); }
+    .admin-security-icon { width: 46px; height: 46px; display: grid; place-items: center; border-radius: 12px; background: var(--primary-soft); color: var(--primary); }
+    .admin-security-icon svg { width: 20px; height: 20px; }
+    .admin-security-panel h2 { margin: 4px 0 8px; font-size: 17px; }
+    .admin-security-panel p { color: var(--muted); font-size: 11px; line-height: 1.65; }
+
+    .admin-users-panel { padding: 0; overflow: hidden; }
+    .admin-users-heading { min-height: 110px; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px 22px; border-bottom: 1px solid var(--line); }
+    .admin-users-heading h2 { font-size: 18px; }
+    .admin-users-heading p { margin-top: 3px; color: var(--muted); font-size: 11px; }
+    .admin-user-tools { display: flex; align-items: center; gap: 9px; }
+    .admin-search { width: min(280px, 24vw); height: 42px; display: flex; align-items: center; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--surface-2); transition: border-color .2s ease, box-shadow .2s ease; }
+    .admin-search:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
+    .admin-search svg { width: 15px; height: 15px; margin-left: 13px; color: var(--muted); }
+    .admin-search input { min-width: 0; width: 100%; height: 100%; border: 0; outline: 0; padding: 0 11px; background: transparent; color: var(--text); font-size: 12px; }
+    .admin-search input::placeholder { color: var(--muted-2); }
+    .admin-user-filter { height: 42px; display: flex; align-items: center; gap: 3px; padding: 3px; border-radius: 10px; background: var(--surface-3); }
+    .admin-user-filter button { height: 36px; padding: 0 10px; border-radius: 8px; background: transparent; color: var(--muted); font-size: 10.5px; }
+    .admin-user-filter button.is-active { background: var(--surface); color: var(--primary); box-shadow: 0 3px 10px rgba(0,0,0,.16); }
+    .admin-table-wrap { width: 100%; overflow-x: auto; }
+    .admin-user-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .admin-user-table th { height: 42px; padding: 0 13px; border-bottom: 1px solid var(--line); background: var(--surface-2); color: var(--muted); font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: .06em; text-align: left; }
+    .admin-user-table th:first-child { width: 26%; padding-left: 22px; }
+    .admin-user-table th:nth-child(2) { width: 10%; }
+    .admin-user-table th:nth-child(3) { width: 12%; }
+    .admin-user-table th:nth-child(4) { width: 15%; }
+    .admin-user-table th:nth-child(5), .admin-user-table th:nth-child(6) { width: 11%; }
+    .admin-user-table th:last-child { width: 15%; }
+    .admin-user-table td { height: 74px; padding: 10px 13px; border-bottom: 1px solid var(--line); color: var(--text-soft); font-size: 11px; vertical-align: middle; }
+    .admin-user-table tr:last-child td { border-bottom: 0; }
+    .admin-user-table tbody tr { transition: background .2s ease; }
+    .admin-user-table tbody tr:hover { background: var(--primary-faint); }
+    .admin-user-table td:first-child { padding-left: 22px; }
+    .admin-resident { min-width: 0; display: grid; grid-template-columns: 38px minmax(0, 1fr); align-items: center; gap: 10px; }
+    .admin-resident-avatar { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 10px; background: linear-gradient(135deg, var(--primary), #76142d); color: #fff; font-family: var(--mono); font-size: 10px; }
+    .admin-resident > span:last-child { min-width: 0; display: flex; flex-direction: column; }
+    .admin-resident strong { overflow: hidden; color: var(--text); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+    .admin-resident small { overflow: hidden; margin-top: 2px; color: var(--muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+    .admin-room-number { font-family: var(--mono); font-size: 11px; }
+    .admin-room-number.is-missing { color: var(--primary); font-size: 10px; }
+    .admin-status { width: max-content; display: inline-flex; align-items: center; gap: 6px; padding: 6px 9px; border-radius: 99px; font-family: var(--mono); font-size: 10px; }
+    .admin-status i { width: 6px; height: 6px; border-radius: 50%; }
+    .admin-status.active { color: var(--green); background: var(--green-soft); }
+    .admin-status.active i { background: var(--green); box-shadow: 0 0 7px var(--green); }
+    .admin-status.recent { color: var(--blue); background: var(--blue-soft); }
+    .admin-status.recent i { background: var(--blue); }
+    .admin-status.inactive, .admin-status.never { color: var(--muted); background: var(--surface-3); }
+    .admin-status.inactive i, .admin-status.never i { background: var(--muted-2); }
+    .admin-number-cell { font-family: var(--mono); }
+    .admin-loading { min-height: 130px; display: flex; align-items: center; justify-content: center; gap: 10px; color: var(--muted); font-size: 11px; }
+    .admin-loading i { width: 17px; height: 17px; border: 2px solid var(--line-strong); border-top-color: var(--primary); border-radius: 50%; animation: adminSpin .8s linear infinite; }
+    @keyframes adminSpin { to { transform: rotate(360deg); } }
+    .admin-user-empty { padding: 55px 20px; text-align: center; color: var(--muted); }
+    .admin-user-empty svg { margin: 0 auto 12px; }
+    .admin-user-empty strong { display: block; color: var(--text-soft); font-size: 13px; }
+    .admin-user-empty span { display: block; margin-top: 3px; font-size: 11px; }
+    .admin-accuracy-note { display: flex; align-items: flex-start; gap: 9px; margin-top: 13px; padding: 0 3px; color: var(--muted); font-size: 10.5px; line-height: 1.55; }
+    .admin-accuracy-note svg { width: 15px; height: 15px; flex: 0 0 auto; color: var(--blue); }
+    .admin-accuracy-note strong { color: var(--text-soft); }
+
+    @media (max-width: 1250px) {
+      .admin-metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .admin-users-heading { align-items: flex-start; flex-direction: column; }
+      .admin-user-tools { width: 100%; }
+      .admin-search { flex: 1; width: auto; }
+    }
+    @media (max-width: 900px) {
+      .admin-insight-grid { grid-template-columns: 1fr; }
+      .admin-user-tools { align-items: stretch; flex-direction: column; }
+      .admin-search { width: 100%; flex: none; }
+      .admin-user-filter { width: 100%; height: auto; overflow-x: auto; }
+      .admin-user-filter button { flex: 1 0 auto; }
+    }
+    @media (max-width: 720px) {
+      .mobile-bottom-nav.has-admin { grid-template-columns: repeat(5, 1fr); }
+      .admin-view-heading .view-heading-actions { display: grid; grid-template-columns: 1fr 1fr; }
+      .admin-access-strip { grid-template-columns: 40px 1fr; }
+      .admin-live-badge { grid-column: 1 / -1; width: max-content; }
+      .admin-metric-grid { gap: 9px; }
+      .admin-metric-card { min-height: 132px; grid-template-columns: 1fr; align-content: center; gap: 9px; padding: 14px; }
+      .admin-metric-icon { width: 37px; height: 37px; }
+      .admin-metric-card strong { font-size: 23px; }
+      .admin-users-heading { min-height: 0; padding: 18px 16px; }
+      .admin-table-wrap { overflow: visible; }
+      .admin-user-table, .admin-user-table tbody { display: block; }
+      .admin-user-table thead { display: none; }
+      .admin-user-table tbody { padding: 10px; }
+      .admin-user-table tr { display: grid; grid-template-columns: 1fr 1fr; margin-bottom: 9px; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); }
+      .admin-user-table td { min-width: 0; height: auto; min-height: 57px; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-right: 1px solid var(--line); }
+      .admin-user-table td:nth-child(2n + 1) { border-right: 0; }
+      .admin-user-table td:first-child { grid-column: 1 / -1; min-height: 66px; padding: 11px 12px; border-right: 0; }
+      .admin-user-table td:last-child { border-right: 0; }
+      .admin-user-table td:not(:first-child)::before { content: attr(data-label); color: var(--muted); font-family: var(--mono); font-size: 9.5px; letter-spacing: .05em; }
+      .admin-resident { width: 100%; }
+      .admin-loading { grid-column: 1 / -1; }
+      .admin-gateway-body { align-items: stretch; flex-direction: column; }
+      #adminGatewayButton { width: 100%; }
+    }
+    @media (max-width: 430px) {
+      .admin-metric-card small { font-size: 9.5px; }
+      .admin-metric-card em { font-size: 10px; }
+      .admin-security-panel { grid-template-columns: 40px 1fr; }
+      .admin-security-icon { width: 40px; height: 40px; }
+      .admin-user-table tr { grid-template-columns: 1fr; }
+      .admin-user-table td, .admin-user-table td:nth-child(2n + 1) { border-right: 0; }
+    }
+
+    /* Developer credit — visible, useful and consistent with the app identity. */
+    .developer-credit-card {
+      grid-column: 1 / -1;
+      position: relative;
+      overflow: hidden;
+      padding: 0;
+      background:
+        radial-gradient(520px at 92% 0%, var(--primary-soft), transparent 60%),
+        linear-gradient(145deg, var(--surface), var(--surface-2));
+    }
+    .developer-credit-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 140px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--primary), transparent);
+      box-shadow: 0 0 16px var(--primary);
+    }
+    .developer-credit-card::after {
+      content: "</>";
+      position: absolute;
+      right: 28px;
+      top: 12px;
+      color: var(--line);
+      font-family: var(--mono);
+      font-size: 86px;
+      font-weight: 500;
+      line-height: 1;
+      pointer-events: none;
+    }
+    .developer-credit-header {
+      min-height: 126px;
+      display: grid;
+      grid-template-columns: 68px minmax(0, 1fr) 46px;
+      align-items: center;
+      gap: 17px;
+      padding: 25px 26px;
+      position: relative;
+      z-index: 1;
+    }
+    .developer-monogram {
+      width: 68px;
+      height: 68px;
+      border: 1px solid var(--line-strong);
+      border-radius: 17px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(145deg, var(--surface-3), var(--surface));
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 20px;
+      font-weight: 500;
+      letter-spacing: -.08em;
+      box-shadow: inset 0 0 30px var(--primary-faint), 0 12px 28px rgba(0,0,0,.18);
+      position: relative;
+    }
+    .developer-monogram b { color: var(--primary); font-weight: 500; }
+    .developer-monogram i {
+      position: absolute;
+      right: -3px;
+      bottom: -3px;
+      width: 13px;
+      height: 13px;
+      border: 3px solid var(--surface);
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 10px var(--green);
+    }
+    .developer-identity { min-width: 0; display: flex; flex-direction: column; }
+    .developer-credit-label {
+      color: var(--primary);
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: .14em;
+    }
+    .developer-identity h2 { margin-top: 6px; font-size: 24px; letter-spacing: -.035em; }
+    .developer-identity p { margin-top: 2px; color: var(--muted); font-size: 11px; }
+    .developer-verified {
+      width: max-content;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 9px;
+      padding: 4px 8px;
+      border-radius: 99px;
+      background: var(--green-soft);
+      color: var(--green);
+      font-family: var(--mono);
+      font-size: 8px;
+      letter-spacing: .06em;
+    }
+    .developer-verified svg { width: 11px; height: 11px; }
+    .developer-site-shortcut {
+      width: 46px;
+      height: 46px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line-strong);
+      border-radius: 12px;
+      background: var(--surface-2);
+      color: var(--primary);
+      transition: transform .2s var(--ease), border-color .2s ease, background .2s ease;
+    }
+    .developer-site-shortcut:hover { transform: translateY(-3px); border-color: var(--primary); background: var(--primary-soft); }
+    .developer-site-shortcut svg { width: 18px; height: 18px; }
+    .developer-contact-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      border-top: 1px solid var(--line);
+      position: relative;
+      z-index: 1;
+    }
+    .developer-contact-link {
+      min-width: 0;
+      min-height: 82px;
+      display: grid;
+      grid-template-columns: 38px minmax(0, 1fr) 14px;
+      align-items: center;
+      gap: 11px;
+      padding: 14px 17px;
+      border-right: 1px solid var(--line);
+      color: var(--text);
+      transition: background .2s ease;
+    }
+    .developer-contact-link:last-child { border-right: 0; }
+    .developer-contact-link:hover { background: var(--primary-faint); }
+    .developer-contact-icon {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      background: var(--surface-3);
+      color: var(--primary);
+    }
+    .developer-contact-link:nth-child(2) .developer-contact-icon { color: var(--green); background: var(--green-soft); }
+    .developer-contact-link:nth-child(3) .developer-contact-icon { color: var(--blue); background: var(--blue-soft); }
+    .developer-contact-link:nth-child(4) .developer-contact-icon { color: var(--blue); background: var(--blue-soft); }
+    .developer-contact-icon svg { width: 17px; height: 17px; }
+    .developer-contact-copy { min-width: 0; display: flex; flex-direction: column; }
+    .developer-contact-copy small { color: var(--muted); font-family: var(--mono); font-size: 8px; letter-spacing: .1em; }
+    .developer-contact-copy strong { margin-top: 3px; overflow: hidden; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+    .developer-contact-link > svg { width: 13px; height: 13px; color: var(--muted-2); }
+    .developer-signature {
+      min-height: 39px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      padding: 0 26px;
+      border-top: 1px solid var(--line);
+      background: var(--surface-2);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 8px;
+      letter-spacing: .08em;
+      position: relative;
+      z-index: 1;
+    }
+    .developer-signature code { color: var(--text-soft); font-family: inherit; }
+    .credit-link { color: var(--text-soft); font-weight: 500; transition: color .2s ease; }
+    .credit-link:hover { color: var(--primary); }
+
+    @media (max-width: 1200px) {
+      .developer-contact-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .developer-contact-link:nth-child(2) { border-right: 0; }
+      .developer-contact-link:nth-child(-n + 2) { border-bottom: 1px solid var(--line); }
+    }
+    @media (max-width: 620px) {
+      .developer-credit-header { grid-template-columns: 58px minmax(0, 1fr) 42px; gap: 13px; padding: 21px 17px; }
+      .developer-monogram { width: 58px; height: 58px; border-radius: 14px; font-size: 17px; }
+      .developer-identity h2 { font-size: 20px; }
+      .developer-credit-card::after { right: 10px; font-size: 62px; }
+      .developer-contact-grid { grid-template-columns: 1fr; }
+      .developer-contact-link { min-height: 72px; border-right: 0; border-bottom: 1px solid var(--line); }
+      .developer-contact-link:last-child { border-bottom: 0; }
+      .developer-signature { align-items: flex-start; flex-direction: column; padding: 11px 17px; line-height: 1.45; }
+    }
+
+    /* In-page PWA installation experience */
+    .pwa-install-banner {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 450;
+      width: min(430px, calc(100vw - 32px));
+      display: grid;
+      grid-template-columns: 54px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 14px;
+      padding: 14px;
+      border: 1px solid var(--line-strong);
+      border-radius: 16px;
+      background: var(--surface);
+      background: color-mix(in srgb, var(--surface) 94%, transparent);
+      box-shadow: 0 24px 70px rgba(0, 0, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .04);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      opacity: 0;
+      transform: translateY(18px) scale(.97);
+      transition: opacity .22s ease, transform .3s var(--ease);
+    }
+    .pwa-install-banner::before {
+      content: "";
+      position: absolute;
+      top: -1px;
+      left: 72px;
+      width: 72px;
+      height: 2px;
+      background: var(--primary);
+      box-shadow: 0 0 14px var(--primary);
+    }
+    .pwa-install-banner.is-visible { opacity: 1; transform: none; }
+    .pwa-install-icon {
+      width: 54px;
+      height: 54px;
+      border-radius: 13px;
+      overflow: hidden;
+      box-shadow: 0 8px 22px rgba(0, 0, 0, .25);
+    }
+    .pwa-install-icon img { width: 100%; height: 100%; object-fit: cover; }
+    .pwa-install-copy { min-width: 0; display: flex; flex-direction: column; }
+    .pwa-install-copy strong { font-size: 14px; line-height: 1.25; }
+    .pwa-install-copy span { margin-top: 3px; color: var(--muted); font-size: 10px; line-height: 1.5; }
+    .pwa-install-actions { display: flex; align-items: center; gap: 7px; }
+    .pwa-install-later {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: var(--surface-2);
+      color: var(--muted);
+    }
+    .pwa-install-later svg { width: 15px; height: 15px; }
+    .pwa-install-now { min-height: 42px; padding-inline: 15px; font-size: 11px; }
+    .pwa-install-now svg { width: 15px; height: 15px; }
+
+    .pwa-setting-body { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .pwa-setting-status { display: flex; flex-direction: column; }
+    .pwa-setting-status strong { font-size: 12px; }
+    .pwa-setting-status small { max-width: 390px; margin-top: 4px; color: var(--muted); font-size: 10px; line-height: 1.55; }
+    #pwaInstallSettingsButton:disabled { opacity: .62; cursor: default; transform: none; }
+
+    .pwa-install-modal-card { width: min(100%, 520px); }
+    .pwa-install-modal-card .modal-icon img { width: 100%; height: 100%; border-radius: inherit; }
+    .pwa-install-steps { list-style: none; display: flex; flex-direction: column; margin: 3px 0 20px; }
+    .pwa-install-steps li {
+      min-height: 70px;
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      align-items: center;
+      gap: 13px;
+      border-top: 1px solid var(--line);
+    }
+    .pwa-install-steps li > b {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      background: var(--primary-soft);
+      color: var(--primary);
+      font-family: var(--mono);
+      font-size: 11px;
+    }
+    .pwa-install-steps li > span { display: flex; flex-direction: column; }
+    .pwa-install-steps strong { font-size: 12px; }
+    .pwa-install-steps small { margin-top: 3px; color: var(--muted); font-size: 10px; line-height: 1.5; }
+
+    @media (max-width: 720px) {
+      .pwa-install-banner {
+        right: 12px;
+        left: 12px;
+        bottom: calc(82px + env(safe-area-inset-bottom));
+        width: auto;
+        grid-template-columns: 48px minmax(0, 1fr) auto;
+        gap: 11px;
+        padding: 12px;
+      }
+      .pwa-install-icon { width: 48px; height: 48px; border-radius: 11px; }
+      .pwa-install-copy strong { font-size: 13px; }
+      .pwa-install-copy span { font-size: 10px; }
+      .pwa-install-actions { gap: 5px; }
+      .pwa-install-later { width: 40px; height: 44px; }
+      .pwa-install-now { min-height: 44px; padding-inline: 13px; }
+      .pwa-setting-body { align-items: stretch; flex-direction: column; }
+      #pwaInstallSettingsButton { width: 100%; }
+    }
+
+    @media (max-width: 430px) {
+      .pwa-install-banner { grid-template-columns: 44px minmax(0, 1fr); }
+      .pwa-install-icon { width: 44px; height: 44px; }
+      .pwa-install-actions { grid-column: 1 / -1; }
+      .pwa-install-later { flex: 0 0 44px; }
+      .pwa-install-now { flex: 1; }
+    }
+  </style>
+  <script src="pwa-install.js" defer></script>
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <svg class="icon-sprite" aria-hidden="true">
+    <symbol id="i-overview" viewBox="0 0 24 24"><path d="M4 13h6V4H4v9Zm0 7h6v-4H4v4Zm10 0h6v-9h-6v9Zm0-16v4h6V4h-6Z"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><path d="M7 3v3M17 3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v14H4V6a1 1 0 0 1 1-1Z"/><path d="M8 13h2M14 13h2M8 17h2M14 17h2"/></symbol>
+    <symbol id="i-insights" viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="M12 15.5A3.5 3.5 0 1 0 12 8a3.5 3.5 0 0 0 0 7.5Z"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.09A1.7 1.7 0 0 0 8.5 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.09A1.7 1.7 0 0 0 4.6 8.5a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.09A1.7 1.7 0 0 0 15.5 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.14.38.36.72.64 1 .3.26.68.4 1.07.4H21v4h-.09A1.7 1.7 0 0 0 19.4 15Z"/></symbol>
+    <symbol id="i-chevron-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+    <symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18h11a4 4 0 0 0 .65-7.95A7 7 0 0 0 5.5 8.1 5 5 0 0 0 7 18Z"/><path d="m9.5 13 1.7 1.7 3.6-4"/></symbol>
+    <symbol id="i-cloud-off" viewBox="0 0 24 24"><path d="m3 3 18 18M7 18h10M5.5 8.1A5 5 0 0 0 5.2 16M9.1 5.6a7 7 0 0 1 9.55 4.45A4 4 0 0 1 20.5 17"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42"/></symbol>
+    <symbol id="i-lunch" viewBox="0 0 24 24"><path d="M4 11h16a8 8 0 0 1-16 0Z"/><path d="M7 8c0-1 1-1 1-2s-1-1-1-2M12 8c0-1 1-1 1-2s-1-1-1-2M17 8c0-1 1-1 1-2s-1-1-1-2M3 20h18"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 15.5A8 8 0 0 1 8.5 4 8.5 8.5 0 1 0 20 15.5Z"/></symbol>
+    <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M4 6h14a2 2 0 0 1 2 2v11H4a2 2 0 0 1-2-2V6a3 3 0 0 1 3-3h12"/><path d="M16 11h6v5h-6a2.5 2.5 0 0 1 0-5Z"/></symbol>
+    <symbol id="i-calculator" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8v4H8zM8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-zap" viewBox="0 0 24 24"><path d="m13 2-9 12h8l-1 8 9-12h-8l1-8Z"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 5.2a3.5 3.5 0 0 1 0 6.6M18 14a6 6 0 0 1 3.5 6"/></symbol>
+    <symbol id="i-room" viewBox="0 0 24 24"><path d="M5 21V4a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v17M3 21h18M9 7h5v14H9z"/><path d="M11.5 14h.01"/></symbol>
+    <symbol id="i-admin" viewBox="0 0 24 24"><path d="M12 2 4.5 5v6c0 5.2 3.2 9 7.5 11 4.3-2 7.5-5.8 7.5-11V5L12 2Z"/><circle cx="12" cy="9" r="2.5"/><path d="M7.8 17a4.5 4.5 0 0 1 8.4 0"/></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24"><path d="M10 4H4v16h6M14 8l4 4-4 4M8 12h10"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m5 5 14 14M19 5 5 19"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"/></symbol>
+    <symbol id="i-arrow-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M13.5 6.5 17.5 10.5M4 20l4.5-1 10-10a2.83 2.83 0 0 0-4-4l-10 10L4 20Z"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 3h6l1 4H8l1-4ZM6 7l1 14h10l1-14M10 11v6M14 11v6"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 2 4.5 5v6c0 5.2 3.2 9 7.5 11 4.3-2 7.5-5.8 7.5-11V5L12 2Z"/><path d="m8.5 12 2.3 2.3 4.7-5"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></symbol>
+    <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="m3 3 18 18M10.6 6.1A10 10 0 0 1 12 6c6.5 0 10 6 10 6a18 18 0 0 1-2.1 2.8M6.2 6.2C3.5 8 2 12 2 12s3.5 6 10 6c1.5 0 2.8-.3 4-.8M10.2 10.2a2.5 2.5 0 0 0 3.6 3.6"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><path d="M3 5h18v14H3zM3 6l9 7 9-7"/></symbol>
+    <symbol id="i-google" viewBox="0 0 24 24"><path d="M21.6 12.2c0-.7-.1-1.4-.2-2H12v3.9h5.4a4.7 4.7 0 0 1-2 3v2.5h3.3c1.9-1.8 2.9-4.4 2.9-7.4Z"/><path d="M12 22c2.7 0 5-.9 6.7-2.4l-3.3-2.5c-.9.6-2.1 1-3.4 1a5.9 5.9 0 0 1-5.5-4.1H3.1v2.6A10.1 10.1 0 0 0 12 22Z"/><path d="M6.5 14a6 6 0 0 1 0-4V7.4H3.1a10 10 0 0 0 0 9.2L6.5 14Z"/><path d="M12 5.9c1.5 0 2.8.5 3.9 1.5l2.9-2.9A9.8 9.8 0 0 0 3.1 7.4L6.5 10A5.9 5.9 0 0 1 12 5.9Z"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 13v7H4V6h7"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.3 2.5 3.5 5.5 3.5 9S14.3 18.5 12 21c-2.3-2.5-3.5-5.5-3.5-9S9.7 5.5 12 3Z"/></symbol>
+    <symbol id="i-whatsapp" viewBox="0 0 24 24"><path d="M20 11.6a8 8 0 0 1-11.8 7L4 20l1.4-4A8 8 0 1 1 20 11.6Z"/><path d="M9 8.5c.3 2.8 2.1 4.6 5 5l1-1.3 2 .9c-.3 1.4-1.3 2.2-2.8 2.1-3.7-.4-6.6-3.3-7-7C7.1 6.7 8 5.7 9.3 5.4l1 2-1.3 1.1Z"/></symbol>
+    <symbol id="i-facebook" viewBox="0 0 24 24"><path d="M14 21v-8h3l.5-4H14V7c0-1.2.4-2 2-2h2V1.5c-.7-.1-1.7-.2-2.8-.2-3 0-5.2 1.9-5.2 5.3V9H7v4h3v8"/></symbol>
+    <symbol id="i-code" viewBox="0 0 24 24"><path d="m8 7-5 5 5 5M16 7l5 5-5 5M14 3l-4 18"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M6 2h8l4 4v16H6zM14 2v5h5M9 12h6M9 16h6"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 8a7 7 0 0 1 11.7-1L20 12M4 12l2.2 5a7 7 0 0 0 11.7-1"/></symbol>
+    <symbol id="i-keyboard" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 13h.01M10 13h.01M14 13h.01M18 13h.01M7 16h10"/></symbol>
+  </svg>
+
+  <div class="ambient ambient-one" aria-hidden="true"></div>
+  <div class="ambient ambient-two" aria-hidden="true"></div>
+  <div class="grid-noise" aria-hidden="true"></div>
+
+  <div id="bootScreen" class="boot-screen">
+    <div class="brand-mark brand-mark-large" aria-hidden="true"><span>M</span><i></i><span>L</span></div>
+    <div class="boot-copy"><strong>MEAL LEDGER</strong><span>Loading your private workspace</span></div>
+    <div class="boot-track"><i></i></div>
+  </div>
+
+  <section id="authView" class="auth-view is-hidden" aria-label="Authentication">
+    <div class="auth-showcase">
+      <header class="auth-brand">
+        <a class="brand" href="#" aria-label="Meal Ledger home">
+          <span class="brand-mark"><span>M</span><i></i><span>L</span></span>
+          <span class="brand-copy"><strong>MEAL LEDGER</strong><small>HOSTEL CONTROL</small></span>
+        </a>
+        <span class="secure-label"><span></span> PRIVATE BY DESIGN</span>
+      </header>
+
+      <div class="auth-hero">
+        <p class="eyebrow"><span>01</span> YOUR MONTH, ACCOUNTED FOR</p>
+        <h1>Every meal.<br><em>Exactly</em> calculated.</h1>
+        <p>Track breakfast, lunch and dinner in seconds. Your special-day rules, advance balance and monthly bill stay perfectly in sync.</p>
+
+        <div class="auth-rules" aria-label="Meal rules">
+          <div><span>DAILY</span><strong>0.5</strong><small>Breakfast</small></div>
+          <div><span>FRIDAY</span><strong>2.0</strong><small>Lunch</small></div>
+          <div><span>TUESDAY</span><strong>2.0</strong><small>Dinner</small></div>
+          <div><span>SUNDAY</span><strong>1.5</strong><small>Dinner</small></div>
+        </div>
+      </div>
+
+      <div class="auth-preview" aria-hidden="true">
+        <div class="preview-topline"><span>MONTHLY SNAPSHOT</span><span class="live-dot">LIVE</span></div>
+        <div class="preview-main-stat"><span>Total spend</span><strong>৳2,756</strong><small>53 meals logged</small></div>
+        <div class="preview-chart">
+          <i style="--h:32%"></i><i style="--h:56%"></i><i style="--h:43%"></i><i style="--h:76%"></i><i style="--h:62%"></i><i style="--h:90%"></i><i style="--h:70%"></i><i style="--h:84%"></i><i style="--h:48%"></i><i style="--h:68%"></i><i style="--h:95%"></i><i style="--h:78%"></i>
+        </div>
+        <div class="preview-footer"><span><i></i> Exact half-meal arithmetic</span><b>1 meal = ৳55</b></div>
+      </div>
+
+      <footer class="auth-showcase-footer">
+        <span>FIREBASE SECURED</span><span>REAL-TIME SYNC</span><span>BDT LEDGER</span>
+      </footer>
+    </div>
+
+    <div class="auth-panel-wrap">
+      <div class="auth-panel">
+        <div class="auth-mobile-brand">
+          <span class="brand-mark"><span>M</span><i></i><span>L</span></span>
+          <span class="brand-copy"><strong>MEAL LEDGER</strong><small>HOSTEL CONTROL</small></span>
+        </div>
+
+        <div class="connection-note" id="authConnectionStatus">
+          <span class="status-dot"></span><span>Connecting to secure storage…</span>
+        </div>
+
+        <div class="auth-tabs" role="tablist" aria-label="Account access">
+          <button id="signInTab" class="auth-tab is-active" role="tab" aria-selected="true" aria-controls="signInForm">Sign in</button>
+          <button id="signUpTab" class="auth-tab" role="tab" aria-selected="false" aria-controls="signUpForm">Create account</button>
+        </div>
+
+        <div id="authAlert" class="form-alert is-hidden" role="alert"></div>
+
+        <form id="signInForm" class="auth-form" novalidate>
+          <div class="form-heading">
+            <p class="eyebrow">WELCOME BACK</p>
+            <h2>Continue your ledger.</h2>
+            <p>Use the account linked to your private meal records.</p>
+          </div>
+          <label class="field">
+            <span>Email address</span>
+            <span class="input-shell"><svg><use href="#i-mail"></use></svg><input id="signInEmail" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" required></span>
+          </label>
+          <label class="field">
+            <span class="field-label-row"><span>Password</span><button id="forgotPasswordButton" type="button" class="text-button">Forgot password?</button></span>
+            <span class="input-shell"><svg><use href="#i-lock"></use></svg><input id="signInPassword" type="password" autocomplete="current-password" placeholder="Enter your password" required><button type="button" class="password-toggle" data-password-target="signInPassword" aria-label="Show password"><svg><use href="#i-eye"></use></svg></button></span>
+          </label>
+          <label class="check-row"><input id="rememberAccount" type="checkbox" checked><span class="custom-check"><svg><use href="#i-check"></use></svg></span><span>Keep me signed in on this device</span></label>
+          <button class="button button-primary button-full" type="submit"><span>Sign in securely</span><svg><use href="#i-chevron-right"></use></svg></button>
+        </form>
+
+        <form id="signUpForm" class="auth-form is-hidden" novalidate>
+          <div class="form-heading">
+            <p class="eyebrow">NEW LEDGER</p>
+            <h2>Create your account.</h2>
+            <p>Your records are isolated by your Firebase user ID.</p>
+          </div>
+          <label class="field">
+            <span>Full name</span>
+            <span class="input-shell"><svg><use href="#i-user"></use></svg><input id="signUpName" type="text" autocomplete="name" placeholder="Your name" minlength="2" maxlength="60" required></span>
+          </label>
+          <label class="field">
+            <span>Room No.</span>
+            <span class="input-shell"><svg><use href="#i-room"></use></svg><input id="signUpRoom" type="text" autocomplete="off" inputmode="numeric" pattern="[0-9]{1,6}" maxlength="6" placeholder="e.g. 302" aria-describedby="signUpRoomHelp" required></span>
+            <small id="signUpRoomHelp">Numbers only, up to 6 digits.</small>
+          </label>
+          <label class="field">
+            <span>Email address</span>
+            <span class="input-shell"><svg><use href="#i-mail"></use></svg><input id="signUpEmail" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" required></span>
+          </label>
+          <label class="field">
+            <span>Password</span>
+            <span class="input-shell"><svg><use href="#i-lock"></use></svg><input id="signUpPassword" type="password" autocomplete="new-password" placeholder="At least 8 characters" minlength="8" required><button type="button" class="password-toggle" data-password-target="signUpPassword" aria-label="Show password"><svg><use href="#i-eye"></use></svg></button></span>
+          </label>
+          <div class="password-meter" aria-live="polite"><i id="passwordMeterBar"></i><span id="passwordMeterLabel">Use 8+ characters with a number</span></div>
+          <label class="check-row"><input id="acceptTerms" type="checkbox" required><span class="custom-check"><svg><use href="#i-check"></use></svg></span><span>I understand my meal data is stored in my private cloud account.</span></label>
+          <button class="button button-primary button-full" type="submit"><span>Create private ledger</span><svg><use href="#i-chevron-right"></use></svg></button>
+        </form>
+
+        <div class="auth-separator"><span>OR CONTINUE WITH</span></div>
+        <div class="auth-alt-grid">
+          <button id="googleAuthButton" class="button button-secondary" type="button"><svg class="google-icon"><use href="#i-google"></use></svg><span>Google</span></button>
+          <button id="demoModeButton" class="button button-secondary" type="button"><svg><use href="#i-zap"></use></svg><span>Explore demo</span></button>
+        </div>
+        <p class="auth-fineprint"><svg><use href="#i-shield"></use></svg><span>Meal Ledger never shares records between accounts. Access is enforced by Firestore Security Rules.</span></p>
+      </div>
+      <p class="auth-copyright">© <span id="copyrightYear"></span> MEAL LEDGER <i></i> DEVELOPED BY <a class="credit-link" href="https://foysalcyber.github.io/" target="_blank" rel="noopener noreferrer">FOYSAL MAHMUD</a></p>
+    </div>
+  </section>
+
+  <div id="appShell" class="app-shell is-hidden">
+    <aside id="sidebar" class="sidebar">
+      <a class="brand sidebar-brand" href="#overview" aria-label="Meal Ledger overview">
+        <span class="brand-mark"><span>M</span><i></i><span>L</span></span>
+        <span class="brand-copy"><strong>MEAL LEDGER</strong><small>HOSTEL CONTROL</small></span>
+      </a>
+
+      <nav class="main-nav" aria-label="Primary navigation">
+        <span class="nav-caption">WORKSPACE</span>
+        <button class="nav-link is-active" data-view="overview"><svg><use href="#i-overview"></use></svg><span>Overview</span><i></i></button>
+        <button class="nav-link" data-view="calendar"><svg><use href="#i-calendar"></use></svg><span>Meal calendar</span><i></i></button>
+        <button class="nav-link" data-view="insights"><svg><use href="#i-insights"></use></svg><span>Insights</span><i></i></button>
+        <button class="nav-link" data-view="settings"><svg><use href="#i-settings"></use></svg><span>Settings</span><i></i></button>
+        <button class="nav-link is-hidden" data-view="admin" data-admin-only><svg><use href="#i-admin"></use></svg><span>Admin panel</span><i></i></button>
+      </nav>
+
+      <div class="sidebar-rate-card">
+        <div class="rate-icon"><svg><use href="#i-calculator"></use></svg></div>
+        <span>LOCKED MEAL RATE</span>
+        <strong>৳55 <small>/ meal</small></strong>
+        <p>Calculated in exact 0.5-meal units.</p>
+      </div>
+
+      <button id="sidebarProfileButton" class="sidebar-profile" type="button">
+        <span class="avatar" data-user-initials>DR</span>
+        <span class="sidebar-profile-copy"><strong data-user-name>Demo Resident</strong><small data-user-email>Local preview</small></span>
+        <svg><use href="#i-settings"></use></svg>
+      </button>
+    </aside>
+    <button id="sidebarBackdrop" class="sidebar-backdrop" type="button" aria-label="Close navigation"></button>
+
+    <div class="app-main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button id="mobileMenuButton" class="icon-button mobile-menu-button" type="button" aria-label="Open navigation"><svg><use href="#i-menu"></use></svg></button>
+          <div class="page-identity"><span id="pageEyebrow">CONTROL CENTER</span><strong id="pageTitle">Overview</strong></div>
+        </div>
+        <div class="topbar-right">
+          <div id="syncStatus" class="sync-status" title="Cloud sync status"><svg><use href="#i-cloud"></use></svg><span>Synced</span></div>
+          <div class="month-switcher">
+            <button class="month-shift" data-month-shift="-1" type="button" aria-label="Previous month"><svg><use href="#i-chevron-left"></use></svg></button>
+            <label class="month-picker-label"><span id="topMonthLabel">August 2026</span><input id="monthPicker" type="month" min="2000-01" max="2100-12" aria-label="Choose month"></label>
+            <button class="month-shift" data-month-shift="1" type="button" aria-label="Next month"><svg><use href="#i-chevron-right"></use></svg></button>
+          </div>
+          <button id="themeToggleButton" class="icon-button" type="button" aria-label="Switch color theme"><svg><use href="#i-moon"></use></svg></button>
+          <button id="topProfileButton" class="top-avatar" type="button" aria-label="Open account menu"><span data-user-initials>DR</span><i></i></button>
+        </div>
+      </header>
+
+      <div id="demoBanner" class="demo-banner is-hidden">
+        <div><svg><use href="#i-zap"></use></svg><span><strong>Demo workspace.</strong> Changes stay only in this browser and never reach Firestore.</span></div>
+        <button id="exitDemoButton" class="text-button" type="button">Exit demo</button>
+      </div>
+
+      <main class="view-stage">
+        <section id="view-overview" class="app-view is-active" data-app-view="overview">
+          <div class="view-heading overview-heading">
+            <div>
+              <p class="eyebrow"><span>01</span> MONTHLY CONTROL CENTER</p>
+              <h1><span id="greetingText">Good evening</span>, <em id="greetingName">Resident</em>.</h1>
+              <p id="overviewSubtitle">Here is your precise meal position for August 2026.</p>
+            </div>
+            <div class="view-heading-actions">
+              <button class="button button-secondary" data-open-quick-fill type="button"><svg><use href="#i-zap"></use></svg><span>Quick fill</span></button>
+              <button class="button button-primary" data-open-advance type="button"><svg><use href="#i-wallet"></use></svg><span>Set advance</span></button>
+            </div>
+          </div>
+
+          <div class="metric-grid">
+            <article class="metric-card metric-primary">
+              <div class="metric-top"><span class="metric-icon"><svg><use href="#i-lunch"></use></svg></span><span class="metric-label">TOTAL MEALS</span><span class="metric-index">01</span></div>
+              <strong id="metricMeals">0</strong>
+              <div class="metric-bottom"><span><i class="status-mark status-good"></i><b id="metricActiveDays">0</b> active days</span><small id="metricMealsMax">of 0 possible</small></div>
+            </article>
+            <article class="metric-card">
+              <div class="metric-top"><span class="metric-icon"><svg><use href="#i-calculator"></use></svg></span><span class="metric-label">MEAL COST</span><span class="metric-index">02</span></div>
+              <strong id="metricCost">৳0</strong>
+              <div class="metric-bottom"><span><i class="status-mark"></i> Exact billing</span><small>৳55 / meal</small></div>
+            </article>
+            <article class="metric-card">
+              <div class="metric-top"><span class="metric-icon"><svg><use href="#i-wallet"></use></svg></span><span class="metric-label">ADVANCE PAID</span><span class="metric-index">03</span></div>
+              <strong id="metricAdvance">৳0</strong>
+              <div class="metric-bottom"><button class="inline-action" data-open-advance type="button"><svg><use href="#i-edit"></use></svg> Edit amount</button><small id="metricAdvanceUse">0% used</small></div>
+            </article>
+            <article id="balanceMetricCard" class="metric-card">
+              <div class="metric-top"><span class="metric-icon"><svg><use href="#i-arrow-up"></use></svg></span><span id="balanceMetricLabel" class="metric-label">REMAINING</span><span class="metric-index">04</span></div>
+              <strong id="metricBalance">৳0</strong>
+              <div class="metric-bottom"><span id="balanceMetricHint"><i class="status-mark status-good"></i> Advance is sufficient</span><small>Advance − cost</small></div>
+            </article>
+          </div>
+
+          <div class="overview-grid">
+            <article class="panel progress-panel">
+              <div class="panel-heading"><div><span class="panel-kicker">MONTH CAPACITY</span><h2>Meal progress</h2></div><button class="icon-button small" data-view-jump="insights" type="button" aria-label="Open insights"><svg><use href="#i-insights"></use></svg></button></div>
+              <div class="progress-content">
+                <div class="meal-ring" role="img" aria-label="Monthly meal completion">
+                  <svg viewBox="0 0 160 160"><circle class="ring-track" cx="80" cy="80" r="62"></circle><circle id="mealProgressRing" class="ring-value" cx="80" cy="80" r="62"></circle></svg>
+                  <div><strong id="mealProgressPercent">0%</strong><span>of maximum</span></div>
+                </div>
+                <div class="slot-breakdown">
+                  <div><span class="slot-dot breakfast"></span><span>Breakfast</span><strong id="breakfastTotal">0</strong><small id="breakfastDays">0 days</small></div>
+                  <div><span class="slot-dot lunch"></span><span>Lunch</span><strong id="lunchTotal">0</strong><small id="lunchDays">0 days</small></div>
+                  <div><span class="slot-dot dinner"></span><span>Dinner</span><strong id="dinnerTotal">0</strong><small id="dinnerDays">0 days</small></div>
+                </div>
+              </div>
+              <div class="advance-usage"><div><span>Advance utilization</span><strong id="advanceUsageText">No advance set</strong></div><div class="progress-track"><i id="advanceUsageBar"></i></div></div>
+            </article>
+
+            <article class="panel selected-day-panel">
+              <div class="panel-heading">
+                <div><span class="panel-kicker">QUICK ENTRY</span><h2 id="selectedDayTitle">Today</h2></div>
+                <div class="day-stepper"><button id="previousDayButton" type="button" aria-label="Previous day"><svg><use href="#i-chevron-left"></use></svg></button><button id="nextDayButton" type="button" aria-label="Next day"><svg><use href="#i-chevron-right"></use></svg></button></div>
+              </div>
+              <div class="selected-date-line"><span id="selectedDayDate">Sunday, 30 August</span><span id="selectedDayBadge" class="date-badge">TODAY</span></div>
+              <div id="selectedDayToggles" class="selected-day-toggles"></div>
+              <div class="selected-day-total"><span>This day</span><strong><b id="selectedDayMeals">0 meals</b><em id="selectedDayCost">৳0</em></strong></div>
+            </article>
+
+            <article class="panel activity-panel">
+              <div class="panel-heading"><div><span class="panel-kicker">CUMULATIVE COST</span><h2>Spending trajectory</h2></div><span id="trajectoryChange" class="trend-badge">৳0 total</span></div>
+              <div id="overviewChart" class="line-chart" aria-label="Cumulative monthly spending chart"></div>
+              <div class="chart-axis"><span>01</span><span id="chartMidDay">15</span><span id="chartLastDay">31</span></div>
+            </article>
+
+            <article class="panel quick-actions-panel">
+              <div class="panel-heading"><div><span class="panel-kicker">SHORTCUTS</span><h2>Quick actions</h2></div></div>
+              <div class="quick-action-list">
+                <button data-open-quick-fill type="button"><span class="quick-icon"><svg><use href="#i-zap"></use></svg></span><span><strong>Fill multiple days</strong><small>Log a month in one action</small></span><svg><use href="#i-chevron-right"></use></svg></button>
+                <button data-view-jump="calendar" type="button"><span class="quick-icon"><svg><use href="#i-calendar"></use></svg></span><span><strong>Open full calendar</strong><small>Review every meal slot</small></span><svg><use href="#i-chevron-right"></use></svg></button>
+                <button data-export-csv type="button"><span class="quick-icon"><svg><use href="#i-download"></use></svg></span><span><strong>Export monthly CSV</strong><small>Keep a portable statement</small></span><svg><use href="#i-chevron-right"></use></svg></button>
+              </div>
+            </article>
+          </div>
+
+          <article class="panel recent-panel">
+            <div class="panel-heading"><div><span class="panel-kicker">LATEST LOGS</span><h2>Recent meal activity</h2></div><button class="text-button arrow-link" data-view-jump="calendar" type="button">View calendar <svg><use href="#i-chevron-right"></use></svg></button></div>
+            <div id="recentActivity" class="recent-list"></div>
+          </article>
+        </section>
+
+        <section id="view-calendar" class="app-view" data-app-view="calendar">
+          <div class="view-heading">
+            <div><p class="eyebrow"><span>02</span> DAILY MEAL REGISTER</p><h1>Meal <em>calendar</em>.</h1><p id="calendarSubtitle">Toggle a slot only when that meal was eaten. Values are assigned automatically.</p></div>
+            <div class="view-heading-actions"><button class="button button-secondary" data-export-csv type="button"><svg><use href="#i-download"></use></svg><span>Export CSV</span></button><button class="button button-primary" data-open-quick-fill type="button"><svg><use href="#i-zap"></use></svg><span>Quick fill</span></button></div>
+          </div>
+
+          <div class="calendar-toolbar panel">
+            <div class="calendar-filter" role="group" aria-label="Filter calendar days">
+              <button class="filter-chip is-active" data-calendar-filter="all" type="button">All days <span id="allDayCount">31</span></button>
+              <button class="filter-chip" data-calendar-filter="logged" type="button">With meals <span id="loggedDayCount">0</span></button>
+              <button class="filter-chip" data-calendar-filter="empty" type="button">No meals <span id="emptyDayCount">31</span></button>
+            </div>
+            <div class="calendar-legend"><span><i class="legend-dot special"></i> Special multiplier</span><span><i class="legend-dot today"></i> Today</span><span><i class="legend-dot selected"></i> Eaten</span></div>
+          </div>
+
+          <article class="calendar-panel panel">
+            <div class="calendar-panel-heading">
+              <div><span id="calendarMonthKicker">AUGUST 2026</span><h2 id="calendarMonthTitle">Monthly register</h2></div>
+              <div class="calendar-summary-inline"><span><small>MEALS</small><strong id="calendarInlineMeals">0</strong></span><i></i><span><small>COST</small><strong id="calendarInlineCost">৳0</strong></span></div>
+            </div>
+            <div class="weekday-row" aria-hidden="true"><span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span><span>SUN</span></div>
+            <div id="calendarGrid" class="calendar-grid" aria-live="polite"></div>
+            <div id="calendarEmptyState" class="calendar-empty is-hidden"><svg><use href="#i-calendar"></use></svg><h3>No days match this filter</h3><p>Choose a different filter to see the month.</p></div>
+          </article>
+        </section>
+
+        <section id="view-insights" class="app-view" data-app-view="insights">
+          <div class="view-heading">
+            <div><p class="eyebrow"><span>03</span> MONTHLY INTELLIGENCE</p><h1>Clear numbers.<br><em>Zero guesswork</em>.</h1><p>Every chart is derived from the same exact half-meal ledger used for billing.</p></div>
+            <div class="view-heading-actions"><button class="button button-secondary" data-export-json type="button"><svg><use href="#i-file"></use></svg><span>JSON backup</span></button><button class="button button-primary" data-export-csv type="button"><svg><use href="#i-download"></use></svg><span>Export statement</span></button></div>
+          </div>
+
+          <div class="insight-strip">
+            <article><span>AVERAGE / ACTIVE DAY</span><strong id="insightDailyAverage">0</strong><small>meal equivalents</small></article>
+            <article><span>SPECIAL-DAY EXTRA</span><strong id="insightSpecialMeals">0</strong><small id="insightSpecialCost">৳0 added cost</small></article>
+            <article><span>MAXIMUM THIS MONTH</span><strong id="insightMaximum">0</strong><small id="insightMaximumCost">৳0 if every slot is eaten</small></article>
+            <article><span>PROJECTED COST</span><strong id="insightProjection">৳0</strong><small id="insightProjectionCaption">Based on elapsed days</small></article>
+          </div>
+
+          <div class="insights-grid">
+            <article class="panel trajectory-panel">
+              <div class="panel-heading"><div><span class="panel-kicker">DAILY ACCUMULATION</span><h2>Cost trajectory</h2></div><div class="chart-legend"><span><i></i> Actual cost</span></div></div>
+              <div id="insightsTrajectoryChart" class="insights-chart"></div>
+              <div class="chart-footer-stat"><span>MONTH TOTAL</span><strong id="insightsTrajectoryTotal">৳0</strong><small id="insightsTrajectoryMeals">0 meals</small></div>
+            </article>
+
+            <article class="panel slot-analysis-panel">
+              <div class="panel-heading"><div><span class="panel-kicker">SLOT DISTRIBUTION</span><h2>What you ate</h2></div></div>
+              <div id="slotDonut" class="slot-donut"><div class="slot-donut-visual"><div><strong id="slotDonutTotal">0</strong><span>meals</span></div></div><div id="slotDonutLegend" class="slot-donut-legend"></div></div>
+            </article>
+
+            <article class="panel weekday-panel">
+              <div class="panel-heading"><div><span class="panel-kicker">WEEKDAY PATTERN</span><h2>Meals by weekday</h2></div><span class="panel-note">Actual meal equivalents</span></div>
+              <div id="weekdayBars" class="weekday-bars"></div>
+            </article>
+
+            <article class="panel rulebook-panel">
+              <div class="panel-heading"><div><span class="panel-kicker">BILLING ENGINE</span><h2>Locked rulebook</h2></div><span class="locked-pill"><svg><use href="#i-lock"></use></svg> LOCKED</span></div>
+              <div class="rule-list">
+                <div><span class="rule-symbol"><svg><use href="#i-sun"></use></svg></span><span><strong>Breakfast</strong><small>Every day</small></span><b>0.5 meal</b></div>
+                <div><span class="rule-symbol"><svg><use href="#i-lunch"></use></svg></span><span><strong>Friday lunch</strong><small>All other lunches are 1 meal</small></span><b>2 meals</b></div>
+                <div><span class="rule-symbol"><svg><use href="#i-moon"></use></svg></span><span><strong>Tuesday dinner</strong><small>Special dinner value</small></span><b>2 meals</b></div>
+                <div><span class="rule-symbol"><svg><use href="#i-moon"></use></svg></span><span><strong>Sunday dinner</strong><small>All other dinners are 1 meal</small></span><b>1.5 meals</b></div>
+              </div>
+              <div class="rule-formula"><span>FINAL BILL</span><code>Total half-units × ৳27.50</code><small>Equivalent to total meals × ৳55, without floating-point rounding.</small></div>
+            </article>
+          </div>
+        </section>
+
+        <section id="view-settings" class="app-view" data-app-view="settings">
+          <div class="view-heading">
+            <div><p class="eyebrow"><span>04</span> ACCOUNT & DATA</p><h1>Your ledger.<br><em>Your controls</em>.</h1><p>Manage identity, display preferences, exports and month-level data.</p></div>
+          </div>
+
+          <div class="settings-grid">
+            <article class="panel settings-card profile-settings-card">
+              <div class="settings-card-heading"><span class="settings-icon"><svg><use href="#i-user"></use></svg></span><div><h2>Profile</h2><p>How your name appears in Meal Ledger.</p></div></div>
+              <form id="profileForm" class="settings-form">
+                <label class="field"><span>Display name</span><span class="input-shell"><svg><use href="#i-user"></use></svg><input id="profileNameInput" type="text" minlength="2" maxlength="60" required></span></label>
+                <label class="field"><span>Room No.</span><span class="input-shell"><svg><use href="#i-room"></use></svg><input id="profileRoomInput" type="text" inputmode="numeric" pattern="[0-9]{1,6}" maxlength="6" placeholder="e.g. 302" required></span></label>
+                <label class="field"><span>Email address</span><span class="input-shell is-readonly"><svg><use href="#i-mail"></use></svg><input id="profileEmailInput" type="email" readonly></span></label>
+                <div class="account-meta"><span id="emailVerificationBadge" class="verification-badge"><svg><use href="#i-shield"></use></svg> Account status</span><span id="accountModeLabel">Firebase cloud account</span></div>
+                <button class="button button-primary" type="submit"><span>Save profile</span><svg><use href="#i-check"></use></svg></button>
+              </form>
+            </article>
+
+            <article class="panel settings-card">
+              <div class="settings-card-heading"><span class="settings-icon"><svg><use href="#i-eye"></use></svg></span><div><h2>Appearance</h2><p>Choose the interface that feels best.</p></div></div>
+              <div class="setting-row"><div><strong>Color theme</strong><small>System follows your device setting.</small></div><div class="theme-segment" role="radiogroup" aria-label="Color theme"><button data-theme-choice="dark" type="button">Dark</button><button data-theme-choice="light" type="button">Light</button><button data-theme-choice="system" type="button">System</button></div></div>
+              <div class="setting-row"><div><strong>Interface motion</strong><small>Reduced automatically when requested by your device.</small></div><span class="setting-value">Adaptive</span></div>
+            </article>
+
+            <article class="panel settings-card pwa-settings-card">
+              <div class="settings-card-heading"><span class="settings-icon"><svg><use href="#i-download"></use></svg></span><div><h2>Install the app</h2><p>Get one-tap access from your Home Screen or desktop.</p></div></div>
+              <div class="pwa-setting-body">
+                <span class="pwa-setting-status"><strong id="pwaInstallSettingsTitle">Add to your device</strong><small id="pwaInstallSettingsStatus">Checking browser installation support…</small></span>
+                <button id="pwaInstallSettingsButton" class="button button-primary" type="button"><svg><use href="#i-download"></use></svg><span>Install app</span></button>
+              </div>
+            </article>
+
+            <article class="panel settings-card">
+              <div class="settings-card-heading"><span class="settings-icon"><svg><use href="#i-calculator"></use></svg></span><div><h2>Billing constants</h2><p>These values are fixed to protect calculation integrity.</p></div></div>
+              <div class="locked-settings">
+                <div><span>Meal rate</span><strong>৳55.00</strong><small>per 1.0 meal</small><svg><use href="#i-lock"></use></svg></div>
+                <div><span>Smallest unit</span><strong>0.5 meal</strong><small>billed at ৳27.50</small><svg><use href="#i-lock"></use></svg></div>
+                <div><span>Calendar timezone</span><strong>Asia/Dhaka</strong><small>UTC +06:00</small><svg><use href="#i-lock"></use></svg></div>
+              </div>
+            </article>
+
+            <article class="panel settings-card data-settings-card">
+              <div class="settings-card-heading"><span class="settings-icon"><svg><use href="#i-download"></use></svg></span><div><h2>Data & portability</h2><p>Download or clear the currently selected month.</p></div></div>
+              <div class="data-actions">
+                <button data-export-csv type="button"><span class="data-action-icon"><svg><use href="#i-file"></use></svg></span><span><strong>CSV statement</strong><small>Spreadsheet-ready monthly detail</small></span><svg><use href="#i-download"></use></svg></button>
+                <button data-export-json type="button"><span class="data-action-icon"><svg><use href="#i-shield"></use></svg></span><span><strong>JSON backup</strong><small>Full machine-readable month snapshot</small></span><svg><use href="#i-download"></use></svg></button>
+                <button id="clearMonthButton" class="danger-action" type="button"><span class="data-action-icon"><svg><use href="#i-trash"></use></svg></span><span><strong>Clear selected month</strong><small id="clearMonthCaption">Delete entries and advance for this month</small></span><svg><use href="#i-chevron-right"></use></svg></button>
+              </div>
+            </article>
+
+            <article class="panel settings-card security-settings-card">
+              <div class="settings-card-heading"><span class="settings-icon"><svg><use href="#i-shield"></use></svg></span><div><h2>Storage security</h2><p>How your account records are protected.</p></div></div>
+              <ul class="security-list">
+                <li><svg><use href="#i-check"></use></svg><span><strong>User-isolated Firestore paths</strong><small>Your UID owns its nested month and day documents.</small></span></li>
+                <li><svg><use href="#i-check"></use></svg><span><strong>Allowlisted document fields</strong><small>Security Rules reject unexpected fields and invalid types.</small></span></li>
+                <li><svg><use href="#i-check"></use></svg><span><strong>Integer money arithmetic</strong><small>All money is stored as paisa; all meals as exact half-units.</small></span></li>
+              </ul>
+              <div id="firebaseProjectStatus" class="project-status"><span></span><div><strong>Firebase project</strong><small>Checking connection…</small></div></div>
+            </article>
+
+            <article id="adminGatewayCard" class="panel settings-card admin-gateway-card is-hidden">
+              <div class="settings-card-heading"><span class="settings-icon"><svg><use href="#i-admin"></use></svg></span><div><h2>Administrator access</h2><p>Private user and activity monitoring for the authorized administrator.</p></div></div>
+              <div class="admin-gateway-body">
+                <span><strong id="adminGatewayTitle">Admin panel ready</strong><small id="adminGatewayStatus">Access is restricted to the verified administrator account.</small></span>
+                <button id="adminGatewayButton" class="button button-primary" type="button"><svg><use href="#i-admin"></use></svg><span>Open admin panel</span></button>
+              </div>
+            </article>
+
+            <article class="panel developer-credit-card" aria-labelledby="developerCreditTitle">
+              <div class="developer-credit-header">
+                <span class="developer-monogram" aria-hidden="true">F<b>M</b><i></i></span>
+                <div class="developer-identity">
+                  <span class="developer-credit-label">DESIGNED &amp; DEVELOPED BY</span>
+                  <h2 id="developerCreditTitle">Foysal Mahmud</h2>
+                  <p>Developer of Meal Ledger</p>
+                  <span class="developer-verified"><svg><use href="#i-code"></use></svg> PROJECT DEVELOPER</span>
+                </div>
+                <a class="developer-site-shortcut" href="https://foysalcyber.github.io/" target="_blank" rel="noopener noreferrer" aria-label="Visit Foysal Mahmud's website"><svg><use href="#i-external"></use></svg></a>
+              </div>
+              <div class="developer-contact-grid">
+                <a class="developer-contact-link" href="https://foysalcyber.github.io/" target="_blank" rel="noopener noreferrer">
+                  <span class="developer-contact-icon"><svg><use href="#i-globe"></use></svg></span>
+                  <span class="developer-contact-copy"><small>WEB</small><strong>foysalcyber.github.io</strong></span>
+                  <svg><use href="#i-external"></use></svg>
+                </a>
+                <a class="developer-contact-link" href="https://wa.me/8801778866172?text=Hello%20Foysal%2C%20I%20found%20you%20through%20Meal%20Ledger." target="_blank" rel="noopener noreferrer">
+                  <span class="developer-contact-icon"><svg><use href="#i-whatsapp"></use></svg></span>
+                  <span class="developer-contact-copy"><small>WHATSAPP</small><strong>+880 1778-866172</strong></span>
+                  <svg><use href="#i-external"></use></svg>
+                </a>
+                <a class="developer-contact-link" href="mailto:foysal.cyber@gmail.com?subject=Meal%20Ledger">
+                  <span class="developer-contact-icon"><svg><use href="#i-mail"></use></svg></span>
+                  <span class="developer-contact-copy"><small>EMAIL</small><strong>foysal.cyber@gmail.com</strong></span>
+                  <svg><use href="#i-external"></use></svg>
+                </a>
+                <a class="developer-contact-link" href="https://www.facebook.com/foysal.cyber" target="_blank" rel="noopener noreferrer">
+                  <span class="developer-contact-icon"><svg><use href="#i-facebook"></use></svg></span>
+                  <span class="developer-contact-copy"><small>FACEBOOK</small><strong>facebook.com/foysal.cyber</strong></span>
+                  <svg><use href="#i-external"></use></svg>
+                </a>
+              </div>
+              <div class="developer-signature"><code>FOYSAL // MEAL LEDGER</code><span>WEB · WHATSAPP · EMAIL · FACEBOOK</span></div>
+            </article>
+
+            <article class="panel settings-card session-settings-card">
+              <div class="settings-card-heading"><span class="settings-icon"><svg><use href="#i-logout"></use></svg></span><div><h2>Session</h2><p>End access on this browser.</p></div></div>
+              <button id="settingsSignOutButton" class="button button-secondary button-full" type="button"><svg><use href="#i-logout"></use></svg><span>Sign out of Meal Ledger</span></button>
+            </article>
+          </div>
+        </section>
+
+        <section id="view-admin" class="app-view" data-app-view="admin" aria-labelledby="adminPageTitle">
+          <div class="view-heading admin-view-heading">
+            <div><p class="eyebrow"><span>05</span> PRIVATE ADMINISTRATION</p><h1 id="adminPageTitle">User <em>monitoring</em>.</h1><p>Monitor registrations, room numbers and recent site activity from one protected workspace.</p></div>
+            <div class="view-heading-actions"><button id="adminRefreshButton" class="button button-secondary" type="button"><svg><use href="#i-refresh"></use></svg><span>Refresh</span></button><button id="adminExportButton" class="button button-primary" type="button"><svg><use href="#i-download"></use></svg><span>Export users</span></button></div>
+          </div>
+
+          <div class="admin-access-strip">
+            <span class="admin-access-icon"><svg><use href="#i-shield"></use></svg></span>
+            <span><strong>Restricted administrator workspace</strong><small>Authorized account: foys*****@gmail.com · Access is enforced again by Firestore Security Rules.</small></span>
+            <span class="admin-live-badge"><i></i> LIVE DATA</span>
+          </div>
+
+          <div class="admin-metric-grid">
+            <article class="admin-metric-card"><span class="admin-metric-icon"><svg><use href="#i-users"></use></svg></span><span><small>REGISTERED USERS</small><strong id="adminTotalUsers">0</strong><em>All profiles</em></span></article>
+            <article class="admin-metric-card"><span class="admin-metric-icon active"><svg><use href="#i-zap"></use></svg></span><span><small>ACTIVE NOW</small><strong id="adminActiveNow">0</strong><em>Seen within 5 minutes</em></span></article>
+            <article class="admin-metric-card"><span class="admin-metric-icon recent"><svg><use href="#i-calendar"></use></svg></span><span><small>ACTIVE IN 24H</small><strong id="adminActiveToday">0</strong><em>Recent residents</em></span></article>
+            <article class="admin-metric-card"><span class="admin-metric-icon room"><svg><use href="#i-room"></use></svg></span><span><small>ROOMS REPRESENTED</small><strong id="adminRoomCount">0</strong><em id="adminMissingRooms">0 missing room</em></span></article>
+          </div>
+
+          <div class="admin-insight-grid">
+            <article class="panel admin-usage-panel">
+              <div class="panel-heading"><div><span class="panel-kicker">USAGE HEALTH</span><h2>Resident activity</h2></div><span id="adminLastUpdated" class="panel-note">Waiting for data…</span></div>
+              <div class="admin-activity-distribution">
+                <div><span><i class="active"></i>Active now</span><strong id="adminDistributionActive">0</strong><div class="admin-distribution-track"><i id="adminDistributionActiveBar" class="active"></i></div></div>
+                <div><span><i class="recent"></i>Recent (5m–24h)</span><strong id="adminDistributionRecent">0</strong><div class="admin-distribution-track"><i id="adminDistributionRecentBar" class="recent"></i></div></div>
+                <div><span><i class="idle"></i>Inactive 24h+</span><strong id="adminDistributionIdle">0</strong><div class="admin-distribution-track"><i id="adminDistributionIdleBar" class="idle"></i></div></div>
+              </div>
+            </article>
+            <article class="panel admin-security-panel">
+              <span class="admin-security-icon"><svg><use href="#i-lock"></use></svg></span>
+              <div><span class="panel-kicker">PASSWORD SECURITY</span><h2>Passwords are never visible.</h2><p>Firebase Authentication stores password verifiers securely. This panel can show safe account metadata, but no administrator or client-side code can read a resident's password.</p></div>
+            </article>
+          </div>
+
+          <article class="panel admin-users-panel">
+            <div class="admin-users-heading">
+              <div><span class="panel-kicker">RESIDENT DIRECTORY</span><h2>Registered users</h2><p id="adminUsersCaption">Live user profiles and approximate activity status.</p></div>
+              <div class="admin-user-tools">
+                <label class="admin-search"><svg><use href="#i-user"></use></svg><input id="adminUserSearch" type="search" autocomplete="off" placeholder="Search name, email or room…" aria-label="Search users"></label>
+                <div class="admin-user-filter" role="group" aria-label="Filter users">
+                  <button class="is-active" data-admin-filter="all" type="button" aria-pressed="true">All</button>
+                  <button data-admin-filter="active" type="button" aria-pressed="false">Active</button>
+                  <button data-admin-filter="recent" type="button" aria-pressed="false">24h</button>
+                  <button data-admin-filter="inactive" type="button" aria-pressed="false">Inactive</button>
+                  <button data-admin-filter="room-missing" type="button" aria-pressed="false">No room</button>
+                </div>
+              </div>
+            </div>
+            <div class="admin-table-wrap">
+              <table class="admin-user-table">
+                <thead><tr><th>Resident</th><th>Room No.</th><th>Status</th><th>Last active</th><th>Sessions</th><th>Meal actions</th><th>Joined</th></tr></thead>
+                <tbody id="adminUserTableBody"><tr><td colspan="7"><div class="admin-loading"><i></i><span>Loading protected user data…</span></div></td></tr></tbody>
+              </table>
+            </div>
+            <div id="adminUserEmpty" class="admin-user-empty is-hidden"><svg><use href="#i-users"></use></svg><strong>No users match this view</strong><span>Try a different search or filter.</span></div>
+          </article>
+
+          <p class="admin-accuracy-note"><svg><use href="#i-info"></use></svg><span><strong>Activity status is approximate.</strong> “Active now” means the app received a heartbeat within the last five minutes. A browser closing unexpectedly may take up to five minutes to appear inactive.</span></p>
+        </section>
+      </main>
+
+      <footer class="app-footer"><span>MEAL LEDGER <i></i> DEVELOPED BY <a class="credit-link" href="https://foysalcyber.github.io/" target="_blank" rel="noopener noreferrer">FOYSAL MAHMUD</a></span><span>1 MEAL = ৳55 <i></i> ASIA/DHAKA</span></footer>
+    </div>
+
+    <nav class="mobile-bottom-nav" aria-label="Mobile navigation">
+      <button class="is-active" data-view="overview" type="button"><svg><use href="#i-overview"></use></svg><span>Overview</span></button>
+      <button data-view="calendar" type="button"><svg><use href="#i-calendar"></use></svg><span>Calendar</span></button>
+      <button data-view="insights" type="button"><svg><use href="#i-insights"></use></svg><span>Insights</span></button>
+      <button data-view="settings" type="button"><svg><use href="#i-settings"></use></svg><span>Settings</span></button>
+      <button class="is-hidden" data-view="admin" data-admin-only type="button"><svg><use href="#i-admin"></use></svg><span>Admin</span></button>
+    </nav>
+  </div>
+
+  <div id="accountPopover" class="account-popover is-hidden" role="dialog" aria-label="Account menu">
+    <div class="popover-user"><span class="avatar" data-user-initials>DR</span><div><strong data-user-name>Demo Resident</strong><small data-user-email>Local preview</small></div></div>
+    <div class="popover-separator"></div>
+    <button data-view-jump="settings" type="button"><svg><use href="#i-settings"></use></svg><span>Account settings</span></button>
+    <button id="popoverExportButton" data-export-csv type="button"><svg><use href="#i-download"></use></svg><span>Export current month</span></button>
+    <button id="popoverSignOutButton" class="popover-danger" type="button"><svg><use href="#i-logout"></use></svg><span>Sign out</span></button>
+  </div>
+
+  <div id="advanceModal" class="modal-layer is-hidden" role="dialog" aria-modal="true" aria-labelledby="advanceModalTitle">
+    <div class="modal-backdrop" data-close-modal="advanceModal"></div>
+    <div class="modal-card">
+      <button class="modal-close" data-close-modal="advanceModal" type="button" aria-label="Close"><svg><use href="#i-close"></use></svg></button>
+      <span class="modal-icon"><svg><use href="#i-wallet"></use></svg></span>
+      <p class="eyebrow">MONTHLY ADVANCE</p>
+      <h2 id="advanceModalTitle">Set advance payment</h2>
+      <p id="advanceModalCaption">Enter the amount paid to the hostel authority for this month.</p>
+      <form id="advanceForm">
+        <label class="field amount-field"><span>Advance amount (BDT)</span><span class="input-shell"><b>৳</b><input id="advanceInput" type="text" inputmode="decimal" autocomplete="off" placeholder="0.00" aria-describedby="advanceInputHelp" required></span><small id="advanceInputHelp">Up to two decimal places. Stored exactly in paisa.</small></label>
+        <div class="advance-preview"><span>After current meal cost</span><strong id="advancePreviewValue">৳0 remaining</strong></div>
+        <div class="modal-actions"><button class="button button-secondary" data-close-modal="advanceModal" type="button">Cancel</button><button class="button button-primary" type="submit"><span>Save advance</span><svg><use href="#i-check"></use></svg></button></div>
+      </form>
+    </div>
+  </div>
+
+  <div id="quickFillModal" class="modal-layer is-hidden" role="dialog" aria-modal="true" aria-labelledby="quickFillTitle">
+    <div class="modal-backdrop" data-close-modal="quickFillModal"></div>
+    <div class="modal-card quick-fill-modal-card">
+      <button class="modal-close" data-close-modal="quickFillModal" type="button" aria-label="Close"><svg><use href="#i-close"></use></svg></button>
+      <span class="modal-icon"><svg><use href="#i-zap"></use></svg></span>
+      <p class="eyebrow">BULK ENTRY</p>
+      <h2 id="quickFillTitle">Fill multiple days</h2>
+      <p id="quickFillCaption">Choose an action for the selected month. You can still change any slot afterward.</p>
+      <div class="quick-fill-options">
+        <button data-bulk-action="through-today" type="button"><span class="bulk-icon"><svg><use href="#i-calendar"></use></svg></span><span><strong>All meals through today</strong><small>Mark every slot from day 1 through today</small></span><svg><use href="#i-chevron-right"></use></svg></button>
+        <button data-bulk-action="all" type="button"><span class="bulk-icon"><svg><use href="#i-check"></use></svg></span><span><strong>Every meal this month</strong><small>Mark breakfast, lunch and dinner for all days</small></span><svg><use href="#i-chevron-right"></use></svg></button>
+        <button data-bulk-action="breakfast" type="button"><span class="bulk-icon"><svg><use href="#i-sun"></use></svg></span><span><strong>All breakfasts</strong><small>Mark the 0.5-meal breakfast slot for every day</small></span><svg><use href="#i-chevron-right"></use></svg></button>
+        <button class="bulk-clear" data-bulk-action="clear-meals" type="button"><span class="bulk-icon"><svg><use href="#i-trash"></use></svg></span><span><strong>Uncheck every meal</strong><small>Keep the monthly advance but clear meal entries</small></span><svg><use href="#i-chevron-right"></use></svg></button>
+      </div>
+    </div>
+  </div>
+
+  <div id="roomSetupModal" class="modal-layer is-hidden" role="dialog" aria-modal="true" aria-labelledby="roomSetupTitle" aria-describedby="roomSetupDescription">
+    <div class="modal-backdrop"></div>
+    <div class="modal-card room-setup-card">
+      <span class="modal-icon"><svg><use href="#i-room"></use></svg></span>
+      <p class="eyebrow">COMPLETE YOUR PROFILE</p>
+      <h2 id="roomSetupTitle">What is your Room No.?</h2>
+      <p id="roomSetupDescription">A numeric room number is required so your hostel profile can be identified correctly.</p>
+      <form id="roomSetupForm">
+        <label class="field"><span>Room No.</span><span class="input-shell"><svg><use href="#i-room"></use></svg><input id="requiredRoomInput" type="text" inputmode="numeric" pattern="[0-9]{1,6}" maxlength="6" autocomplete="off" placeholder="e.g. 302" required></span><small>Numbers only, up to 6 digits.</small></label>
+        <p id="requiredRoomError" class="room-setup-error" role="alert"></p>
+        <div class="modal-actions"><button class="button button-primary button-full" type="submit"><span>Save Room No.</span><svg><use href="#i-check"></use></svg></button></div>
+      </form>
+    </div>
+  </div>
+
+  <div id="resetPasswordModal" class="modal-layer is-hidden" role="dialog" aria-modal="true" aria-labelledby="resetPasswordTitle">
+    <div class="modal-backdrop" data-close-modal="resetPasswordModal"></div>
+    <div class="modal-card">
+      <button class="modal-close" data-close-modal="resetPasswordModal" type="button" aria-label="Close"><svg><use href="#i-close"></use></svg></button>
+      <span class="modal-icon"><svg><use href="#i-mail"></use></svg></span>
+      <p class="eyebrow">ACCOUNT RECOVERY</p>
+      <h2 id="resetPasswordTitle">Reset your password</h2>
+      <p>We will ask Firebase Authentication to send a secure reset link.</p>
+      <form id="resetPasswordForm">
+        <label class="field"><span>Email address</span><span class="input-shell"><svg><use href="#i-mail"></use></svg><input id="resetEmailInput" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" required></span></label>
+        <div class="modal-actions"><button class="button button-secondary" data-close-modal="resetPasswordModal" type="button">Cancel</button><button class="button button-primary" type="submit">Send reset link</button></div>
+      </form>
+    </div>
+  </div>
+
+  <div id="confirmModal" class="modal-layer is-hidden" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmMessage">
+    <div class="modal-backdrop" data-confirm-result="cancel"></div>
+    <div class="modal-card confirm-card">
+      <span id="confirmIcon" class="modal-icon danger"><svg><use href="#i-trash"></use></svg></span>
+      <p class="eyebrow">CONFIRM ACTION</p>
+      <h2 id="confirmTitle">Are you sure?</h2>
+      <p id="confirmMessage">This action cannot be undone.</p>
+      <div class="modal-actions"><button class="button button-secondary" data-confirm-result="cancel" type="button">Cancel</button><button id="confirmActionButton" class="button button-danger" data-confirm-result="confirm" type="button">Confirm</button></div>
+    </div>
+  </div>
+
+  <aside id="pwaInstallBanner" class="pwa-install-banner is-hidden" aria-label="Install Meal Ledger">
+    <span class="pwa-install-icon"><img src="assets/icons/icon-192.png" alt="" width="54" height="54"></span>
+    <span class="pwa-install-copy"><strong>Install Meal Ledger</strong><span>Open it like an app with faster, one-tap access.</span></span>
+    <span class="pwa-install-actions">
+      <button id="pwaInstallDismissButton" class="pwa-install-later" type="button" aria-label="Not now"><svg><use href="#i-close"></use></svg></button>
+      <button id="pwaInstallBannerButton" class="button button-primary pwa-install-now" type="button"><svg><use href="#i-download"></use></svg><span>Install</span></button>
+    </span>
+  </aside>
+
+  <div id="pwaInstallHelpModal" class="modal-layer is-hidden" role="dialog" aria-modal="true" aria-labelledby="pwaInstallHelpTitle">
+    <div class="modal-backdrop" data-pwa-close></div>
+    <div class="modal-card pwa-install-modal-card">
+      <button class="modal-close" data-pwa-close type="button" aria-label="Close installation guide"><svg><use href="#i-close"></use></svg></button>
+      <span class="modal-icon"><img src="assets/icons/icon-192.png" alt="" width="44" height="44"></span>
+      <p class="eyebrow">QUICK APP INSTALL</p>
+      <h2 id="pwaInstallHelpTitle">Install Meal Ledger</h2>
+      <p id="pwaInstallHelpText">Follow these short steps to add Meal Ledger to your device.</p>
+      <ol id="pwaInstallSteps" class="pwa-install-steps"></ol>
+      <div class="modal-actions"><button id="pwaInstallHelpAction" class="button button-primary" type="button"><span>Got it</span><svg><use href="#i-check"></use></svg></button></div>
+    </div>
+  </div>
+
+  <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+</body>
+</html>
