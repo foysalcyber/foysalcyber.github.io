@@ -252,7 +252,7 @@ body.locked > *:not(#pwGate){display:none !important;}
   transition:opacity .2s,transform .2s;}
 #pwGate .pw-eye:hover{opacity:1;transform:translateY(-50%) scale(1.12)}
 
-/* আনলক বাটন */
+
 #pwGate #pwBtn{
   display:block;width:100%;max-width:300px;margin:0 auto;padding:13px 20px;border:none;cursor:pointer;
   border-radius:40px;font-size:1rem;font-weight:700;font-family:'Sriracha',serif;letter-spacing:.6px;
@@ -266,13 +266,13 @@ body.locked > *:not(#pwGate){display:none !important;}
 #pwGate #pwBtn:active:not(:disabled){transform:translateY(0) scale(.98)}
 #pwGate #pwBtn:disabled{opacity:.65;cursor:wait}
 
-/* স্ট্যাটাস / এরর মেসেজ */
+
 #pwGate #pwErr{min-height:18px;font-size:.78rem;line-height:1.5;white-space:pre-line;
   color:rgba(255,255,255,.75);margin:12px auto 2px;max-width:320px;}
 #pwGate #pwErr.err{color:#ff9c9c}
 #pwGate #pwErr.ok{color:#a5f0b5}
 
-/* হিন্ট */
+
 #pwGate .pw-hint{margin-top:6px;}
 #pwGate .pw-hint-toggle{
   background:none;border:none;cursor:pointer;color:rgba(255,255,255,.55);
@@ -294,7 +294,7 @@ body.locked > *:not(#pwGate){display:none !important;}
   color:#ffb3cd;text-transform:uppercase;margin-bottom:7px;}
 #pwGate .pw-hint-box p{margin:0;font-family:'Handlee',cursive;font-size:1.12rem;line-height:1.5;color:#ffe6ef;}
 
-/* মোবাইল */
+
 @media (max-width:600px){
   #pwGate .pw-card{padding:28px 18px 22px;border-radius:22px}
   #pwGate .pw-lock{width:74px;height:74px;font-size:32px}
@@ -313,19 +313,19 @@ body.locked > *:not(#pwGate){display:none !important;}
   <div class="pw-card">
     <div class="pw-lock">🔐</div>
     <div class="pw-title">A little surprise<br>for you 💌</div>
-    <p class="pw-sub">Unlock this page with the secret password</p>
+    <p class="pw-sub">Just a little extra security to keep bad people away!</p>
 
     <div class="pw-field">
       <input type="password" id="pwInput" placeholder="Type the password…"
              autocomplete="off" autocapitalize="none" spellcheck="false">
-      <button type="button" class="pw-eye" id="pwEye" tabindex="-1" aria-label="Show or hide password">👁️</button>
+      <button type="button" class="pw-eye" id="pwEye" tabindex="-1" aria-label="Show or hide password">👀</button>
     </div>
 
     <button type="button" id="pwBtn" onclick="checkPw()">Unlock</button>
     <p id="pwErr"></p>
 
     <div class="pw-hint">
-      <button type="button" class="pw-hint-toggle" id="pwHintToggle">•••&nbsp;&nbsp;Forgot the password? Tap for a hint&nbsp;&nbsp;💡</button>
+      <button type="button" class="pw-hint-toggle" id="pwHintToggle">•••&nbsp;&nbsp;Tap for a hint&nbsp;&nbsp;💡</button>
       <div class="pw-hint-box" id="pwHintBox">
         <div class="hint-in">
           <span class="hint-label">💡 Hint</span>
