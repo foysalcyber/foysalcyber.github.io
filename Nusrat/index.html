@@ -199,7 +199,7 @@ body.locked > *:not(#pwGate){display:none !important;}
 }
 @keyframes pwGlow{0%,100%{opacity:.55;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.18)}}
 
-/* ভাসমান ছোট হৃদয় */
+
 .pw-float{position:absolute;bottom:-8vh;font-size:18px;opacity:0;pointer-events:none;
   animation:pwRise 9s linear infinite;filter:drop-shadow(0 0 6px rgba(255,64,129,.8));}
 @keyframes pwRise{
@@ -209,7 +209,7 @@ body.locked > *:not(#pwGate){display:none !important;}
   100%{transform:translateY(-118vh) rotate(10deg) scale(1.1);opacity:0}
 }
 
-/* গ্লাস কার্ড */
+
 #pwGate .pw-card{
   position:relative;z-index:2;width:100%;max-width:392px;padding:34px 26px 26px;
   border-radius:26px;text-align:center;
@@ -223,7 +223,7 @@ body.locked > *:not(#pwGate){display:none !important;}
 #pwGate .pw-card.shake{animation:pwShake .45s ease}
 @keyframes pwShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-9px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(5px)}}
 
-/* লক আইকন */
+
 #pwGate .pw-lock{
   width:86px;height:86px;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;
   font-size:38px;border-radius:50%;
@@ -236,7 +236,7 @@ body.locked > *:not(#pwGate){display:none !important;}
   background:linear-gradient(90deg,#fff,#ffc9dc 55%,#fff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
 #pwGate .pw-sub{font-size:.8rem;color:rgba(255,255,255,.62);margin:8px 0 20px;letter-spacing:.4px;}
 
-/* ইনপুট + চোখ বাটন */
+
 #pwGate .pw-field{position:relative;margin:0 auto 14px;max-width:300px;}
 #pwGate input{
   width:100%;padding:13px 46px 13px 18px;border-radius:16px;box-sizing:border-box;
@@ -328,24 +328,19 @@ body.locked > *:not(#pwGate){display:none !important;}
       <button type="button" class="pw-hint-toggle" id="pwHintToggle">•••&nbsp;&nbsp;Tap for a hint&nbsp;&nbsp;💡</button>
       <div class="pw-hint-box" id="pwHintBox">
         <div class="hint-in">
-          <span class="hint-label">💡 Hint</span>
-          <p>"The name my mother calls you. Write it twice, without space, in lowercase."</p>
+          <span class="hint-label"></span>
+          
         </div>
       </div>
     </div>
   </div>
  </div>
- <!-- ============================================================ -->
- <!-- FIREBASE AUTH + FIRESTORE (password gate)                     -->
- <!-- কোনো password আর source code-এ নেই। Password চেক হয়           -->
- <!-- Firebase Auth-এ (server side), আর গোপন message Firestore থেকে  -->
- <!-- আসে login এর পরে।                                              -->
- <!-- ============================================================ -->
+                                               
  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
  <script>
-  // ---------- Firebase config (পাবলিক — এতে দোষ নেই, রুলসেই সুরক্ষা) ----------
+
   const firebaseConfig = {
     apiKey: "AIzaSyBvzIvjVYnLwPqVk-lQYxkVIZhzKPJ-w7k",
     authDomain: "password-41d3e.firebaseapp.com",
@@ -363,19 +358,10 @@ body.locked > *:not(#pwGate){display:none !important;}
     DB   = firebase.firestore();
   }
 
-  // ------------------------------------------------------------------
-  // ⚙️ GATE_EMAIL = ইমেইল অ্যাকাউন্টটা, যেটা Firebase Console-এ বানাবা:
-  //    Authentication → Users → Add user  (email + password পছন্দমতো)
-  // এই ফাইলে শুধু ইমেইল আছে; PASSWORD শুধু Firebase Console-এ থাকে।
-  // Console-এ যে ইমেইল দিবা, ঠিক সেটাই এখানে বসাও।
-  // ------------------------------------------------------------------
+  
   const GATE_EMAIL = 'nusrat-2026@password-41d3e.firebaseapp.com';
 
-  // ------------------------------------------------------------------
-  // গোপন love message Firestore থেকে আসে (source code-এ নেই):
-  //    collection: "secret"  →  document: "2026"
-  //    fields: doa, pesanAkhir, teksLucu   (HTML ট্যাগসহ টেক্সট)
-  // ------------------------------------------------------------------
+  
   let txtDoa        = '';
   let txtPesanAkhir = '';
   let txtLucu       = '';
@@ -402,7 +388,7 @@ body.locked > *:not(#pwGate){display:none !important;}
     if (gate) gate.remove();
   }
 
-  // Firestore থেকে message নিয়ে তারপর হালকা page খোলে
+  
   async function muatPesanDanBuka() {
     if (sudahUnlocked() || sedangProses) return;
     sedangProses = true;
@@ -438,13 +424,13 @@ body.locked > *:not(#pwGate){display:none !important;}
     }
   }
 
-  // Unlock বাটন / Enter → এই ফাংশন
+  // Unlock
   async function checkPw() {
     if (!SDK_LOADED) {
-      setStatus('Firebase SDK লোড হয়নি। ইন্টারনেট চালু রেখে রিফ্রেশ করো (বা file বাদ দিয়ে hosting-এ deploy করো)।', 'err');
+      setStatus('Firebase SDK cannot be loaded', 'err');
       return;
     }
-    // আগে থেকেই login থাকলে (session/retry) সরাসরি message লোড করো
+    
     if (AUTH.currentUser) { muatPesanDanBuka(); return; }
 
     const val = pwInp() ? pwInp().value : '';
@@ -456,18 +442,18 @@ body.locked > *:not(#pwGate){display:none !important;}
 
     try {
       await AUTH.signInWithEmailAndPassword(GATE_EMAIL, val);
-      sedangProses = false;   // success → flag reset করো, তারপর message লোড করো
+      sedangProses = false;  
       await muatPesanDanBuka();
     } catch (e) {
       sedangProses = false;
       if (gateBtn()) { gateBtn().disabled = false; gateBtn().textContent = 'Unlock'; }
       const code = e && e.code ? e.code : '';
       if (code === 'auth/too-many-requests') {
-        setStatus('অনেকবার চেষ্টা হয়েছে — কয়েক মিনিট পর আবার চেষ্টা করো।', 'err');
+        setStatus('Try again after some time', 'err');
       } else if (code === 'auth/network-request-failed') {
-        setStatus('নেটওয়ার্ক সমস্যা। ইন্টারনেট চেক করে আবার চেষ্টা করো।', 'err');
+        setStatus('Check Internet', 'err');
       } else if (code === 'auth/user-not-found') {
-        setStatus('GATE_EMAIL-এর অ্যাকাউন্টটা Console-এ বানানো হয়নি (README দেখো)।', 'err');
+        setStatus('GATE_EMAIL', 'err');
       } else {
         setStatus('Wrong password, try again.', 'err');
       }
@@ -475,7 +461,7 @@ body.locked > *:not(#pwGate){display:none !important;}
     }
   }
 
-  // Session থেকে login থাকলে (refresh করলেও) নিজে থেকেই আনলক করবে
+  
   if (SDK_LOADED) {
     AUTH.onAuthStateChanged(user => {
       if (user && !sudahUnlocked()) muatPesanDanBuka();
@@ -489,18 +475,17 @@ body.locked > *:not(#pwGate){display:none !important;}
       inp.addEventListener('keydown', e => { if (e.key === 'Enter') checkPw(); });
     }
 
-    // 👁️ show / hide password
+    
     const eye = document.getElementById('pwEye');
     if (eye && inp) {
       eye.addEventListener('click', () => {
         const show = inp.type === 'password';
         inp.type = show ? 'text' : 'password';
-        eye.textContent = show ? '🙈' : '👁️';
+        eye.textContent = show ? '🙈' : '👀';
         inp.focus();
       });
     }
 
-    // 💡 hint accordion (বাটনে ক্লিকেই toggle — শুধু ফোকাসে খুলবে না)
     const hintToggle = document.getElementById('pwHintToggle');
     const hintBox = document.getElementById('pwHintBox');
     if (hintToggle && hintBox) {
@@ -624,13 +609,7 @@ body.locked > *:not(#pwGate){display:none !important;}
 	  { id: 6, icon: '😍', pesan: '' }
 	];
 
-    // ⚠️ গোপন মেসেজ (txtDoa, txtPesanAkhir, txtLucu) আর এখানে নেই —
-    // এগুলো এখন Firestore থেকে আসে login করার পর (collection "secret", doc "2026").
-    // Data সেট করতে: Firestore Console → start collection → "secret" →
-    // doc id "2026" → fields: doa / pesanAkhir / teksLucu (README.md ও
-    // secret-2026-data.json ফাইলটা দেখো — সেখানে ready-made value আছে)।
-
-  </script>
+      </script>
   <script>
   	// Fixed background image loading
     const wallpaper = document.getElementById('wallpaper');
