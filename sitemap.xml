@@ -7,7 +7,7 @@
 
 <url>
   <loc>https://foysalcyber.github.io/</loc>
-  <lastmod>2026-09-09</lastmod>
+  <lastmod>2026-09-10</lastmod>
   <changefreq>weekly</changefreq>
   <priority>1.00</priority>
 </url>
@@ -47,13 +47,6 @@
   <lastmod>2026-08-01</lastmod>
   <changefreq>monthly</changefreq>
   <priority>0.50</priority>
-</url>
-
-<url>
-  <loc>https://foysalcyber.github.io/jersey</loc>
-  <lastmod>2026-08-01</lastmod>
-  <changefreq>monthly</changefreq>
-  <priority>0.30</priority>
 </url>
 
 <url>
