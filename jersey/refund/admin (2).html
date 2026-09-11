@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+<title>Refund Admin Panel — Jersey Program | Foysal</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Unbounded:wght@300;400;700;900&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{-webkit-tap-highlight-color:transparent}
+*:focus,*:focus-visible,button:focus,a:focus,input:focus,select:focus{outline:none!important;box-shadow:none!important}
+:root{--ink:#04060a;--ink2:#080c13;--panel:#0c111a;--panel2:#10161f;--green:#2ecc71;--red:#ff1744;--red2:#ff4569;--red3:rgba(255,23,68,.12);--gold:#ffb020;--gold2:#ffd166;--bkash:#e2136e;--nagad:#f6921e;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.15);--muted:#5b6272;--mid:#8990a0;--light:#c7ccd6;--white:#eef1f6;--mono:'DM Mono',monospace;--disp:'Unbounded',sans-serif;--body:'Syne',sans-serif;--ease:cubic-bezier(.16,1,.3,1)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--ink);color:var(--white);font-family:var(--body);min-height:100vh}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select{font-family:inherit;color:inherit}
+/* ---------- Login gate ---------- */
+#gate{position:fixed;inset:0;z-index:500;background:var(--ink);display:flex;align-items:center;justify-content:center;padding:20px;background-image:radial-gradient(700px at 50% 0%,rgba(255,23,68,.1),transparent 55%)}
+#gate.hidden{display:none}
+.gate-box{width:100%;max-width:380px;background:var(--panel);border:1px solid var(--line2);border-radius:16px;padding:40px 34px;text-align:center;position:relative;overflow:hidden}
+.gate-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--red2),transparent)}
+.gate-badge{width:60px;height:60px;border-radius:50%;margin:0 auto 18px;background:var(--red3);border:1px solid rgba(255,23,68,.45);display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:var(--red2)}
+.gate-box h2{font-family:var(--disp);font-size:1.15rem;margin-bottom:8px}
+.gate-box p{font-family:var(--mono);font-size:.66rem;color:var(--mid);margin-bottom:20px;line-height:1.6;letter-spacing:1px}
+.gate-box input{width:100%;background:var(--ink2);border:1px solid var(--line2);border-radius:8px;padding:13px 15px;font-size:.88rem;color:#fff;margin-bottom:10px}
+.gate-box input:focus{border-color:var(--red)}
+.gate-btn{width:100%;padding:14px;border-radius:8px;background:var(--red);color:#fff;font-family:var(--disp);font-weight:700;font-size:.82rem;transition:.2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.gate-btn:hover{background:var(--red2)}
+.gate-btn:disabled{opacity:.65;cursor:not-allowed}
+.gate-btn .spin{width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+.gate-btn.loading .spin{display:inline-block}
+.gate-btn.loading .btxt{display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.gate-err{font-family:var(--mono);font-size:.65rem;color:var(--red2);margin-top:10px;display:none;line-height:1.6}
+.gate-err.show{display:block}
+/* ---------- Layout ---------- */
+nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px clamp(16px,4vw,40px);background:rgba(4,6,10,.8);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.brand{font-family:var(--disp);font-weight:700;font-size:.9rem;letter-spacing:.5px}
+.brand span{color:var(--red)}
+.brand small{display:block;font-family:var(--mono);font-weight:400;font-size:.58rem;letter-spacing:2px;color:var(--green);margin-top:3px}
+.nav-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#adminEmail{font-family:var(--mono);font-size:.64rem;color:var(--mid);margin-right:6px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:.68rem;letter-spacing:.8px;text-transform:uppercase;border:1px solid var(--line2);border-radius:100px;padding:10px 18px;color:var(--light);transition:.2s;white-space:nowrap}
+.btn:hover{border-color:var(--green);color:#fff;background:rgba(46,204,113,.1)}
+.btn.danger:hover{border-color:var(--red2);background:var(--red3);color:#fff}
+.btn .spin{width:13px;height:13px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+.btn.loading .spin{display:inline-block}
+main{max-width:1200px;margin:0 auto;padding:clamp(20px,4vw,36px) clamp(14px,4vw,40px) 80px}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:22px}
+.page-head h1{font-family:var(--disp);font-weight:900;font-size:clamp(1.4rem,4vw,2rem);letter-spacing:-.5px}
+.page-head h1 em{font-style:normal;color:var(--green)}
+.page-head p{font-family:var(--mono);font-size:.68rem;color:var(--mid);margin-top:6px}
+/* ---------- Stats ---------- */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:22px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:1px}
+.stat.s-total::before{background:linear-gradient(90deg,transparent,var(--green),transparent)}
+.stat.s-bkash::before{background:linear-gradient(90deg,transparent,var(--bkash),transparent)}
+.stat.s-nagad::before{background:linear-gradient(90deg,transparent,var(--nagad),transparent)}
+.stat.s-paid::before{background:linear-gradient(90deg,transparent,var(--green),transparent)}
+.stat.s-pending::before{background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.stat.s-money::before{background:linear-gradient(90deg,transparent,var(--gold2),transparent)}
+.stat .lbl{font-family:var(--mono);font-size:.58rem;letter-spacing:1.6px;text-transform:uppercase;color:var(--mid);margin-bottom:6px}
+.stat .val{font-family:var(--disp);font-weight:900;font-size:1.6rem;line-height:1;font-variant-numeric:tabular-nums}
+.stat .sub{font-family:var(--mono);font-size:.6rem;color:var(--muted);margin-top:5px}
+.stat.s-bkash .val{color:#ff5c9d}.stat.s-nagad .val{color:#ffb35c}.stat.s-paid .val{color:var(--green)}.stat.s-pending .val{color:var(--gold2)}
+/* ---------- Alerts ---------- */
+.alert{display:flex;gap:12px;align-items:flex-start;border-radius:12px;padding:14px 16px;margin-bottom:16px;font-size:.82rem;line-height:1.6}
+.alert i{margin-top:2px;flex:0 0 auto}
+.alert.warn{background:rgba(255,176,32,.07);border:1px solid rgba(255,176,32,.4);color:var(--gold2)}
+.alert.err{background:rgba(255,23,68,.07);border:1px solid rgba(255,23,68,.4);color:#ff8ba0}
+.alert.ok{background:rgba(46,204,113,.07);border:1px solid rgba(46,204,113,.4);color:#7deaa8}
+.alert b{color:#fff}
+/* ---------- Toolbar ---------- */
+.toolbar{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:6px}
+.search{flex:1 1 220px;display:flex;align-items:center;gap:10px;background:var(--ink2);border:1px solid var(--line2);border-radius:8px;padding:0 14px}
+.search i{color:var(--muted);font-size:.8rem}
+.search input{flex:1;background:none;border:none;padding:12px 0;font-size:.85rem;color:#fff}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{font-family:var(--mono);font-size:.64rem;letter-spacing:.6px;text-transform:uppercase;border:1px solid var(--line2);border-radius:100px;padding:9px 15px;color:var(--mid);transition:.2s}
+.chip:hover{border-color:var(--green);color:#fff}
+.chip.active{background:var(--green);border-color:var(--green);color:#04120a;font-weight:700}
+.chip.active.c-bkash{background:var(--bkash);border-color:var(--bkash);color:#fff}
+.chip.active.c-nagad{background:var(--nagad);border-color:var(--nagad);color:#fff}
+.chip.active.c-paid{background:var(--green);border-color:var(--green);color:#04120a}
+.chip.active.c-pending{background:var(--gold);border-color:var(--gold);color:#04120a}
+.sortsel{background:var(--ink2);border:1px solid var(--line2);border-radius:8px;padding:11px 12px;font-family:var(--mono);font-size:.68rem;color:var(--light)}
+.export-bar{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0;align-items:center}
+.export-bar .lbl{font-family:var(--mono);font-size:.62rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-right:4px}
+.xbtn{display:inline-flex;align-items:center;gap:8px;font-family:var(--disp);font-weight:700;font-size:.74rem;border-radius:8px;padding:12px 18px;transition:.2s}
+.xbtn.csv{background:var(--green);color:#04120a}
+.xbtn.csv:hover{background:#3fe584;transform:translateY(-2px);box-shadow:0 12px 26px -12px rgba(46,204,113,.6)}
+.xbtn.bk{border:1px solid rgba(226,19,110,.5);color:#ff5c9d}
+.xbtn.bk:hover{background:rgba(226,19,110,.12)}
+.xbtn.ng{border:1px solid rgba(246,146,30,.5);color:#ffb35c}
+.xbtn.ng:hover{background:rgba(246,146,30,.12)}
+.xbtn.ghost{border:1px solid var(--line2);color:var(--light)}
+.xbtn.ghost:hover{border-color:var(--gold);color:var(--gold2)}
+/* ---------- Table ---------- */
+.table-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.table-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:900px;font-size:.82rem}
+thead th{font-family:var(--mono);font-size:.6rem;letter-spacing:1.4px;text-transform:uppercase;color:var(--mid);text-align:left;padding:14px 12px;border-bottom:1px solid var(--line2);background:var(--ink2);white-space:nowrap}
+tbody td{padding:12px;border-bottom:1px solid var(--line);vertical-align:middle}
+tbody tr{transition:background .15s}
+tbody tr:hover{background:rgba(255,255,255,.02)}
+tbody tr.dup-row{background:rgba(255,176,32,.045)}
+tbody tr.dup-row:hover{background:rgba(255,176,32,.08)}
+.rid{font-family:var(--mono);font-size:.7rem;color:var(--muted);white-space:nowrap}
+.rname{font-weight:700;color:#fff}
+.rroll{font-family:var(--mono);font-size:.76rem;color:var(--light)}
+.tag-method{display:inline-block;font-family:var(--disp);font-weight:700;font-size:.62rem;padding:5px 11px;border-radius:100px;letter-spacing:.4px;white-space:nowrap}
+.tag-method.bkash{background:rgba(226,19,110,.14);border:1px solid rgba(226,19,110,.55);color:#ff5c9d}
+.tag-method.nagad{background:rgba(246,146,30,.14);border:1px solid rgba(246,146,30,.55);color:#ffb35c}
+.num-cell{font-family:var(--mono);font-size:.85rem;letter-spacing:.8px;color:#fff;white-space:nowrap;display:flex;align-items:center;gap:8px}
+.mini-copy{font-size:.66rem;color:var(--muted);border:1px solid var(--line2);border-radius:6px;padding:5px 9px;transition:.2s;flex:0 0 auto}
+.mini-copy:hover{color:var(--green);border-color:var(--green)}
+.amt{font-family:var(--mono);color:var(--green);font-weight:700;white-space:nowrap}
+.pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:.62rem;letter-spacing:1px;text-transform:uppercase;border-radius:100px;padding:6px 12px;white-space:nowrap}
+.pill.pending{color:var(--gold2);background:rgba(255,176,32,.1);border:1px solid rgba(255,176,32,.35)}
+.pill.paid{color:#2ecc71;background:rgba(46,204,113,.1);border:1px solid rgba(46,204,113,.35)}
+.pill i.dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+.dup-flag{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:.6rem;color:var(--gold2);margin-top:4px}
+.ts{font-family:var(--mono);font-size:.66rem;color:var(--muted);white-space:nowrap}
+.actions{display:flex;gap:6px;white-space:nowrap}
+.abtn{font-size:.7rem;border:1px solid var(--line2);border-radius:7px;padding:8px 10px;color:var(--mid);transition:.2s}
+.abtn:hover{color:#fff;border-color:var(--green);background:rgba(46,204,113,.08)}
+.abtn.pay:hover{border-color:var(--green);color:var(--green)}
+.abtn.unpay:hover{border-color:var(--gold);color:var(--gold2)}
+.abtn.del:hover{border-color:var(--red2);color:var(--red2);background:var(--red3)}
+.empty{padding:60px 20px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:.75rem;line-height:2}
+.empty i{font-size:1.8rem;margin-bottom:10px;display:block}
+.table-foot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:14px 16px;font-family:var(--mono);font-size:.64rem;color:var(--muted);border-top:1px solid var(--line);background:var(--ink2)}
+/* ---------- Modals ---------- */
+.modal-overlay{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(4,6,10,.8);backdrop-filter:blur(8px);opacity:0;pointer-events:none;transition:opacity .3s var(--ease)}
+.modal-overlay.show{opacity:1;pointer-events:auto}
+.modal-box{position:relative;width:100%;max-width:460px;background:var(--panel);border:1px solid var(--line2);border-radius:16px;padding:clamp(26px,5vw,34px);overflow:hidden;transform:translateY(18px) scale(.97);opacity:0;transition:transform .35s var(--ease),opacity .35s var(--ease);box-shadow:0 30px 70px -20px rgba(0,0,0,.75);max-height:90vh;overflow-y:auto}
+.modal-overlay.show .modal-box{transform:translateY(0) scale(1);opacity:1}
+.modal-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--green),transparent)}
+.modal-box.red::before{background:linear-gradient(90deg,transparent,var(--red2),transparent)}
+.modal-box h3{font-family:var(--disp);font-weight:800;font-size:1.1rem;margin-bottom:8px}
+.modal-box p{font-size:.84rem;color:var(--mid);line-height:1.7;margin-bottom:14px}
+.modal-close{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--mid);border:1px solid var(--line2);transition:.2s}
+.modal-close:hover{color:#fff;border-color:var(--red2);background:var(--red3)}
+.field{margin-bottom:14px;text-align:left}
+.field label{display:block;font-family:var(--mono);font-size:.62rem;letter-spacing:1.4px;text-transform:uppercase;color:var(--mid);margin-bottom:7px}
+.field input,.field select{width:100%;background:var(--ink2);border:1px solid var(--line2);border-radius:8px;padding:12px 14px;font-size:.88rem;color:#fff}
+.field input:focus,.field select:focus{border-color:var(--green)}
+.field .err{font-family:var(--mono);font-size:.62rem;color:var(--red2);margin-top:6px;display:none}
+.field.invalid input{border-color:var(--red2)}
+.field.invalid .err{display:block}
+.mrow{display:flex;gap:10px}
+.mrow .field{flex:1}
+.modal-ok{width:100%;padding:14px;border-radius:8px;background:var(--green);color:#04120a;font-family:var(--disp);font-weight:700;font-size:.82rem;display:flex;align-items:center;justify-content:center;gap:8px;transition:.2s}
+.modal-ok:hover{background:#3fe584}
+.modal-ok.red{background:var(--red);color:#fff}
+.modal-ok.red:hover{background:var(--red2)}
+.modal-ok .spin{width:14px;height:14px;border:2px solid rgba(0,0,0,.3);border-top-color:#04120a;border-radius:50%;animation:spin .7s linear infinite;display:none}
+.modal-ok.red .spin{border-color:rgba(255,255,255,.4);border-top-color:#fff}
+.modal-ok.loading .spin{display:inline-block}
+.modal-ok.loading .btxt2{display:none}
+.modal-ok:disabled{opacity:.6;cursor:not-allowed}
+.modal-ghost{width:100%;padding:13px;border-radius:8px;border:1px solid var(--line2);color:var(--light);font-family:var(--disp);font-weight:700;font-size:.78rem;margin-top:10px;transition:.2s}
+.modal-ghost:hover{border-color:var(--mid)}
+.confirm-detail{background:var(--ink2);border:1px solid var(--line2);border-radius:10px;padding:16px;margin-bottom:16px;text-align:left}
+.confirm-detail .big{font-family:var(--mono);font-size:1.25rem;letter-spacing:1.5px;color:#fff;text-align:center;margin:4px 0 10px}
+.cd-row{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.7rem;color:var(--mid);padding:4px 0;border-top:1px solid var(--line)}
+.cd-row b{color:var(--light);font-weight:500}
+#toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);z-index:600;background:var(--panel2);border:1px solid var(--green);color:#fff;font-family:var(--mono);font-size:.72rem;padding:12px 22px;border-radius:100px;opacity:0;pointer-events:none;transition:.3s var(--ease);box-shadow:0 16px 40px -12px rgba(0,0,0,.7);max-width:90vw;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.err{border-color:var(--red2)}
+.foot{text-align:center;margin-top:44px;font-family:var(--mono);font-size:.62rem;color:var(--muted);letter-spacing:.5px}
+</style>
+</head>
+<body>
+
+<!-- LOGIN GATE — Firebase Authentication (no password stored in code) -->
+<div id="gate">
+  <div class="gate-box">
+    <div class="gate-badge"><i class="fa-solid fa-lock"></i></div>
+    <h2>Admin Access</h2>
+    <p>REFUND CONTROL PANEL</p>
+    <input type="email" id="loginEmail" placeholder="Admin email" autocomplete="username">
+    <input type="password" id="loginPass" placeholder="Password" autocomplete="current-password">
+    <button class="gate-btn" id="loginBtn"><span class="spin"></span><span class="btxt"><i class="fa-solid fa-right-to-bracket"></i>&nbsp; Sign In</span></button>
+    <div class="gate-err" id="loginErr">Wrong email or password.</div>
+  </div>
+</div>
+
+<nav>
+  <div class="brand">FOYSAL<span>.</span>cyber<small>◆ REFUND ADMIN</small></div>
+  <div class="nav-right">
+    <span id="adminEmail"></span>
+    <button class="btn" id="refreshBtn"><span class="spin"></span><i class="fa-solid fa-rotate"></i> Refresh</button>
+    <a class="btn" href="index.html"><i class="fa-solid fa-eye"></i> Form</a>
+    <button class="btn danger" id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+  </div>
+</nav>
+
+<main>
+  <div class="page-head">
+    <div>
+      <h1>Refund <em>Control Panel</em></h1>
+      <p id="lastUpdated">Waiting for sign-in…</p>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat s-total"><div class="lbl">Total entries</div><div class="val" id="stTotal">—</div><div class="sub" id="stTotalSub">—</div></div>
+    <div class="stat s-bkash"><div class="lbl">bKash</div><div class="val" id="stBkash">—</div><div class="sub" id="stBkashSub">—</div></div>
+    <div class="stat s-nagad"><div class="lbl">Nagad</div><div class="val" id="stNagad">—</div><div class="sub" id="stNagadSub">—</div></div>
+    <div class="stat s-pending"><div class="lbl">Pending</div><div class="val" id="stPending">—</div><div class="sub" id="stPendingSub">—</div></div>
+    <div class="stat s-paid"><div class="lbl">Paid</div><div class="val" id="stPaid">—</div><div class="sub" id="stPaidSub">—</div></div>
+    <div class="stat s-money"><div class="lbl">Still to send</div><div class="val" id="stMoney" style="color:var(--gold2)">—</div><div class="sub">pending × ৳40</div></div>
+  </div>
+
+  <div id="alertBox"></div>
+
+  <div class="toolbar">
+    <div class="search"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="searchInput" placeholder="Search name, roll, number, ID…"></div>
+    <div class="chips" id="filterChips">
+      <button class="chip active" data-f="all">All</button>
+      <button class="chip c-bkash" data-f="bkash">bKash</button>
+      <button class="chip c-nagad" data-f="nagad">Nagad</button>
+      <button class="chip c-pending" data-f="pending">Pending</button>
+      <button class="chip c-paid" data-f="paid">Paid</button>
+    </div>
+    <select class="sortsel" id="sortSel">
+      <option value="new">Newest first</option>
+      <option value="old">Oldest first</option>
+      <option value="name">Name A–Z</option>
+      <option value="roll">Roll ↑</option>
+    </select>
+  </div>
+
+  <div class="export-bar">
+    <span class="lbl"><i class="fa-solid fa-download"></i> Export</span>
+    <button class="xbtn csv" id="expAll"><i class="fa-solid fa-file-csv"></i> Full CSV</button>
+    <button class="xbtn bk" id="expBkash"><i class="fa-solid fa-file-csv"></i> bKash only</button>
+    <button class="xbtn ng" id="expNagad"><i class="fa-solid fa-file-csv"></i> Nagad only</button>
+    <button class="xbtn ghost" id="copyBkash"><i class="fa-solid fa-copy"></i> Copy bKash numbers</button>
+    <button class="xbtn ghost" id="copyNagad"><i class="fa-solid fa-copy"></i> Copy Nagad numbers</button>
+  </div>
+
+  <div class="table-card">
+    <div class="table-scroll">
+      <table>
+        <thead><tr>
+          <th>#</th><th>Refund ID</th><th>Name</th><th>Roll</th><th>Method</th><th>Account Number</th><th>Amt</th><th>Status</th><th>Submitted</th><th>Actions</th>
+        </tr></thead>
+        <tbody id="tbody"><tr><td colspan="10"><div class="empty"><i class="fa-solid fa-lock"></i>Sign in to load entries.</div></td></tr></tbody>
+      </table>
+    </div>
+    <div class="table-foot"><span id="footCount">—</span><span>Collection: jerseyRefunds · ৳40/person</span></div>
+  </div>
+
+  <div class="foot">Refund admin panel — built &amp; maintained by Foysal</div>
+</main>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal-box">
+    <button class="modal-close" data-close="editModal" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+    <h3>Edit entry <span style="font-family:var(--mono);font-size:.68rem;color:var(--muted)" id="editIdLbl"></span></h3>
+    <p>Fix errors. Saves instantly.</p>
+    <div class="field" id="ef-name"><label>Name</label><input type="text" id="editName" maxlength="60"><div class="err">Name is required.</div></div>
+    <div class="mrow">
+      <div class="field" id="ef-roll"><label>Roll</label><input type="text" id="editRoll" maxlength="20"><div class="err">Roll is required.</div></div>
+      <div class="field"><label>Method</label><select id="editMethod"><option value="bkash">bKash</option><option value="nagad">Nagad</option></select></div>
+    </div>
+    <div class="field" id="ef-num"><label>Account number</label><input type="text" id="editNum" maxlength="14"><div class="err">Must be a valid 11-digit 01XXXXXXXXX number.</div></div>
+    <div class="field"><label>Status</label><select id="editStatus"><option value="pending">Pending</option><option value="paid">Paid</option></select></div>
+    <button class="modal-ok" id="editSave"><span class="spin"></span><span class="btxt2"><i class="fa-solid fa-floppy-disk"></i>&nbsp; Save changes</span></button>
+    <button class="modal-ghost" data-close="editModal">Cancel</button>
+  </div>
+</div>
+
+<!-- PAY CONFIRM MODAL -->
+<div class="modal-overlay" id="payModal">
+  <div class="modal-box">
+    <button class="modal-close" data-close="payModal" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+    <h3 id="payTitle">Mark as paid?</h3>
+    <p id="paySub">Confirm only after sending the money.</p>
+    <div class="confirm-detail">
+      <div style="text-align:center"><span class="tag-method bkash" id="payMethod">bKash</span></div>
+      <div class="big" id="payNumber">—</div>
+      <div class="cd-row"><span>Send amount</span><b style="color:var(--green)" id="payAmt">৳40</b></div>
+      <div class="cd-row"><span>Name</span><b id="payName">—</b></div>
+      <div class="cd-row"><span>Roll</span><b id="payRoll">—</b></div>
+      <div class="cd-row"><span>Refund ID</span><b id="payId">—</b></div>
+    </div>
+    <button class="modal-ok" id="payConfirm"><span class="spin"></span><span class="btxt2"><i class="fa-solid fa-circle-check"></i>&nbsp; Yes, money sent — Mark Paid</span></button>
+    <button class="modal-ghost" data-close="payModal">Cancel</button>
+  </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="modal-overlay" id="delModal">
+  <div class="modal-box red">
+    <button class="modal-close" data-close="delModal" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+    <h3>Delete this entry?</h3>
+    <p>Permanent. Only for fake/duplicate entries — <b style="color:#fff">never delete a paid one.</b></p>
+    <div class="confirm-detail">
+      <div class="big" style="font-size:1rem" id="delName">—</div>
+      <div class="cd-row"><span>Roll</span><b id="delRoll">—</b></div>
+      <div class="cd-row"><span>Method</span><b id="delMethod">—</b></div>
+      <div class="cd-row"><span>Number</span><b id="delNumber">—</b></div>
+      <div class="cd-row"><span>Status</span><b id="delStatus">—</b></div>
+    </div>
+    <button class="modal-ok red" id="delConfirm"><span class="spin"></span><span class="btxt2"><i class="fa-solid fa-trash"></i>&nbsp; Yes, delete permanently</span></button>
+    <button class="modal-ghost" data-close="delModal">Cancel</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+(function(){
+  document.querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click",()=>document.getElementById(b.dataset.close).classList.remove("show")));
+  document.querySelectorAll(".modal-overlay").forEach(m=>m.addEventListener("click",e=>{if(e.target===m)m.classList.remove("show");}));
+  document.addEventListener("keydown",e=>{if(e.key==="Escape")document.querySelectorAll(".modal-overlay.show").forEach(m=>m.classList.remove("show"));});
+  window.__openModal=id=>{document.getElementById(id).classList.add("show");};
+  window.__closeModal=id=>{document.getElementById(id).classList.remove("show");};
+  window.__toast=(msg,isErr)=>{const t=document.getElementById("toast");t.textContent=msg;t.classList.toggle("err",!!isErr);t.classList.add("show");clearTimeout(t.__h);t.__h=setTimeout(()=>t.classList.remove("show"),2600);};
+})();
+</script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+
+/* Same Firebase project as the jersey order page */
+const firebaseConfig={apiKey:"AIzaSyBRa4k1rFiB2-ZV2_n7E2_TIsn-kMhjJL8",authDomain:"admin-panel-acc49.firebaseapp.com",projectId:"admin-panel-acc49",storageBucket:"admin-panel-acc49.firebasestorage.app",messagingSenderId:"672594130533",appId:"1:672594130533:web:fd5c5cb602a4d5e9fe388c"};
+const REFUND_AMOUNT=40;
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
+const auth=getAuth(app);
+
+let allRows=[],filter="all",sortMode="new",searchQ="";
+let payTarget=null,delTarget=null,editTarget=null;
+
+const tbody=document.getElementById("tbody");
+const esc=s=>String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const fmtDate=ts=>{if(!ts)return"—";try{const d=ts.toDate?ts.toDate():new Date(ts);return d.toLocaleString("en-GB",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"});}catch(e){return"—";}};
+const fmtFull=ts=>{if(!ts)return"";try{const d=ts.toDate?ts.toDate():new Date(ts);return d.toLocaleString("en-GB",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit",second:"2-digit"});}catch(e){return"";}};
+function normalizeBD(raw){let d=String(raw||"").replace(/\D/g,"");if(/^8801\d{8}$/.test(d))d="0"+d.slice(3);else if(/^1\d{9}$/.test(d))d="0"+d;return /^01[3-9]\d{8}$/.test(d)?d:"";}
+
+/* ================= AUTH (Firebase backend — nothing hardcoded) ================= */
+const gate=document.getElementById("gate"),loginEmail=document.getElementById("loginEmail"),
+      loginPass=document.getElementById("loginPass"),loginBtn=document.getElementById("loginBtn"),loginErr=document.getElementById("loginErr");
+
+function authError(e){
+  const c=e&&e.code?e.code:"";
+  if(c==="auth/invalid-credential"||c==="auth/user-not-found"||c==="auth/wrong-password")return"Wrong email or password.";
+  if(c==="auth/too-many-requests")return"Too many attempts — try again later.";
+  if(c==="auth/network-request-failed")return"Network error — check connection.";
+  if(c==="auth/operation-not-allowed")return"Email login not enabled in Firebase Console.";
+  return"Login failed — try again.";
+}
+async function doLogin(){
+  loginErr.classList.remove("show");
+  const email=loginEmail.value.trim(),pass=loginPass.value;
+  if(!email||!pass){loginErr.textContent="Enter email and password.";loginErr.classList.add("show");return;}
+  loginBtn.classList.add("loading");loginBtn.disabled=true;
+  try{await signInWithEmailAndPassword(auth,email,pass);}
+  catch(e){console.error(e);loginErr.textContent=authError(e);loginErr.classList.add("show");loginPass.value="";loginPass.focus();}
+  finally{loginBtn.classList.remove("loading");loginBtn.disabled=false;}
+}
+loginBtn.addEventListener("click",doLogin);
+loginPass.addEventListener("keydown",e=>{if(e.key==="Enter")doLogin();});
+loginEmail.addEventListener("keydown",e=>{if(e.key==="Enter")loginPass.focus();});
+document.getElementById("logoutBtn").addEventListener("click",()=>signOut(auth).catch(()=>{}));
+
+onAuthStateChanged(auth,user=>{
+  if(user){
+    gate.classList.add("hidden");
+    document.getElementById("adminEmail").textContent=user.email||"";
+    loginPass.value="";
+    load();
+  }else{
+    gate.classList.remove("hidden");
+    document.getElementById("adminEmail").textContent="";
+    allRows=[];render();
+    document.getElementById("lastUpdated").textContent="Signed out.";
+    tbody.innerHTML='<tr><td colspan="10"><div class="empty"><i class="fa-solid fa-lock"></i>Sign in to load entries.</div></td></tr>';
+    setTimeout(()=>loginEmail.focus(),300);
+  }
+});
+
+/* ================= DATA ================= */
+async function load(){
+  const rbtn=document.getElementById("refreshBtn");
+  rbtn.classList.add("loading");
+  try{
+    const snap=await getDocs(collection(db,"jerseyRefunds"));
+    allRows=[];snap.forEach(d=>{if(d.id!=="_meta")allRows.push({id:d.id,...d.data()});});
+    document.getElementById("lastUpdated").textContent="Last synced: "+new Date().toLocaleString("en-GB",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit",second:"2-digit"})+" · "+allRows.length+" entries";
+    render();
+  }catch(err){
+    console.error(err);
+    tbody.innerHTML='<tr><td colspan="10"><div class="empty"><i class="fa-solid fa-triangle-exclamation"></i>Load failed — check connection, then press Refresh.</div></td></tr>';
+    window.__toast("Failed to load data",true);
+  }finally{rbtn.classList.remove("loading");}
+}
+document.getElementById("refreshBtn").addEventListener("click",load);
+
+/* Duplicate detection (same number, different rolls) */
+function dupMap(){
+  const m={};
+  allRows.forEach(r=>{const n=(r.accountNumber||"").trim();if(!n)return;(m[n]=m[n]||[]).push(r);});
+  const dups={};Object.keys(m).forEach(n=>{const rolls=new Set(m[n].map(r=>r.roll));if(rolls.size>1)dups[n]=m[n];});
+  return dups;
+}
+
+/* Render */
+function render(){
+  const total=allRows.length;
+  const bk=allRows.filter(r=>r.method==="bkash"),ng=allRows.filter(r=>r.method==="nagad");
+  const paid=allRows.filter(r=>r.status==="paid"),pend=allRows.filter(r=>r.status!=="paid");
+  const sum=a=>a.reduce((s,r)=>s+(Number(r.amount)||REFUND_AMOUNT),0);
+
+  document.getElementById("stTotal").textContent=total;
+  document.getElementById("stTotalSub").textContent="৳"+sum(allRows).toLocaleString()+" total liability";
+  document.getElementById("stBkash").textContent=bk.length;
+  document.getElementById("stBkashSub").textContent="৳"+sum(bk).toLocaleString()+" via bKash";
+  document.getElementById("stNagad").textContent=ng.length;
+  document.getElementById("stNagadSub").textContent="৳"+sum(ng).toLocaleString()+" via Nagad";
+  document.getElementById("stPending").textContent=pend.length;
+  document.getElementById("stPendingSub").textContent="awaiting payment";
+  document.getElementById("stPaid").textContent=paid.length;
+  document.getElementById("stPaidSub").textContent="৳"+sum(paid).toLocaleString()+" sent out";
+  document.getElementById("stMoney").textContent="৳"+sum(pend).toLocaleString();
+
+  const dups=dupMap(),dupNums=Object.keys(dups);
+  const invalid=allRows.filter(r=>!/^01[3-9]\d{8}$/.test(String(r.accountNumber||"").trim()));
+  let alerts="";
+  if(dupNums.length){
+    const detail=dupNums.map(n=>"<b>"+esc(n)+"</b> ("+dups[n].map(r=>esc(r.roll)).join(", ")+")").join(" · ");
+    alerts+='<div class="alert warn"><i class="fa-solid fa-triangle-exclamation"></i><div><b>'+dupNums.length+' duplicate number(s) — verify before paying.</b><br>'+detail+'</div></div>';
+  }
+  if(invalid.length){
+    alerts+='<div class="alert err"><i class="fa-solid fa-circle-exclamation"></i><div><b>'+invalid.length+' invalid number(s)</b> — fix via Edit before paying: '+invalid.map(r=>"<b>"+esc(r.id)+"</b> ("+esc(r.accountNumber||"empty")+")").join(", ")+'</div></div>';
+  }
+  if(!dupNums.length&&!invalid.length&&total>0){
+    alerts+='<div class="alert ok"><i class="fa-solid fa-circle-check"></i><div><b>All clear.</b> No duplicates or invalid numbers.</div></div>';
+  }
+  document.getElementById("alertBox").innerHTML=alerts;
+
+  let rows=allRows.slice();
+  if(filter==="bkash")rows=rows.filter(r=>r.method==="bkash");
+  else if(filter==="nagad")rows=rows.filter(r=>r.method==="nagad");
+  else if(filter==="pending")rows=rows.filter(r=>r.status!=="paid");
+  else if(filter==="paid")rows=rows.filter(r=>r.status==="paid");
+  if(searchQ){const q=searchQ.toLowerCase();rows=rows.filter(r=>[r.name,r.roll,r.accountNumber,r.id,r.method].join(" ").toLowerCase().includes(q));}
+  if(sortMode==="new")rows.sort((a,b)=>(b.refundNumber||0)-(a.refundNumber||0));
+  else if(sortMode==="old")rows.sort((a,b)=>(a.refundNumber||0)-(b.refundNumber||0));
+  else if(sortMode==="name")rows.sort((a,b)=>String(a.name||"").localeCompare(String(b.name||"")));
+  else if(sortMode==="roll")rows.sort((a,b)=>String(a.roll||"").localeCompare(String(b.roll||"")));
+
+  document.getElementById("footCount").textContent="Showing "+rows.length+" of "+total+" entries";
+  if(!rows.length){tbody.innerHTML='<tr><td colspan="10"><div class="empty"><i class="fa-solid fa-inbox"></i>No entries match.<br>Try a different search or filter.</div></td></tr>';return;}
+
+  tbody.innerHTML=rows.map((r,i)=>{
+    const isPaid=r.status==="paid";
+    const isDup=dupNums.includes((r.accountNumber||"").trim());
+    const badNum=!/^01[3-9]\d{8}$/.test(String(r.accountNumber||"").trim());
+    return '<tr class="'+(isDup?"dup-row":"")+'">'
+      +'<td class="rid">'+(i+1)+'</td>'
+      +'<td class="rid">'+esc(r.id)+'</td>'
+      +'<td class="rname">'+esc(r.name||"—")+'</td>'
+      +'<td class="rroll">'+esc(r.roll||"—")+'</td>'
+      +'<td><span class="tag-method '+(r.method==="bkash"?"bkash":"nagad")+'">'+(r.method==="bkash"?"bKash":"Nagad")+'</span></td>'
+      +'<td><div class="num-cell">'+esc(r.accountNumber||"—")
+      +' <button class="mini-copy" data-copy="'+esc(r.accountNumber||"")+'" title="Copy number"><i class="fa-solid fa-copy"></i></button></div>'
+      +(isDup?'<span class="dup-flag"><i class="fa-solid fa-triangle-exclamation"></i> duplicate number</span>':"")
+      +(badNum?'<span class="dup-flag" style="color:#ff8ba0"><i class="fa-solid fa-circle-exclamation"></i> invalid format</span>':"")+'</td>'
+      +'<td class="amt">৳'+esc(r.amount!=null?r.amount:REFUND_AMOUNT)+'</td>'
+      +'<td><span class="pill '+(isPaid?"paid":"pending")+'"><i class="dot"></i> '+(isPaid?"Paid":"Pending")+'</span></td>'
+      +'<td class="ts">'+esc(fmtDate(r.createdAt))+'</td>'
+      +'<td><div class="actions">'
+      +(isPaid
+        ?'<button class="abtn unpay" data-unpay="'+esc(r.id)+'" title="Mark back to Pending"><i class="fa-solid fa-rotate-left"></i></button>'
+        :'<button class="abtn pay" data-pay="'+esc(r.id)+'" title="Mark as Paid"><i class="fa-solid fa-circle-check"></i></button>')
+      +'<button class="abtn" data-edit="'+esc(r.id)+'" title="Edit"><i class="fa-solid fa-pen"></i></button>'
+      +'<button class="abtn del" data-del="'+esc(r.id)+'" title="Delete"><i class="fa-solid fa-trash"></i></button>'
+      +'</div></td></tr>';
+  }).join("");
+
+  tbody.querySelectorAll("[data-copy]").forEach(b=>b.addEventListener("click",()=>copyText(b.dataset.copy,"Number copied: "+b.dataset.copy)));
+  tbody.querySelectorAll("[data-pay]").forEach(b=>b.addEventListener("click",()=>openPay(b.dataset.pay)));
+  tbody.querySelectorAll("[data-unpay]").forEach(b=>b.addEventListener("click",()=>setStatus(b.dataset.unpay,"pending")));
+  tbody.querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>openEdit(b.dataset.edit)));
+  tbody.querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click",()=>openDel(b.dataset.del)));
+}
+
+/* Filters */
+document.getElementById("filterChips").addEventListener("click",e=>{
+  const c=e.target.closest(".chip");if(!c)return;
+  document.querySelectorAll(".chip").forEach(x=>x.classList.remove("active"));c.classList.add("active");
+  filter=c.dataset.f;render();
+});
+document.getElementById("sortSel").addEventListener("change",e=>{sortMode=e.target.value;render();});
+document.getElementById("searchInput").addEventListener("input",e=>{searchQ=e.target.value.trim();render();});
+
+/* Copy helper */
+function copyText(text,msg){
+  navigator.clipboard.writeText(text).then(()=>window.__toast(msg||"Copied!")).catch(()=>window.__toast("Copy failed",true));
+}
+
+/* CSV export */
+function csvCell(v){v=String(v==null?"":v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;}
+function downloadCSV(rows,filename){
+  const head=["Refund ID","Name","Roll","Method","Account Number","Amount (BDT)","Status","Submitted At","Paid At"];
+  const lines=[head.join(",")];
+  rows.forEach(r=>{lines.push([
+    csvCell(r.id),csvCell(r.name),csvCell("'"+(r.roll||"")),csvCell(r.method==="bkash"?"bKash":"Nagad"),
+    csvCell(""+(r.accountNumber||"")),csvCell(r.amount!=null?r.amount:REFUND_AMOUNT),
+    csvCell(r.status||"pending"),csvCell(fmtFull(r.createdAt)),csvCell(fmtFull(r.paidAt))
+  ].join(","));});
+  const t=rows.reduce((s,r)=>s+(Number(r.amount)||REFUND_AMOUNT),0);
+  lines.push(["TOTAL","","","","",t,"","",""].join(","));
+  const blob=new Blob(["\uFEFF"+lines.join("\r\n")],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=filename;a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+function stamp(){const d=new Date(),p=n=>String(n).padStart(2,"0");return d.getFullYear()+p(d.getMonth()+1)+p(d.getDate())+"-"+p(d.getHours())+p(d.getMinutes());}
+function sortedAll(){return allRows.slice().sort((a,b)=>(a.refundNumber||0)-(b.refundNumber||0));}
+document.getElementById("expAll").addEventListener("click",()=>{
+  if(!allRows.length)return window.__toast("No data to export",true);
+  downloadCSV(sortedAll(),"jersey-refunds-all-"+stamp()+".csv");
+  window.__toast("Full CSV downloaded ("+allRows.length+" entries)");
+});
+document.getElementById("expBkash").addEventListener("click",()=>{
+  const rows=sortedAll().filter(r=>r.method==="bkash");
+  if(!rows.length)return window.__toast("No bKash entries",true);
+  downloadCSV(rows,"jersey-refunds-bkash-"+stamp()+".csv");
+  window.__toast("bKash CSV downloaded ("+rows.length+" entries)");
+});
+document.getElementById("expNagad").addEventListener("click",()=>{
+  const rows=sortedAll().filter(r=>r.method==="nagad");
+  if(!rows.length)return window.__toast("No Nagad entries",true);
+  downloadCSV(rows,"jersey-refunds-nagad-"+stamp()+".csv");
+  window.__toast("Nagad CSV downloaded ("+rows.length+" entries)");
+});
+document.getElementById("copyBkash").addEventListener("click",()=>{
+  const n=sortedAll().filter(r=>r.method==="bkash").map(r=>r.accountNumber).filter(Boolean);
+  if(!n.length)return window.__toast("No bKash numbers",true);
+  copyText(n.join("\n"),n.length+" bKash numbers copied");
+});
+document.getElementById("copyNagad").addEventListener("click",()=>{
+  const n=sortedAll().filter(r=>r.method==="nagad").map(r=>r.accountNumber).filter(Boolean);
+  if(!n.length)return window.__toast("No Nagad numbers",true);
+  copyText(n.join("\n"),n.length+" Nagad numbers copied");
+});
+
+/* Mark paid / pending */
+function openPay(id){
+  const r=allRows.find(x=>x.id===id);if(!r)return;payTarget=r;
+  const pm=document.getElementById("payMethod");
+  pm.textContent=r.method==="bkash"?"bKash":"Nagad";pm.className="tag-method "+(r.method==="bkash"?"bkash":"nagad");
+  document.getElementById("payNumber").textContent=r.accountNumber||"—";
+  document.getElementById("payAmt").textContent="৳"+(r.amount!=null?r.amount:REFUND_AMOUNT);
+  document.getElementById("payName").textContent=r.name||"—";
+  document.getElementById("payRoll").textContent=r.roll||"—";
+  document.getElementById("payId").textContent=r.id;
+  window.__openModal("payModal");
+}
+document.getElementById("payConfirm").addEventListener("click",async()=>{
+  if(!payTarget)return;
+  const btn=document.getElementById("payConfirm");btn.classList.add("loading");btn.disabled=true;
+  try{
+    await updateDoc(doc(db,"jerseyRefunds",payTarget.id),{status:"paid",paidAt:serverTimestamp(),updatedAt:serverTimestamp()});
+    payTarget.status="paid";payTarget.paidAt=new Date();
+    window.__closeModal("payModal");render();window.__toast(payTarget.id+" marked as PAID ✓");
+  }catch(err){console.error(err);window.__toast("Failed to update",true);}
+  finally{btn.classList.remove("loading");btn.disabled=false;}
+});
+async function setStatus(id,status){
+  const r=allRows.find(x=>x.id===id);if(!r)return;
+  try{
+    await updateDoc(doc(db,"jerseyRefunds",id),{status,paidAt:status==="paid"?serverTimestamp():null,updatedAt:serverTimestamp()});
+    r.status=status;r.paidAt=status==="paid"?new Date():null;render();
+    window.__toast(id+" → "+status.toUpperCase());
+  }catch(err){console.error(err);window.__toast("Failed to update",true);}
+}
+
+/* Edit */
+function openEdit(id){
+  const r=allRows.find(x=>x.id===id);if(!r)return;editTarget=r;
+  document.getElementById("editIdLbl").textContent="· "+r.id;
+  document.getElementById("editName").value=r.name||"";
+  document.getElementById("editRoll").value=r.roll||"";
+  document.getElementById("editMethod").value=r.method||"bkash";
+  document.getElementById("editNum").value=r.accountNumber||"";
+  document.getElementById("editStatus").value=r.status||"pending";
+  document.getElementById("ef-name").classList.remove("invalid");
+  document.getElementById("ef-roll").classList.remove("invalid");
+  document.getElementById("ef-num").classList.remove("invalid");
+  window.__openModal("editModal");
+}
+document.getElementById("editSave").addEventListener("click",async()=>{
+  if(!editTarget)return;
+  const name=document.getElementById("editName").value.trim();
+  const roll=document.getElementById("editRoll").value.trim();
+  const method=document.getElementById("editMethod").value;
+  const num=normalizeBD(document.getElementById("editNum").value);
+  const status=document.getElementById("editStatus").value;
+  let ok=true;
+  document.getElementById("ef-name").classList.toggle("invalid",name.length<2);if(name.length<2)ok=false;
+  const rollClash=allRows.some(r=>r.id!==editTarget.id&&r.roll===roll);
+  document.getElementById("ef-roll").classList.toggle("invalid",roll.length<1||rollClash);if(roll.length<1||rollClash)ok=false;
+  document.getElementById("ef-num").classList.toggle("invalid",!num);if(!num)ok=false;
+  if(!ok){if(rollClash)window.__toast("Another entry already uses this roll!",true);return;}
+  const btn=document.getElementById("editSave");btn.classList.add("loading");btn.disabled=true;
+  try{
+    const patch={name,roll,method,accountNumber:num,updatedAt:serverTimestamp()};
+    if(status!==editTarget.status){patch.status=status;patch.paidAt=status==="paid"?serverTimestamp():null;}
+    await updateDoc(doc(db,"jerseyRefunds",editTarget.id),patch);
+    Object.assign(editTarget,{name,roll,method,accountNumber:num,status});
+    if(status==="paid"&&!editTarget.paidAt)editTarget.paidAt=new Date();
+    if(status!=="paid")editTarget.paidAt=null;
+    window.__closeModal("editModal");render();window.__toast("Saved ✓");
+  }catch(err){console.error(err);window.__toast("Save failed",true);}
+  finally{btn.classList.remove("loading");btn.disabled=false;}
+});
+
+/* Delete */
+function openDel(id){
+  const r=allRows.find(x=>x.id===id);if(!r)return;delTarget=r;
+  document.getElementById("delName").textContent=r.name||"—";
+  document.getElementById("delRoll").textContent=r.roll||"—";
+  document.getElementById("delMethod").textContent=r.method==="bkash"?"bKash":"Nagad";
+  document.getElementById("delNumber").textContent=r.accountNumber||"—";
+  document.getElementById("delStatus").textContent=(r.status||"pending").toUpperCase();
+  window.__openModal("delModal");
+}
+document.getElementById("delConfirm").addEventListener("click",async()=>{
+  if(!delTarget)return;
+  const btn=document.getElementById("delConfirm");btn.classList.add("loading");btn.disabled=true;
+  try{
+    await deleteDoc(doc(db,"jerseyRefunds",delTarget.id));
+    allRows=allRows.filter(r=>r.id!==delTarget.id);
+    window.__closeModal("delModal");render();window.__toast("Deleted "+delTarget.id);
+  }catch(err){console.error(err);window.__toast("Delete failed",true);}
+  finally{btn.classList.remove("loading");btn.disabled=false;}
+});
+</script>
+</body>
+</html>
