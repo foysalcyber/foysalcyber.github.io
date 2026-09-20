@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <title>One Drop — Blood Donor Network · Case File № 121 | Foysal Mahmud</title>
+
+  <meta name="description" content="Case file № 121: One Drop, a live volunteer blood-donor network for Bangladesh by Foysal Mahmud — Firebase + Firestore, offline-first PWA, privacy-first contact reveal, 70 automated checks.">
+  <meta name="author" content="Foysal Mahmud">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+  <link rel="canonical" href="https://foysalcyber.github.io/projects/onedrop.html">
+
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://foysalcyber.github.io/projects/onedrop.html">
+  <meta property="og:site_name" content="Foysal Mahmud — Official Portfolio">
+  <meta property="og:title" content="One Drop — Blood Donor Network · Case File № 121 | Foysal Mahmud">
+  <meta property="og:description" content="Case file № 121: One Drop, a live volunteer blood-donor network for Bangladesh by Foysal Mahmud — Firebase + Firestore, offline-first PWA, privacy-first contact reveal, 70 automated checks.">
+  <meta property="og:image" content="https://foysalcyber.github.io/assets/image/2025-05-19.webp">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Unbounded:wght@300;400;600;700;800;900&family=Syne:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=Caveat:wght@500;600&display=swap">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Unbounded:wght@300;400;600;700;800;900&family=Syne:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+  <meta name="theme-color" content="#050608">
+
+  <style>
+/* ═══════════════════════════════════════════════════════════════
+   FOYSAL MAHMUD — PROJECT CASE-FILE SHEETS
+   Shared design system for /projects/*.html (extracted from the
+   main dossier: same tokens, type scale, chrome and card language)
+   ═══════════════════════════════════════════════════════════════ */
+:root{
+  --ink:#050608;--ink2:#07090d;--ink3:#0b0e14;--panel:#0a0d12;--panel2:#0d1118;
+  --red:#ff1f45;--red2:#ff5470;--red-deep:#c40e2e;--red-dim:rgba(255,31,69,.14);
+  --gold:#f5c56b;--gold-bright:#f5c56b;
+  --line:rgba(255,255,255,.07);--line2:rgba(255,255,255,.13);
+  --muted:#4d5567;--mid:#8a93a6;--light:#c7cdd8;--white:#eef1f6;
+  --ok:#3ddc84;--ok-dim:rgba(61,220,132,.14);
+  --mono:'DM Mono',ui-monospace,monospace;
+  --disp:'Unbounded',sans-serif;
+  --body:'Syne',sans-serif;
+  --serif:'Instrument Serif',Georgia,serif;
+  --ease:cubic-bezier(.16,1,.3,1);--ease2:cubic-bezier(.4,0,.2,1);
+  --grad-red:linear-gradient(135deg,var(--red),var(--red2));
+  --r-xs:6px;--r-sm:10px;--r-md:14px;--r-lg:18px;--r-pill:999px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;overflow-x:hidden;scroll-padding-top:90px}
+body{background:var(--ink);color:var(--white);font-family:var(--body);overflow-x:hidden;
+  max-width:100vw;line-height:1.6;font-size:16px}
+img{display:block;max-width:100%;height:auto}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer}
+::selection{background:var(--red);color:#fff}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-track{background:var(--ink)}
+::-webkit-scrollbar-thumb{background:#1c212b;border-radius:99px;border:2px solid var(--ink)}
+::-webkit-scrollbar-thumb:hover{background:var(--red-deep)}
+
+/* ── FIXED CHROME ───────────────────────────────────────────── */
+#progress{position:fixed;top:0;left:0;height:2px;width:0;z-index:99999;
+  background:var(--grad-red);box-shadow:0 0 12px var(--red);pointer-events:none;transition:width .08s linear}
+.noise{position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.05;
+  background-image:url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZGg9IjMwMCIgaGVpZ2h0PSIzMDAiPjxmaWx0ZXIgaWQ9ImEiPjxmZVR1cmJ1bGVuY2UgdHlwZT0iZnJhY3RhbE5vaXNlIiBiYXNlRnJlcXVlbmN5PSIuNzUiIG51bU9jdGF2ZXM9IjMiIHN0aXRjaFRpbGVzPSJzdGl0Y2giLz48L2ZpbHRlcj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWx0ZXI9InVybCgjYSkiLz48L3N2Zz4=')}
+.scanline{position:fixed;inset:0;z-index:3;pointer-events:none;opacity:.05;
+  background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(0,0,0,.6) 3px 4px)}
+.bloom{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(60% 42% at 82% -6%,rgba(255,31,69,.085),transparent 60%),
+    radial-gradient(50% 40% at 8% 108%,rgba(255,31,69,.06),transparent 60%),
+    radial-gradient(120% 100% at 50% 50%,transparent 55%,rgba(0,0,0,.55) 100%)}
+.vignette{position:fixed;inset:0;z-index:3;pointer-events:none;
+  background:radial-gradient(122% 96% at 50% 42%,transparent 58%,rgba(0,0,0,.5) 100%)}
+
+/* ── REVEAL SYSTEM ── */
+[data-reveal]{opacity:0;transform:translateY(42px);transition:opacity 1s var(--ease),transform 1.1s var(--ease)}
+[data-reveal="left"]{transform:translateX(-52px)}
+[data-reveal="right"]{transform:translateX(52px)}
+[data-reveal="scale"]{transform:scale(.94)}
+[data-reveal].in{opacity:1;transform:none}
+
+/* ── NAV ── */
+#nav{position:sticky;top:0;z-index:9000;display:flex;align-items:center;justify-content:space-between;
+  gap:18px;padding:0 clamp(16px,4vw,44px);height:66px;background:transparent;
+  transition:background .4s,border-color .4s,height .4s;border-bottom:1px solid transparent}
+#nav.scrolled{background:rgba(5,6,8,.86);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border-bottom-color:var(--line);height:58px}
+.nav-brand{font-family:var(--mono);font-size:.95rem;color:var(--white);display:flex;align-items:center;gap:2px;z-index:10001}
+.nav-brand .nb-tilde{color:var(--red)}
+.nav-brand .nb-slash{color:var(--muted)}
+.nav-brand .nb-cur{color:var(--red);animation:blink 1.1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.nav-links{display:flex;align-items:center;gap:clamp(14px,2vw,26px);list-style:none}
+.nav-links a{font-family:var(--mono);font-size:.64rem;letter-spacing:2px;text-transform:uppercase;
+  color:var(--mid);position:relative;padding:6px 2px;transition:color .3s}
+.nav-links a::after{content:'';position:absolute;left:0;bottom:0;height:1px;width:0;
+  background:var(--red);transition:width .35s var(--ease)}
+.nav-links a:hover{color:var(--white)}
+.nav-links a:hover::after{width:100%}
+.nav-links a.here{color:var(--white)}
+.nav-links a.here::after{width:100%}
+.nav-right{display:flex;align-items:center;gap:14px}
+.nav-cta{font-family:var(--mono);font-size:.62rem;letter-spacing:2px;text-transform:uppercase;
+  color:#fff;background:var(--red);padding:10px 20px;border-radius:var(--r-sm);position:relative;overflow:hidden;
+  transition:transform .3s var(--ease),box-shadow .3s;display:inline-block;box-shadow:0 6px 24px rgba(255,31,69,.25)}
+.nav-cta:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(255,31,69,.45)}
+.nav-menu{display:none;background:none;border:1px solid var(--line2);width:42px;height:38px;
+  border-radius:var(--r-sm);flex-direction:column;align-items:center;justify-content:center;gap:5px;z-index:10001}
+.nav-menu span{display:block;width:18px;height:1.5px;background:var(--white);transition:all .35s var(--ease)}
+.nav-menu.open span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+.nav-menu.open span:nth-child(2){opacity:0}
+.nav-menu.open span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+.nav-live-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--red);
+  margin-right:7px;vertical-align:1px;animation:cspulse 1.5s infinite}
+@keyframes cspulse{0%,100%{opacity:1}50%{opacity:.25}}
+
+/* ── BUTTONS ── */
+.btn-red,.btn-ghost{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:.66rem;
+  letter-spacing:2px;text-transform:uppercase;padding:14px 26px;border-radius:var(--r-sm);
+  transition:transform .35s var(--ease),box-shadow .35s,border-color .35s,color .35s;position:relative;overflow:hidden}
+.btn-red{background:var(--red);color:#fff;border:1px solid var(--red);box-shadow:0 8px 30px rgba(255,31,69,.28)}
+.btn-red::before{content:'';position:absolute;top:0;left:-80%;width:50%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);transition:left .6s var(--ease)}
+.btn-red:hover{transform:translateY(-3px);box-shadow:0 16px 44px rgba(255,31,69,.45)}
+.btn-red:hover::before{left:130%}
+.btn-ghost{background:transparent;color:var(--light);border:1px solid var(--line2)}
+.btn-ghost::before,.btn-ghost::after{content:'';position:absolute;width:7px;height:7px;
+  border:1px solid var(--red);opacity:0;transition:opacity .35s}
+.btn-ghost::before{top:-4px;left:-4px;border-right:0;border-bottom:0}
+.btn-ghost::after{bottom:-4px;right:-4px;border-left:0;border-top:0}
+.btn-ghost:hover{color:var(--white);border-color:rgba(255,31,69,.55);transform:translateY(-3px)}
+.btn-ghost:hover::before,.btn-ghost:hover::after{opacity:1}
+.btn-red:active,.btn-ghost:active{transform:scale(.965)!important}
+
+/* ── SECTION SHELL / TYPE ── */
+.s{max-width:1560px;margin:0 auto;padding:clamp(70px,9vw,130px) clamp(16px,4vw,44px)}
+.s.tight{padding-top:clamp(30px,4vw,54px)}
+.s-tag{font-family:var(--mono);font-size:.62rem;letter-spacing:3.5px;text-transform:uppercase;
+  color:var(--red2);display:inline-flex;align-items:center;gap:12px;margin-bottom:22px}
+.s-tag::after{content:'';height:1px;width:64px;background:linear-gradient(90deg,var(--red),transparent)}
+.s-h{font-family:var(--disp);font-weight:700;line-height:1.04;letter-spacing:-.01em;
+  font-size:clamp(1.9rem,4.4vw,3.4rem);margin-bottom:26px}
+.s-h .serif-accent{font-family:var(--serif);font-style:italic;font-weight:400;text-transform:none;
+  color:var(--red2);letter-spacing:0}
+.glitch-h{position:relative;display:inline-block}
+.glitch-h::before,.glitch-h::after{content:attr(data-text);position:absolute;inset:0;
+  pointer-events:none;opacity:.55}
+.glitch-h::before{color:var(--red);clip-path:inset(12% 0 52% 0);animation:gl1 3.4s infinite steps(1)}
+.glitch-h::after{color:#4dd6ff;clip-path:inset(62% 0 8% 0);animation:gl2 3.9s infinite steps(1)}
+@keyframes gl1{0%,86%,100%{opacity:0;transform:none}88%{opacity:.6;transform:translate(-2px,1px)}92%{opacity:.4;transform:translate(2px,-1px)}96%{opacity:0}}
+@keyframes gl2{0%,80%,100%{opacity:0;transform:none}84%{opacity:.45;transform:translate(2px,1px)}90%{opacity:.3;transform:translate(-2px,-1px)}94%{opacity:0}}
+.hw{font-family:'Caveat',cursive;font-weight:600;line-height:1.35;color:var(--gold);
+  font-size:1.15rem;transform:rotate(-1.4deg)}
+.pulse-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--red);
+  animation:cspulse 1.5s infinite}
+
+/* ── PAGE HERO (case-file cover) ── */
+.p-hero{position:relative;z-index:10;padding:56px clamp(16px,4vw,44px) 22px;max-width:1560px;margin:0 auto}
+.p-back{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:.58rem;
+  letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:26px;transition:color .3s}
+.p-back:hover{color:var(--red2)}
+.p-eyebrow{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:.6rem;
+  letter-spacing:3.5px;text-transform:uppercase;color:var(--ok);border:1px solid rgba(61,220,132,.35);
+  border-radius:var(--r-pill);padding:7px 15px;margin-bottom:24px}
+.p-eyebrow .pulse-dot{width:6px;height:6px;background:var(--ok)}
+.p-title{font-family:var(--disp);font-weight:700;line-height:1.03;letter-spacing:-.015em;
+  font-size:clamp(2.1rem,6vw,4.4rem);margin-bottom:22px}
+.p-title .serif-accent{font-family:var(--serif);font-style:italic;font-weight:400;text-transform:none;
+  color:var(--red2);letter-spacing:0;position:relative;z-index:0}
+.p-title .serif-accent::after{content:'';position:absolute;left:-1%;right:-1%;bottom:2px;height:36%;z-index:-1;
+  border-radius:3px;background:linear-gradient(90deg,rgba(255,31,69,.32),rgba(255,31,69,.10) 70%,transparent);
+  transform:scaleX(0);transform-origin:left;transition:transform .8s cubic-bezier(.7,0,.2,1) .35s}
+.p-title.in .serif-accent::after{transform:scaleX(1)}
+.p-sub{max-width:720px;color:var(--mid);font-size:clamp(.95rem,1.3vw,1.06rem);line-height:1.8;margin-bottom:28px}
+.p-sub b{color:var(--white);font-weight:600}
+.p-actions{display:flex;flex-wrap:wrap;gap:13px;margin:26px 0 40px}
+
+/* ── SPEC SHEET ── */
+.spec{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);
+  border:1px solid var(--line2);border-radius:var(--r-md);overflow:hidden;margin-bottom:44px}
+.spec-cell{background:linear-gradient(170deg,rgba(13,17,24,.92),rgba(8,9,13,.72));padding:18px 20px}
+.spec-cell span{display:block;font-family:var(--mono);font-size:.48rem;letter-spacing:1.8px;
+  text-transform:uppercase;color:var(--muted);margin-bottom:9px}
+.spec-cell b{font-family:var(--disp);font-size:.76rem;font-weight:600;color:var(--light);letter-spacing:.02em;line-height:1.5}
+.spec-cell b.ok{color:var(--ok)}
+
+/* ── CHIPS ── */
+.cs-chips{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:36px}
+.cs-chip{font-family:var(--mono);font-size:.55rem;letter-spacing:1.8px;text-transform:uppercase;
+  color:var(--mid);border:1px solid var(--line2);padding:8px 14px;border-radius:var(--r-pill);
+  display:inline-flex;align-items:center;gap:8px}
+.cs-chip.live{color:var(--ok);border-color:rgba(61,220,132,.4)}
+.cs-chip.live .pulse-dot{width:6px;height:6px;background:var(--ok)}
+
+/* ── TICKER ── */
+.cs-ticker{border:1px solid var(--line2);border-radius:12px;overflow:hidden;margin:0 0 48px;background:rgba(7,9,13,.8)}
+.cs-ticker-bar{display:flex;gap:6px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line2)}
+.cs-ticker-bar span{width:9px;height:9px;border-radius:50%;background:var(--line2)}
+.cs-ticker-bar span:first-child{background:var(--red)}
+.cs-ticker-bar em{margin-left:auto;font-family:var(--mono);font-size:.55rem;letter-spacing:1.6px;
+  text-transform:uppercase;color:var(--muted);font-style:normal}
+.cs-ticker-line{font-family:var(--mono);font-size:clamp(.62rem,1.4vw,.74rem);color:#8fa0b0;
+  padding:14px 16px;min-height:3.6em;line-height:1.8;word-break:break-word}
+.cs-tk-prompt{color:var(--red2)}
+.cs-caret{display:inline-block;width:8px;height:13px;background:var(--red);margin-left:3px;
+  vertical-align:-2px;animation:csblink 1.1s infinite}
+@keyframes csblink{0%,49%{opacity:1}50%,100%{opacity:0}}
+
+/* ── CASE-STUDY GRID ── */
+.cs-wrap{display:grid;grid-template-columns:400px 1fr;gap:clamp(30px,4vw,64px);align-items:start}
+.cs-act{margin-bottom:26px}
+.cs-act-label{font-family:var(--mono);font-size:.6rem;letter-spacing:2.5px;color:var(--red2);margin-bottom:10px}
+.cs-act p{color:var(--mid);font-size:.9rem;line-height:2.05}
+.cs-act p b{color:var(--light);font-weight:600}
+.cs-hl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:30px 0}
+.cs-hl{border:1px solid var(--line);border-radius:var(--r-md);padding:18px;background:rgba(255,255,255,.014);
+  transition:border-color .35s,transform .45s var(--ease)}
+.cs-hl:hover{border-color:rgba(255,31,69,.45);transform:translateY(-4px)}
+.cs-hl i{color:var(--red);font-size:.95rem;margin-bottom:12px;display:block}
+.cs-hl b{display:block;font-family:var(--disp);font-size:.72rem;margin-bottom:8px;letter-spacing:.02em}
+.cs-hl span{font-size:.72rem;color:var(--muted);line-height:1.9;display:block}
+.cs-cta{display:flex;gap:14px;flex-wrap:wrap}
+
+/* ── PHONE MOCKUP ── */
+.cs-phone{animation:csfloat 6.5s ease-in-out infinite}
+@keyframes csfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.cs-phone-frame{position:relative;border:1px solid var(--line2);border-radius:26px;background:#07090d;
+  padding:14px 12px 16px;box-shadow:0 40px 110px rgba(0,0,0,.55),0 0 0 1px rgba(255,31,69,.06);
+  transition:transform .18s ease-out;transform:perspective(950px);will-change:transform}
+.cs-notch{width:86px;height:5px;border-radius:99px;background:#1c212b;margin:0 auto 12px}
+.cs-replay{position:absolute;top:10px;right:10px;z-index:9;font-family:var(--mono);font-size:.5rem;
+  letter-spacing:1.6px;text-transform:uppercase;color:var(--mid);background:rgba(7,9,13,.85);
+  border:1px solid var(--line2);border-radius:20px;padding:5px 11px;cursor:pointer;opacity:.75;
+  transition:color .2s,border-color .2s,opacity .2s}
+.cs-replay:hover{color:var(--red2);border-color:rgba(255,31,69,.55);opacity:1}
+.cs-screen{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:16px;
+  background:var(--panel);padding:16px 14px}
+.cs-app-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.cs-app-head img{width:34px;height:34px;border-radius:9px;object-fit:cover}
+.cs-app-head b{display:block;font-family:var(--disp);font-size:.72rem;letter-spacing:.04em}
+.cs-app-head span{font-family:var(--mono);font-size:.5rem;letter-spacing:2px;color:var(--muted)}
+.cs-live-pill{margin-left:auto;font-style:normal;font-family:var(--mono);font-size:.48rem;letter-spacing:1.5px;
+  color:var(--ok);border:1px solid rgba(61,220,132,.4);padding:3px 8px;border-radius:var(--r-pill)}
+.cs-tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.cs-tile{border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px;background:rgba(255,255,255,.015)}
+.cs-tile span{font-family:var(--mono);font-size:.45rem;letter-spacing:1.6px;color:var(--muted);display:block;margin-bottom:5px}
+.cs-tile b{font-family:var(--disp);font-size:1.05rem;font-weight:700}
+.cs-tile.red b{color:var(--red2)}
+.cs-tile.ok b{color:var(--ok)}
+.cs-cal-card{border:1px solid var(--line);border-radius:var(--r-sm);padding:12px;margin-bottom:12px}
+.cs-cal-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.cs-cal-head b{font-family:var(--disp);font-size:.62rem;letter-spacing:.06em}
+.cs-cal-head span{font-family:var(--mono);font-size:.46rem;letter-spacing:1.5px;color:var(--muted)}
+.cs-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-cell{position:relative;aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:.55rem;color:var(--muted);border:1px solid rgba(255,255,255,.05);border-radius:4px}
+.cal-cell.had{color:var(--light);background:rgba(255,31,69,.05);border-color:rgba(255,31,69,.14)}
+.cal-cell.today{border-color:var(--red);color:#fff;box-shadow:inset 0 0 0 1px var(--red)}
+.cal-cell.empty{border:none;background:none}
+.cal-cell .dot{position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:3px;height:3px;border-radius:50%}
+.dot.fr,.dot.tu{background:var(--red)}
+.dot.su{background:var(--gold)}
+.cs-cal-legend{display:flex;flex-wrap:wrap;gap:10px 14px;margin-top:10px;font-family:var(--mono);
+  font-size:.46rem;letter-spacing:1px;color:var(--muted);text-transform:uppercase}
+.cs-cal-legend span{display:inline-flex;align-items:center;gap:5px}
+.cs-rulebook{border:1px dashed rgba(255,31,69,.35);border-radius:var(--r-sm);padding:12px;background:var(--red-dim)}
+.cs-rb-title{font-family:var(--mono);font-size:.5rem;letter-spacing:2px;color:var(--red2);margin-bottom:9px}
+.cs-rb-row{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.56rem;color:var(--light);
+  padding:4px 0;border-bottom:1px dashed rgba(255,255,255,.07)}
+.cs-rb-row b{color:var(--white);font-weight:500}
+.cs-rb-bill{margin-top:9px;font-family:var(--mono);font-size:.52rem;color:var(--mid);line-height:1.8}
+.cs-rb-bill b{color:var(--red2);font-weight:500}
+/* boot sequence */
+.cs-screen.preboot .cs-app-head,.cs-screen.preboot .cs-tiles,.cs-screen.preboot .cs-cal-card,
+.cs-screen.preboot .cs-rulebook,.cs-screen.preboot .od-search,.cs-screen.preboot .od-board,
+.cs-screen.preboot .od-donor-list{opacity:0}
+.cs-screen.boot .cs-app-head{animation:csbootUp .55s .12s cubic-bezier(.22,1,.36,1) both}
+.cs-screen.boot .od-search{animation:csbootUp .55s .28s cubic-bezier(.22,1,.36,1) both}
+.cs-screen.boot .cs-tiles{animation:csbootUp .55s .34s cubic-bezier(.22,1,.36,1) both}
+.cs-screen.boot .cs-cal-card{animation:csbootUp .55s .56s cubic-bezier(.22,1,.36,1) both}
+.cs-screen.boot .od-board{animation:csbootUp .55s .56s cubic-bezier(.22,1,.36,1) both}
+.cs-screen.boot .od-donor-list{animation:csbootUp .55s .78s cubic-bezier(.22,1,.36,1) both}
+.cs-screen.boot .cs-rulebook{animation:csbootUp .55s .78s cubic-bezier(.22,1,.36,1) both}
+.cs-screen.boot .cal-cell{animation:cscell .3s cubic-bezier(.34,1.56,.64,1) both}
+.cs-screen.boot::before{content:'';position:absolute;left:6%;right:6%;top:50%;height:1px;background:#fff;
+  box-shadow:0 0 26px 5px rgba(255,31,69,.85);z-index:6;pointer-events:none;transform:scaleX(0);
+  animation:cscrt .65s .06s ease-out both}
+@keyframes csbootUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes cscell{from{opacity:0;transform:scale(.55)}to{opacity:1;transform:scale(1)}}
+@keyframes cscrt{0%{transform:scaleX(0);opacity:1}50%{transform:scaleX(1);opacity:1}100%{transform:scaleX(1);opacity:0}}
+
+/* ── DEMO PANEL ── */
+.cs-demo{border:1px solid var(--line2);border-radius:var(--r-md);background:var(--panel);padding:22px;margin:30px 0}
+.cs-demo-head{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.cs-demo-head b{font-family:var(--disp);font-size:.78rem;letter-spacing:.04em;display:block}
+.cs-demo-head span{font-family:var(--mono);font-size:.52rem;letter-spacing:1.5px;color:var(--muted)}
+.cs-demo-row{margin-bottom:14px}
+.cs-demo-label{font-family:var(--mono);font-size:.5rem;letter-spacing:2px;color:var(--muted);margin-bottom:8px}
+.cs-chip-row{display:flex;flex-wrap:wrap;gap:7px}
+.cs-wd,.cs-mt{font-family:var(--mono);font-size:.6rem;letter-spacing:1px;padding:9px 13px;border-radius:var(--r-xs);
+  border:1px solid var(--line2);background:transparent;color:var(--mid);cursor:pointer;transition:all .25s var(--ease)}
+.cs-wd:hover,.cs-mt:hover{border-color:rgba(255,31,69,.5);color:var(--light)}
+.cs-wd.sel{background:var(--red);border-color:var(--red);color:#fff}
+.cs-mt.on{background:var(--red-dim);border-color:rgba(255,31,69,.55);color:var(--white)}
+.cs-mt em{font-style:normal;color:var(--red2);margin-left:5px;font-size:.55rem}
+.cs-out{border:1px solid var(--line);border-radius:var(--r-sm);background:rgba(0,0,0,.35);padding:16px;
+  font-family:var(--mono);font-size:.66rem;line-height:2.1;color:var(--light)}
+.cs-out.cs-flash{animation:csflash .45s ease-out}
+@keyframes csflash{0%{background:rgba(255,31,69,.1)}100%{background:rgba(255,31,69,0)}}
+.cs-note{margin-top:12px;font-size:1.02rem}
+
+/* ── TERMINAL / TESTS ── */
+.cs-tests{border:1px solid var(--line2);border-radius:var(--r-md);overflow:hidden;margin-bottom:28px;background:#07090d}
+.cs-tests-bar{display:flex;align-items:center;gap:7px;padding:10px 14px;border-bottom:1px solid var(--line);
+  background:rgba(255,255,255,.015)}
+.cs-tests-bar span{width:9px;height:9px;border-radius:50%}
+.cs-tests-bar span:nth-child(1){background:#ff5f57}
+.cs-tests-bar span:nth-child(2){background:#febc2e}
+.cs-tests-bar span:nth-child(3){background:#28c840}
+.cs-tests-bar em{font-family:var(--mono);font-size:.55rem;letter-spacing:1.5px;color:var(--muted);font-style:normal;margin-left:8px}
+.cs-tests-out{padding:16px 18px;font-family:var(--mono);font-size:.6rem;line-height:2;color:var(--mid);overflow-x:auto}
+.cs-tests-out b{color:var(--white);font-weight:500}
+.cs-tests-out .cs-tests-ok{color:var(--ok)}
+
+/* ── STAMP / GHOST ── */
+.cs-stamp{position:absolute;top:26px;right:5%;z-index:2;transform:rotate(-8deg);text-align:center;
+  border:2px solid rgba(255,31,69,.8);outline:1px solid rgba(255,31,69,.25);outline-offset:3px;border-radius:8px;
+  padding:9px 16px 8px;color:var(--red2);font-family:var(--mono);font-size:.68rem;letter-spacing:3px;
+  pointer-events:none;background:rgba(10,12,16,.45)}
+.cs-stamp span{display:block;font-size:.48rem;letter-spacing:2.4px;color:var(--red);margin-top:5px}
+.cs-stamp.in{animation:csstamp .6s .5s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes csstamp{0%{opacity:0;transform:rotate(-8deg) scale(2.6)}55%{opacity:1;transform:rotate(-8deg) scale(.9)}
+  75%{transform:rotate(-8deg) scale(1.06)}100%{opacity:1;transform:rotate(-8deg) scale(1)}}
+.cs-ghost{position:absolute;top:-56px;right:-24px;font-family:var(--serif);font-size:clamp(150px,24vw,340px);
+  line-height:1;color:rgba(255,31,69,.03);-webkit-text-stroke:1px rgba(255,31,69,.075);
+  pointer-events:none;user-select:none;z-index:0}
+.case-shell{position:relative}
+.case-shell .s{position:relative}
+
+/* ── CASE-STUDY HEADINGS ── */
+.cs-tag-live{display:inline-flex;align-items:center;gap:9px;border-color:rgba(61,220,132,.4);color:var(--ok)}
+.cs-tag-live .pulse-dot{width:6px;height:6px;background:var(--ok);flex:0 0 auto}
+.cs-mega{font-size:clamp(2.05rem,5.6vw,4.1rem)}
+.cs-sub{max-width:700px;color:var(--mid);font-size:clamp(.95rem,1.3vw,1.06rem);line-height:1.8;
+  margin:-8px 0 30px;position:relative;z-index:1}
+.cs-sub b{color:var(--white);font-weight:600}
+.cs-chips{position:relative;z-index:1}
+.cs-chips .cs-chip{opacity:0}
+.cs-chips.in .cs-chip{animation:cschippop .5s cubic-bezier(.34,1.56,.64,1) both}
+.cs-chips.in .cs-chip:nth-child(2){animation-delay:.09s}
+.cs-chips.in .cs-chip:nth-child(3){animation-delay:.18s}
+.cs-chips.in .cs-chip:nth-child(4){animation-delay:.27s}
+.cs-chips.in .cs-chip:nth-child(5){animation-delay:.36s}
+.cs-chips.in .cs-chip:nth-child(6){animation-delay:.45s}
+@keyframes cschippop{from{opacity:0;transform:translateY(10px) scale(.82)}to{opacity:1;transform:none}}
+
+/* ── BOTTOM NAV / FOOTER ── */
+.p-next{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:10px 0 0}
+.p-next a{display:flex;flex-direction:column;gap:8px;border:1px solid var(--line2);border-radius:var(--r-md);
+  padding:22px 24px;background:linear-gradient(165deg,rgba(13,17,24,.9),rgba(8,9,13,.7));transition:border-color .35s,transform .45s var(--ease)}
+.p-next a:hover{border-color:rgba(255,31,69,.45);transform:translateY(-4px)}
+.p-next span{font-family:var(--mono);font-size:.52rem;letter-spacing:2.5px;text-transform:uppercase;color:var(--red2)}
+.p-next b{font-family:var(--disp);font-size:clamp(.78rem,1.5vw,.95rem);color:var(--white);letter-spacing:.02em}
+.p-next em{font-style:normal;font-size:.72rem;color:var(--muted);line-height:1.8}
+footer{position:relative;z-index:10;border-top:1px solid var(--line);
+  padding:46px clamp(16px,4vw,44px) 44px;text-align:center;margin-top:40px}
+.f-signoff{font-family:'Caveat',cursive;font-size:1.3rem;color:var(--gold);margin-bottom:16px}
+.f-signoff span{color:var(--red2)}
+.f-brand{font-family:var(--disp);font-weight:800;font-size:clamp(1.4rem,4vw,2.1rem);letter-spacing:.02em;margin-bottom:14px}
+.f-brand span{color:var(--red)}
+.f-copy{font-family:var(--mono);font-size:.6rem;letter-spacing:1.6px;color:var(--mid);line-height:2;text-transform:uppercase}
+.f-socials{display:flex;gap:12px;justify-content:center;margin-top:24px}
+.f-socials a{width:38px;height:38px;border:1px solid var(--line2);border-radius:var(--r-sm);
+  display:flex;align-items:center;justify-content:center;color:var(--mid);transition:all .3s var(--ease)}
+.f-socials a:hover{color:#fff;border-color:rgba(255,31,69,.55);transform:translateY(-3px)}
+
+/* ── ONEDROP SPECIFIC ── */
+.od-groups{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
+.od-g{border:1px solid var(--line2);border-radius:var(--r-xs);padding:9px 4px;text-align:center;
+  font-family:var(--mono);font-size:.58rem;color:var(--light);background:rgba(255,255,255,.012);cursor:pointer;
+  transition:all .25s var(--ease)}
+.od-g:hover{border-color:rgba(255,31,69,.5);color:#fff}
+.od-g.sel{background:var(--red);border-color:var(--red);color:#fff}
+.od-g em{display:block;font-style:normal;font-size:.42rem;letter-spacing:1px;color:var(--muted);margin-top:3px}
+.od-g.sel em{color:rgba(255,255,255,.75)}
+.od-board{border:1px solid rgba(255,31,69,.28);border-radius:var(--r-sm);padding:12px;margin-bottom:12px;
+  background:linear-gradient(160deg,rgba(255,31,69,.07),rgba(255,31,69,.015))}
+.od-board-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.od-board-head b{font-family:var(--mono);font-size:.5rem;letter-spacing:2px;color:var(--red2)}
+.od-board-head em{margin-left:auto;font-style:normal;font-family:var(--mono);font-size:.46rem;
+  letter-spacing:1.4px;color:var(--muted)}
+.od-req{border:1px solid var(--line);border-radius:var(--r-xs);padding:9px 10px;background:rgba(0,0,0,.28)}
+.od-req-top{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.od-req-top b{font-family:var(--disp);font-size:.6rem;color:var(--white)}
+.od-req-top span{font-family:var(--mono);font-size:.46rem;letter-spacing:1.2px;color:var(--muted)}
+.od-cd{margin-left:auto;font-family:var(--mono);font-size:.5rem;color:var(--red2);letter-spacing:1px}
+.od-bar{height:3px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden}
+.od-bar i{display:block;height:100%;background:var(--grad-red);width:64%;
+  transition:width 1s linear;box-shadow:0 0 10px rgba(255,31,69,.6)}
+.od-req-meta{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.44rem;
+  letter-spacing:1.2px;color:var(--muted);margin-top:7px;text-transform:uppercase}
+.od-donor-list{border:1px solid var(--line);border-radius:var(--r-sm);overflow:hidden}
+.od-donor-list>div{padding:10px 12px;border-bottom:1px solid var(--line)}
+.od-donor-list>div:last-child{border-bottom:0}
+.od-d-head{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.od-d-head b{font-family:var(--disp);font-size:.56rem;color:var(--white)}
+.od-badge{font-family:var(--mono);font-size:.44rem;letter-spacing:1px;color:var(--red2);
+  border:1px solid rgba(255,31,69,.4);border-radius:4px;padding:1px 5px}
+.od-d-head em{margin-left:auto;font-style:normal;font-family:var(--mono);font-size:.44rem;color:var(--muted)}
+.od-d-meta{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:.44rem;
+  letter-spacing:1.1px;color:var(--muted)}
+.od-d-meta b{color:var(--light);font-weight:400}
+.od-lock{margin-left:auto;font-family:var(--mono);font-size:.44rem;letter-spacing:1.1px;color:var(--muted)}
+.od-priv{margin-top:12px;font-family:var(--mono);font-size:.46rem;letter-spacing:1.1px;color:var(--muted);
+  line-height:1.9;text-transform:uppercase;border-top:1px dashed var(--line);padding-top:10px}
+.od-priv b{color:var(--red2);font-weight:500}
+/* matcher readout */
+.od-out{border:1px solid var(--line);border-radius:var(--r-sm);background:rgba(0,0,0,.35);padding:16px;
+  font-family:var(--mono);font-size:.64rem;line-height:1.95;color:var(--light);margin-top:6px}
+.od-out .o-h{color:var(--white)}
+.od-out .o-dim{color:var(--muted)}
+.od-out .o-ok{color:var(--ok)}
+.od-out .o-red{color:var(--red2)}
+.od-rows{display:grid;gap:8px;margin-top:14px}
+.od-row{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:var(--r-sm);
+  padding:12px 14px;background:linear-gradient(160deg,rgba(13,17,24,.85),rgba(8,9,13,.6));
+  transition:border-color .3s,transform .35s var(--ease);animation:odrow .45s cubic-bezier(.22,1,.36,1) both}
+@keyframes odrow{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.od-row:hover{border-color:rgba(255,31,69,.4)}
+.od-row .r-name{font-family:var(--disp);font-size:.68rem;letter-spacing:.02em;min-width:96px}
+.od-row .r-g{font-family:var(--mono);font-size:.58rem;color:var(--red2);border:1px solid rgba(255,31,69,.4);
+  border-radius:5px;padding:2px 7px}
+.od-row .r-loc{font-family:var(--mono);font-size:.54rem;color:var(--muted);letter-spacing:1px}
+.od-row .r-km{font-family:var(--mono);font-size:.54rem;color:var(--light);margin-left:auto;white-space:nowrap}
+.od-phone{font-family:var(--mono);font-size:.58rem;letter-spacing:1.4px;color:var(--light);
+  border:1px dashed var(--line2);border-radius:6px;padding:6px 10px;min-width:118px;text-align:center;white-space:nowrap}
+.od-phone.hidden{color:var(--muted)}
+.od-phone.shown{color:var(--ok);border-color:rgba(61,220,132,.45);border-style:solid}
+.od-ask{font-family:var(--mono);font-size:.52rem;letter-spacing:1.6px;text-transform:uppercase;color:var(--light);
+  background:rgba(255,31,69,.12);border:1px solid rgba(255,31,69,.45);border-radius:6px;padding:7px 12px;
+  transition:all .25s var(--ease);white-space:nowrap}
+.od-ask:hover{background:var(--red);color:#fff}
+.od-ask:disabled{opacity:.4;cursor:not-allowed}
+.od-meter{display:flex;align-items:center;gap:10px;margin-top:14px;font-family:var(--mono);font-size:.54rem;
+  letter-spacing:1.4px;color:var(--muted);text-transform:uppercase}
+.od-meter b{color:var(--ok);font-weight:500}
+.od-meter.low b{color:var(--red2)}
+.od-meter .mbar{flex:1;height:4px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden}
+.od-meter .mbar i{display:block;height:100%;width:100%;background:var(--grad-red);transition:width .4s var(--ease)}
+/* matrix */
+.od-matrix{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.od-matrix span{font-family:var(--mono);font-size:.56rem;color:var(--ok);border:1px solid rgba(61,220,132,.35);
+  border-radius:5px;padding:5px 10px;background:rgba(61,220,132,.06)}
+/* policy rows */
+.od-policy{border:1px solid var(--line2);border-radius:var(--r-md);overflow:hidden;margin:30px 0}
+.od-policy-row{display:grid;grid-template-columns:230px 1fr;gap:20px;padding:18px 22px;border-bottom:1px solid var(--line);
+  background:rgba(255,255,255,.012);transition:background .3s}
+.od-policy-row:last-child{border-bottom:0}
+.od-policy-row:hover{background:rgba(255,31,69,.045)}
+.od-policy-row b{font-family:var(--mono);font-size:.58rem;letter-spacing:1.8px;text-transform:uppercase;color:var(--red2)}
+.od-policy-row p{font-size:.8rem;color:var(--mid);line-height:1.95}
+.od-policy-row p code{font-family:var(--mono);font-size:.72rem;color:var(--light);
+  background:rgba(255,255,255,.05);border-radius:4px;padding:2px 6px}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1150px){
+  .cs-wrap{grid-template-columns:1fr}
+  .cs-phone{max-width:430px;margin:0 auto}
+  .spec{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:900px){
+  .nav-links{position:fixed;inset:0;background:rgba(4,5,7,.97);backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px);flex-direction:column;justify-content:center;gap:22px;
+    opacity:0;visibility:hidden;transition:opacity .45s var(--ease),visibility .45s;z-index:10000}
+  .nav-links.open{opacity:1;visibility:visible}
+  .nav-links a{font-family:var(--disp);font-size:1.15rem;font-weight:600;letter-spacing:.04em}
+  .nav-menu{display:flex}
+  .cs-stamp{position:static;display:inline-block;transform:rotate(-3deg);margin:-10px 0 14px}
+  .cs-hl-grid{grid-template-columns:1fr}
+  .p-next{grid-template-columns:1fr}
+  .od-policy-row{grid-template-columns:1fr;gap:8px}
+  .noise{opacity:.05}
+  #nav.scrolled{background:rgba(5,6,8,.97)}
+}
+@media(max-width:700px){
+  .cs-cta .btn-red,.cs-cta .btn-ghost,.p-actions .btn-red,.p-actions .btn-ghost{flex:1;justify-content:center}
+  .od-row{flex-wrap:wrap;gap:8px}
+  .od-row .r-km{margin-left:0}
+  .od-phone{min-width:0}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;
+    transition-duration:.01ms!important}
+  [data-reveal]{opacity:1;transform:none}
+  html{scroll-behavior:auto}
+  .cs-phone,.cs-caret{animation:none}
+  .cs-phone-frame{transition:none}
+}
+
+
+  </style>
+
+  <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "One Drop — A Drop of Life",
+    "applicationCategory": "HealthApplication",
+    "operatingSystem": "Web (PWA · installable)",
+    "url": "https://onedropndc.github.io/",
+    "description": "Volunteer blood-donor network for Bangladesh: search verified donors by blood group, district and distance, and post emergency blood requests that alert the whole network. Idea & initiative: Notre Dame College Batch 27. Developed by Foysal Mahmud.",
+    "author": { "@type": "Person", "name": "Foysal Mahmud", "url": "https://foysalcyber.github.io/" },
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "BDT" },
+    "isAccessibleForFree": true,
+    "keywords": "blood donation, blood donor directory, emergency blood request, Bangladesh, Notre Dame College, PWA, Firebase, Foysal Mahmud"
+  }
+  </script>
+</head>
+<body>
+<div id="progress"></div>
+<div class="noise"></div>
+<div class="scanline"></div>
+<div class="vignette"></div>
+<div class="bloom"></div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     ONE DROP — CASE FILE № 121   (launched as /projects/onedrop.html)
+     ═══════════════════════════════════════════════════════════════ -->
+<nav id="nav">
+  <a href="../index.html" class="nav-brand"><span class="nb-tilde">~</span><span class="nb-slash">/</span><span class="nb-name">foysal</span><span class="nb-cur">_</span></a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="../index.html#projects">← Dossier</a></li>
+    <li><a href="#demo">Try the Matcher</a></li>
+    <li><a href="#highlights">Highlights</a></li>
+    <li><a href="#privacy">Privacy Model</a></li>
+    <li><a href="meal-ledger.html">Meal Ledger</a></li>
+    <li><a href="../index.html#contact">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="https://onedropndc.github.io/" target="_blank" rel="noopener" class="nav-cta">Live Site</a>
+    <button class="nav-menu" id="navMenu" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<header class="p-hero">
+  <a href="../index.html#projects" class="p-back"><i class="fa-solid fa-arrow-left"></i> back to the dossier — File 00</a>
+  <div class="p-eyebrow" data-reveal><span class="pulse-dot"></span>File 121 // Deployment — Live in Production</div>
+  <h1 class="p-title" data-reveal data-text="ONE DROP">
+    When every minute counts,<br><span class="serif-accent">someone nearby says yes</span>
+  </h1>
+  <p class="p-sub" data-reveal>
+    <b>One Drop</b> is a volunteer blood-donor network for Bangladesh — a student initiative of Notre Dame College,
+    Batch 27. A family posts an emergency, the board counts down live, and matching donors surface
+    <b>nearest-first by blood group, district and distance</b>. I designed and built the whole platform:
+    the donor directory, the emergency board, the moderation workspace and the privacy model behind all of it.
+  </p>
+  <div class="cs-chips" data-reveal>
+    <span class="cs-chip live"><span class="pulse-dot"></span>LIVE IN PRODUCTION</span>
+    <span class="cs-chip">PWA · OFFLINE-FIRST</span>
+    <span class="cs-chip">FIREBASE + FIRESTORE</span>
+    <span class="cs-chip">ZERO FRAMEWORK</span>
+    <span class="cs-chip">70 AUTOMATED CHECKS</span>
+    <span class="cs-chip">FREE FOREVER</span>
+  </div>
+  <div class="p-actions" data-reveal>
+    <a href="https://onedropndc.github.io/" target="_blank" rel="noopener" class="btn-red"><i class="fa-solid fa-droplet"></i> Open One Drop Live</a>
+    <a href="https://github.com/onedropndc/onedropndc.github.io" target="_blank" rel="noopener" class="btn-ghost"><i class="fa-brands fa-github"></i> Read the Source</a>
+    <a href="#demo" class="btn-ghost"><i class="fa-solid fa-vial"></i> Try the Matcher</a>
+  </div>
+  <div class="spec" data-reveal>
+    <div class="spec-cell"><span>Role</span><b>Product design · front-end · Firestore rules · moderation flow</b></div>
+    <div class="spec-cell"><span>Stack</span><b>Vanilla HTML/CSS/ES modules · Firebase auth · Cloud Firestore · GitHub Pages</b></div>
+    <div class="spec-cell"><span>Status</span><b class="ok">Live · installable PWA · student-run</b></div>
+    <div class="spec-cell"><span>Scale today</span><b>8 blood groups · 12 districts · every request carries a countdown</b></div>
+  </div>
+</header>
+
+<!-- ═══ TICKER ═══ -->
+<div class="s tight" style="padding-bottom:0">
+  <div class="cs-ticker" data-reveal>
+    <div class="cs-ticker-bar"><span></span><span></span><span></span><em>donor-net · live matching feed · simulated for this page</em></div>
+    <div class="cs-ticker-line"><span class="cs-tk-prompt">▸ </span><span id="odTickerTxt"></span><span class="cs-caret"></span></div>
+  </div>
+</div>
+
+<!-- ═══ MOCKUP + STORY ═══ -->
+<section id="story">
+  <div class="s">
+    <div class="cs-wrap">
+      <!-- PHONE MOCKUP — replica of the live interface -->
+      <div class="cs-phone" data-reveal="left">
+        <div class="cs-phone-frame">
+          <div class="cs-notch"></div>
+          <button class="cs-replay" id="odReplay" title="Replay boot sequence" aria-label="Replay boot sequence">↺ replay boot</button>
+          <div class="cs-screen">
+            <div class="cs-app-head">
+              <img src="https://onedropndc.github.io/assets/img/logo-drop.png" alt="One Drop logo" loading="lazy" decoding="async">
+              <div><b>ONE DROP</b><span>DONOR NETWORK · NDC B27</span></div>
+              <em class="cs-live-pill">LIVE</em>
+            </div>
+
+            <div class="od-groups" id="odGroups">
+              <button class="od-g" data-g="A+">A+<em>12</em></button>
+              <button class="od-g" data-g="A−">A−<em>7</em></button>
+              <button class="od-g" data-g="B+">B+<em>9</em></button>
+              <button class="od-g" data-g="B−">B−<em>4</em></button>
+              <button class="od-g" data-g="AB+">AB+<em>3</em></button>
+              <button class="od-g" data-g="AB−">AB−<em>1</em></button>
+              <button class="od-g" data-g="O+">O+<em>8</em></button>
+              <button class="od-g sel" data-g="O−">O−<em>4</em></button>
+            </div>
+
+            <div class="cs-tiles">
+              <div class="cs-tile"><span>AVAILABLE DONORS</span><b>48</b></div>
+              <div class="cs-tile red"><span>OPEN REQUESTS</span><b>6</b></div>
+              <div class="cs-tile"><span>DISTRICTS COVERED</span><b>12</b></div>
+              <div class="cs-tile ok"><span>REVEALS LEFT / HR</span><b>25</b></div>
+            </div>
+
+            <div class="od-board">
+              <div class="od-board-head"><b>◉ LIVE EMERGENCY BOARD</b><em>real-time</em></div>
+              <div class="od-req">
+                <div class="od-req-top"><b>O−</b><span>Dhaka Medical College Hospital</span><span class="od-cd" id="odCd">01:42:18</span></div>
+                <div class="od-bar"><i id="odBar"></i></div>
+                <div class="od-req-meta"><span>4 donors matched</span><span>nearest 1.4 km</span><span>alerted ✓</span></div>
+              </div>
+            </div>
+
+            <div class="od-donor-list">
+              <div>
+                <div class="od-d-head"><b>Rakib H.</b><span class="od-badge">O−</span><em>1.4 km</em></div>
+                <div class="od-d-meta"><b>Dhanmondi · Dhaka</b><span class="od-lock">01•••-•••52</span></div>
+              </div>
+              <div>
+                <div class="od-d-head"><b>Tanvir A.</b><span class="od-badge">O−</span><em>2.9 km</em></div>
+                <div class="od-d-meta"><b>Mohammadpur · Dhaka</b><span class="od-lock">01•••-•••18</span></div>
+              </div>
+              <div>
+                <div class="od-d-head"><b>Sadia K.</b><span class="od-badge">O+</span><em>4.3 km</em></div>
+                <div class="od-d-meta"><b>Mirpur · Dhaka</b><span class="od-lock">01•••-•••77</span></div>
+              </div>
+            </div>
+
+            <div class="od-priv">
+              numbers never in the markup · <b>25 reveals / hour</b> · no sign-up to search · works offline once installed
+            </div>
+          </div>
+        </div>
+        <div class="hw" style="text-align:center;margin-top:14px;transform:rotate(-1.2deg)">
+          ↑ the real interface — tap a blood group, then run the matcher below
+        </div>
+      </div>
+
+      <!-- STORY + DEMO -->
+      <div class="cs-content">
+        <div class="cs-act" data-reveal>
+          <div class="cs-act-label">// THE PROBLEM</div>
+          <p>
+            In an emergency, finding blood in Bangladesh still runs on Facebook groups and phone trees.
+            A family learns at 9 pm that a parent needs O− by morning, then starts calling strangers from a
+            screenshot three months old. <b>Lists go stale, donors sit 40 km away when a match lives on the next
+            street, and phone numbers are posted in public</b> — which is exactly why many willing donors quietly
+            stop listing themselves at all.
+          </p>
+        </div>
+        <div class="cs-act" data-reveal>
+          <div class="cs-act-label">// THE APPROACH</div>
+          <p>
+            I built it the way a security engineer builds anything: <b>store the minimum, verify what you show,
+            and let the rules — not the interface — enforce the boundary</b>. Anonymous Firebase sessions mean a
+            donor never hands over an email or a password. Every listing is bound to its own UID, and Firestore
+            rules allow writes only to your own record, over an allowlisted field set.
+            <b>Phone numbers are never rendered in the directory markup</b>: they are fetched on demand, one tap at
+            a time, and every browser is capped at 25 reveals an hour. Matching is distance-first, with the
+            district centroid as an honest fallback when GPS is denied.
+          </p>
+        </div>
+        <div class="cs-act" data-reveal>
+          <div class="cs-act-label">// THE RESULT</div>
+          <p>
+            A live, installable PWA that the whole network can use with zero onboarding:
+            <b>search without signing up, alert volunteers within seconds, and a moderation workspace where
+            moderators can approve, verify and publish — but never delete or edit a record</b>. That limit lives in
+            the security rules, not in a hidden button. Seventy automated checks run against a local server with
+            <b>every Google host blocked</b>, so the offline path, the demo dataset and the privacy guarantees are
+            proven on each change — and nothing in the test suite ever touches the live project.
+          </p>
+        </div>
+
+        <div class="cs-hl-grid" data-reveal>
+          <div class="cs-hl"><i class="fa-solid fa-droplet"></i><b>Group + distance matching</b><span>Search by blood group, filter by district, sort by distance — nearest possible help surfaces first, with the compatibility chart one tap away.</span></div>
+          <div class="cs-hl"><i class="fa-solid fa-tower-broadcast"></i><b>Live emergency board</b><span>Realtime listeners keep requests on screen the second they are posted, each with its own countdown and an honest status flow: active → fulfilled → cancelled / expired.</span></div>
+          <div class="cs-hl"><i class="fa-solid fa-user-shield"></i><b>Privacy by default</b><span>No number in the markup, no number in a screenshot. Reveal is per-tap, rate-limited to 25/hour per browser, and GPS stays optional.</span></div>
+          <div class="cs-hl"><i class="fa-solid fa-scale-balanced"></i><b>Rules-enforced moderation</b><span>Owner vs moderator split with <code>changedOnly()</code> field restrictions and an audit trail — a moderator account physically cannot delete a donor.</span></div>
+          <div class="cs-hl"><i class="fa-solid fa-mobile-screen-button"></i><b>Offline-first PWA</b><span>Versioned app-shell cache, a dedicated offline page, home-screen install, and a clearly-marked demo dataset instead of a blank screen when Firestore is unreachable.</span></div>
+          <div class="cs-hl"><i class="fa-solid fa-file-shield"></i><b>No surveillance</b><span>No third-party analytics, no ads, no cookies. One anonymous analytics write per visitor per day, and a public privacy policy that says exactly what is stored — and what never is.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ INTERACTIVE MATCHER ═══ -->
+<section id="demo">
+  <div class="s tight">
+    <div class="s-tag" data-reveal>File 121 · Interactive // The matcher</div>
+    <div class="s-h" data-reveal>Find a donor <span class="serif-accent">in three taps</span></div>
+    <p class="cs-sub" data-reveal>
+      This is the live matching logic — group compatibility, district filter, nearest-first ordering and the
+      reveal rate-limit — running on a <b>simulated dataset</b>. No real donor appears on this page.
+    </p>
+
+    <div class="cs-demo" data-reveal>
+      <div class="cs-demo-head">
+        <i class="fa-solid fa-droplet" style="color:var(--red)"></i>
+        <div><b>TRY THE MATCHER</b><span>// same rules as donors.html · simulated donors</span></div>
+      </div>
+      <div class="cs-demo-row">
+        <div class="cs-demo-label">PATIENT NEEDS</div>
+        <div class="cs-chip-row" id="odNeed">
+          <button class="cs-wd" data-g="A+">A+</button>
+          <button class="cs-wd" data-g="A−">A−</button>
+          <button class="cs-wd" data-g="B+">B+</button>
+          <button class="cs-wd" data-g="B−">B−</button>
+          <button class="cs-wd" data-g="AB+">AB+</button>
+          <button class="cs-wd" data-g="AB−">AB−</button>
+          <button class="cs-wd" data-g="O+">O+</button>
+          <button class="cs-wd sel" data-g="O−">O−</button>
+        </div>
+      </div>
+      <div class="cs-demo-row">
+        <div class="cs-demo-label">HOSPITAL DISTRICT</div>
+        <div class="cs-chip-row" id="odDist">
+          <button class="cs-wd sel" data-d="Dhaka">DHAKA</button>
+          <button class="cs-wd" data-d="Gazipur">GAZIPUR</button>
+          <button class="cs-wd" data-d="Narayanganj">NARAYANGANJ</button>
+          <button class="cs-wd" data-d="Chattogram">CHATTOGRAM</button>
+          <button class="cs-wd" data-d="Sylhet">SYLHET</button>
+          <button class="cs-wd" data-d="Khulna">KHULNA</button>
+          <button class="cs-wd" data-d="Rajshahi">RAJSHAHI</button>
+          <button class="cs-wd" data-d="Cumilla">CUMILLA</button>
+        </div>
+      </div>
+      <div class="cs-demo-row">
+        <div class="cs-demo-label">MATCH MODE</div>
+        <div class="cs-chip-row" id="odMode">
+          <button class="cs-wd sel" data-m="exact">EXACT GROUP</button>
+          <button class="cs-wd" data-m="compat">COMPATIBLE DONORS</button>
+        </div>
+      </div>
+
+      <div class="od-out" id="odOut"></div>
+      <div class="od-rows" id="odRows"></div>
+
+      <div class="od-meter" id="odMeter">
+        <span>CONTACT REVEALS</span>
+        <div class="mbar"><i id="odMeterBar"></i></div>
+        <span><b id="odMeterNum">25</b> / 25 left this hour</span>
+      </div>
+      <div class="cs-note hw">demo numbers are placeholders — the live site reveals a real number only after an explicit tap.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ HIGHLIGHTS + PRIVACY MODEL ═══ -->
+<section id="highlights">
+  <div class="s tight">
+    <div class="s-tag" data-reveal>File 121 · Build Notes</div>
+    <div class="s-h" data-reveal>Engineering <span class="serif-accent">decisions</span></div>
+
+    <div class="od-policy" data-reveal>
+      <div class="od-policy-row">
+        <b>Identity</b>
+        <p>Anonymous Firebase sessions: a donor can list themselves, edit their listing and log a donation without ever creating an account. The listing is scoped to that anonymous <code>uid</code>, so <code>my-donor.html</code> can only ever touch its own record.</p>
+      </div>
+      <div class="od-policy-row">
+        <b>Read vs reveal</b>
+        <p>The directory query returns name, group, district and an approximate distance — never a phone number. Contact is a separate, deliberate action: one tap, one number, <b>25 an hour per browser</b>, which is what keeps scrapers and spam out of the network.</p>
+      </div>
+      <div class="od-policy-row">
+        <b>Authorisation</b>
+        <p>Moderation is a role, not a UI state. Moderators can approve requests, verify donors and publish notices, restricted by <code>changedOnly(...)</code> so nothing else in a document can be modified. Deletes belong to the owner account alone — and the rules are published in the repo, so anyone can audit them.</p>
+      </div>
+      <div class="od-policy-row">
+        <b>Location</b>
+        <p>GPS is optional and never shared raw. The public UI shows only a distance; without GPS the app falls back to the district centroid, which is honest about its accuracy instead of pretending to be precise.</p>
+      </div>
+      <div class="od-policy-row">
+        <b>Failure modes</b>
+        <p>If Firestore cannot be reached, the app keeps working from cache; if there is no cache at all, a clearly-labelled demo dataset renders so a visitor is never met with an empty page — and never mistakes demo data for a real donor.</p>
+      </div>
+      <div class="od-policy-row">
+        <b>Measurements</b>
+        <p>Daily counters (visits, requests posted, registrations) are written anonymously — one write per visitor per day. No third-party analytics, no ad pixels, no cookie banner, because there is nothing to consent to. Requests queued offline sync when the connection returns.</p>
+      </div>
+    </div>
+
+    <div class="cs-tests" data-reveal>
+      <div class="cs-tests-bar"><span></span><span></span><span></span><em>foysal@kali:~/onedrop — npm test (all Google hosts blocked)</em></div>
+      <pre class="cs-tests-out">▶ tests/e2e.js — <b>51 checks passing</b>
+  ✔ directory never renders a phone number
+  ✔ the 26th "Show contact" within an hour is refused
+  ✔ compatibility chart matches the blood-bank matrix
+  ✔ demo dataset renders when Firestore is unreachable
+  ✔ emergency board sorts by distance, then newest
+  ✔ first-time visitor is never shown an empty page
+▶ tests/admin.e2e.js — <b>19 checks passing</b>
+  ✔ anonymous visitor is bounced from the dashboard
+  ✔ moderator cannot delete or edit an existing donor
+  ✔ approve · verify · publish actions write the audit trail
+<b class="cs-tests-ok">Checks 70 · Failures 0 · nothing touched the live project ✓</b></pre>
+    </div>
+
+    <div class="p-actions" data-reveal>
+      <a href="https://onedropndc.github.io/donors.html" target="_blank" rel="noopener" class="btn-red"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open the Donor Directory</a>
+      <a href="https://onedropndc.github.io/emergency.html" target="_blank" rel="noopener" class="btn-ghost"><i class="fa-solid fa-tower-broadcast"></i> See the Emergency Board</a>
+      <a href="https://github.com/onedropndc/onedropndc.github.io/blob/main/firestore.rules" target="_blank" rel="noopener" class="btn-ghost"><i class="fa-solid fa-scale-balanced"></i> Read the Security Rules</a>
+    </div>
+
+    <p class="cs-sub" data-reveal style="margin-top:26px">
+      <b>Credits &amp; licence.</b> The idea and initiative belong to the students of <b>Notre Dame College, Batch 27</b>
+      (Group 11); I developed the platform end to end. It is free to adapt for non-commercial, voluntary blood-donation
+      work — the credits just have to stay. One donation can help up to three patients, which is the only metric on this
+      page that actually matters.
+    </p>
+  </div>
+</section>
+
+<!-- ═══ NEXT ═══ -->
+<section id="next">
+  <div class="s tight">
+    <div class="p-next" data-reveal>
+      <a href="meal-ledger.html">
+        <span>Case file № 120 ▸</span>
+        <b>Meal Ledger — a billing engine that cannot lie</b>
+        <em>The other live deployment: integer-paisa accounting, a locked hostel rulebook and 20 tests guarding the math.</em>
+      </a>
+      <a href="../index.html#projects">
+        <span>Back to ▸</span>
+        <b>File 00 — Deployments showcase</b>
+        <em>Both live projects in short form, plus the rest of the dossier: services, field records and contact.</em>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="f-signoff">built so a stranger can answer the phone in time<span> — f.</span></div>
+  <div class="f-brand">FOYSAL<span>.</span>MAHMUD</div>
+  <div class="f-copy">
+    © 2026 Foysal Mahmud · All rights reserved<br>
+    <span style="opacity:.7">One Drop · developed for the Notre Dame College Batch 27 initiative · Dhaka, BD</span>
+  </div>
+  <div class="f-socials">
+    <a href="https://www.facebook.com/foysal1627githubio" target="_blank" rel="noopener" aria-label="Facebook"><i class="fa-brands fa-facebook"></i></a>
+    <a href="https://wa.me/8801778866172" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+    <a href="https://instagram.com/foysal_1627" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+    <a href="https://github.com/foysalcyber" target="_blank" rel="noopener" aria-label="GitHub"><i class="fa-brands fa-github"></i></a>
+  </div>
+</footer>
+
+
+<script>
+/* ═══ SHARED PAGE JS — chrome · reveals · nav (both case-file pages) ═══ */
+(function(){
+  var RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ── scroll progress ── */
+  var bar=document.getElementById('progress');
+  if(bar){
+    var tick=false;
+    var upd=function(){
+      tick=false;
+      var h=document.documentElement.scrollHeight-innerHeight;
+      bar.style.width=(h>0?(scrollY/h)*100:0)+'%';
+    };
+    addEventListener('scroll',function(){if(!tick){tick=true;requestAnimationFrame(upd)}},{passive:true});
+    upd();
+  }
+
+  /* ── reveal on scroll ── */
+  var els=document.querySelectorAll('[data-reveal]');
+  if(!('IntersectionObserver' in window)){
+    els.forEach(function(e){e.classList.add('in')});
+  }else{
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){
+        if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}
+      });
+    },{threshold:.12,rootMargin:'0px 0px -7% 0px'});
+    els.forEach(function(e){io.observe(e)});
+  }
+
+  /* ── nav state + mobile menu ── */
+  var nav=document.getElementById('nav'),menu=document.getElementById('navMenu'),links=document.getElementById('navLinks');
+  var onScroll=function(){if(nav)nav.classList.toggle('scrolled',scrollY>40)};
+  addEventListener('scroll',onScroll,{passive:true});onScroll();
+  if(menu&&links){
+    menu.addEventListener('click',function(){
+      var open=links.classList.toggle('open');
+      menu.classList.toggle('open',open);
+      document.body.style.overflow=open?'hidden':'';
+    });
+    links.querySelectorAll('a').forEach(function(a){
+      a.addEventListener('click',function(){
+        links.classList.remove('open');menu.classList.remove('open');document.body.style.overflow='';
+      });
+    });
+  }
+
+  /* ── magnetic primary buttons ── */
+  if(!RM&&!matchMedia('(pointer:coarse)').matches){
+    document.querySelectorAll('.btn-red,.nav-cta').forEach(function(b){
+      var mx=0,my=0;
+      b.addEventListener('pointermove',function(e){
+        var r=b.getBoundingClientRect();
+        mx=((e.clientX-r.left)/r.width-.5)*9;
+        my=((e.clientY-r.top)/r.height-.5)*7;
+        b.style.transform='translate('+mx+'px,'+my+'px)';
+      });
+      b.addEventListener('pointerdown',function(){b.style.transform='translate('+mx+'px,'+my+'px) scale(.955)'});
+      b.addEventListener('pointerup',function(){b.style.transform='translate('+mx+'px,'+my+'px)'});
+      b.addEventListener('pointerleave',function(){b.style.transform=''});
+    });
+  }
+
+  /* ── device tilt on phone mockups ── */
+  if(!RM&&matchMedia('(pointer:fine)').matches){
+    document.querySelectorAll('.cs-phone').forEach(function(ph){
+      var frame=ph.querySelector('.cs-phone-frame'),raf=0,tx=0,ty=0;
+      if(!frame)return;
+      var apply=function(){raf=0;frame.style.transform='perspective(950px) rotateX('+tx.toFixed(2)+'deg) rotateY('+ty.toFixed(2)+'deg)';};
+      ph.addEventListener('mousemove',function(e){
+        var r=ph.getBoundingClientRect();
+        ty=((e.clientX-r.left)/r.width-.5)*9;
+        tx=-((e.clientY-r.top)/r.height-.5)*7;
+        if(!raf)raf=requestAnimationFrame(apply);
+      },{passive:true});
+      ph.addEventListener('mouseleave',function(){tx=0;ty=0;if(!raf)raf=requestAnimationFrame(apply);});
+    });
+  }
+})();
+
+</script>
+<script>
+/* ═══ ONE DROP PAGE — live ticker · boot sequence · countdown · matcher ═══ */
+(function(){
+  var RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ─────────────── ticker feed ─────────────── */
+  var LINES=[
+    'REQUEST ▸ O− · Dhaka Medical College Hospital · posted 12 min ago → 4 donors alerted · nearest 1.4 km ✓',
+    'MATCH   ▸ A+ · Chattogram · 3 compatible donors within 9 km · 1 contact revealed (24 left this hour)',
+    'BOARD   ▸ 6 requests open · 2 fulfilled today · 48 donors currently available across 12 districts',
+    'PRIVACY ▸ 0 phone numbers rendered in the directory markup — asserted by an automated check on every deploy ✓',
+    'OFFLINE ▸ app shell cached · last sync 2 min ago · demo dataset appears only when Firestore is unreachable',
+    'RULES   ▸ a moderator account can approve, verify and publish — but never delete or edit a record'
+  ];
+  var tEl=document.getElementById('odTickerTxt');
+  if(tEl){
+    var li=0,ci=0,iv=null,to=null;
+    var stop=function(){clearInterval(iv);clearTimeout(to);iv=null;to=null;};
+    var step=function(){
+      var cur=LINES[li];ci+=2;tEl.textContent=cur.slice(0,ci);
+      if(ci>=cur.length){
+        clearInterval(iv);iv=null;
+        to=setTimeout(function(){li=(li+1)%LINES.length;ci=0;tEl.textContent='';iv=setInterval(step,26);},1700);
+      }
+    };
+    var start=function(){if(iv||to||RM)return;iv=setInterval(step,26);};
+    if(RM){
+      tEl.textContent=LINES[0];
+    }else if('IntersectionObserver' in window){
+      new IntersectionObserver(function(es){
+        es.forEach(function(e){e.isIntersecting?start():stop()});
+      },{threshold:.15}).observe(tEl);
+    }else tEl.textContent=LINES[0];
+  }
+
+  /* ─────────────── emergency-board countdown ─────────────── */
+  var cd=document.getElementById('odCd'),bar=document.getElementById('odBar');
+  if(cd){
+    var TOTAL=6138,t0=Date.now();
+    var fmt=function(s){
+      var h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;
+      return (h<10?'0':'')+h+':'+(m<10?'0':'')+m+':'+(x<10?'0':'')+x;
+    };
+    var tick=function(){
+      var left=TOTAL-Math.floor((Date.now()-t0)/1000);
+      if(left<=0){
+        cd.textContent='FULFILLED ✓';cd.style.color='#3ddc84';
+        if(bar)bar.style.width='100%';
+        t0=Date.now()+TOTAL*1000;                     /* loop for the demo */
+        setTimeout(function(){cd.style.color='';},4000);
+        return;
+      }
+      cd.textContent=fmt(left);
+      if(bar)bar.style.width=Math.max(4,(left/TOTAL)*100).toFixed(1)+'%';
+    };
+    tick();setInterval(tick,1000);
+  }
+
+  /* ─────────────── phone boot sequence ─────────────── */
+  var scr=document.querySelector('.cs-screen');
+  if(scr){
+    var play=function(){
+      scr.classList.remove('boot');void scr.offsetWidth;
+      var cells=scr.querySelectorAll('.cal-cell');
+      for(var i=0;i<cells.length;i++)cells[i].style.animationDelay=(520+i*26)+'ms';
+      scr.classList.add('boot');
+    };
+    var rp=document.getElementById('odReplay');
+    if(rp)rp.addEventListener('click',function(e){e.stopPropagation();play();});
+    if(RM||!('IntersectionObserver' in window)){
+      play();
+    }else{
+      scr.classList.add('preboot');
+      var io=new IntersectionObserver(function(es){
+        es.forEach(function(e){if(e.isIntersecting){io.disconnect();play();}});
+      },{threshold:.5,rootMargin:'0px 0px -6% 0px'});
+      io.observe(scr);
+    }
+  }
+
+  /* ─────────────── the matcher ─────────────── */
+  var out=document.getElementById('odOut'),rows=document.getElementById('odRows');
+  if(!out||!rows)return;
+
+  var GROUPS=['O−','O+','A−','A+','B−','B+','AB−','AB+'];
+  var RECV={                                  /* recipient ← compatible donors */
+    'O−':['O−'],'O+':['O−','O+'],
+    'A−':['O−','A−'],'A+':['O−','O+','A−','A+'],
+    'B−':['O−','B−'],'B+':['O−','O+','B−','B+'],
+    'AB−':['O−','A−','B−','AB−'],'AB+':GROUPS.slice()
+  };
+  var AREAS={
+    Dhaka:['Dhanmondi','Mirpur','Uttara','Mohammadpur','Badda','Motijheel','Tejgaon'],
+    Gazipur:['Tongi','Board Bazar','Joydebpur','Konabari','Chandana'],
+    Narayanganj:['Siddhirganj','Fatullah','Rupganj','Sonargaon','Araihazar'],
+    Chattogram:['Agrabad','GEC Circle','Halishahar','Pahartali','Nasirabad'],
+    Sylhet:['Zindabazar','Ambarkhana','Tilagarh','Shibganj','Subid Bazar'],
+    Khulna:['Sonadanga','Khalishpur','Daulatpur','Boyra','Khan Jahan Ali'],
+    Rajshahi:['Shaheb Bazar','Uposhohor','Kazla','Boalia','Motihar'],
+    Cumilla:['Kandirpar','Laksam','Chauddagram','Debidwar','Sadar']
+  };
+  var NAMES=['Rakib H.','Tanvir A.','Sadia K.','Nusrat J.','Arif M.','Mehedi S.','Farhana R.','Shakib I.',
+             'Tahmid R.','Sumaiya A.','Imran K.','Jannatul F.','Rifat H.','Mahmuda B.','Ashikur R.','Nabila T.'];
+
+  var LIMIT=25;
+  var st={g:'O−',d:'Dhaka',m:'exact',left:LIMIT};
+
+  var hash=function(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;};
+  var rnd=function(seed){var x=seed>>>0||1;return function(){x^=x<<13;x>>>=0;x^=x>>>17;x^=x<<5;x>>>=0;return x/4294967296;};};
+
+  /* deterministic roster: every district has the same donors on every visit */
+  var roster=function(d){
+    var r=rnd(hash('onedrop|'+d)),list=[];
+    GROUPS.forEach(function(g){
+      var n=2+Math.floor(r()*4);                       /* 2–5 donors per group */
+      for(var i=0;i<n;i++){
+        var op='3456789'[Math.floor(r()*7)];
+        var digits='';
+        for(var k=0;k<8;k++)digits+=''+(Math.floor(r()*10));
+        list.push({
+          g:g,
+          name:NAMES[Math.floor(r()*NAMES.length)],
+          area:AREAS[d][Math.floor(r()*AREAS[d].length)],
+          km:+(0.6+r()*13.8).toFixed(1),
+          last:1+Math.floor(r()*9),
+          num:'01'+op+digits                    /* full number exists only in the dataset — never rendered until tapped */
+        });
+      }
+    });
+    return list.sort(function(a,b){return a.km-b.km;});
+  };
+
+  var cache={};
+  var getRoster=function(d){return cache[d]||(cache[d]=roster(d));};
+
+  /* the directory renders only the masked form; the full number appears after an explicit tap */
+  var maskPhone=function(n){return '01•••-•••'+n.slice(-3)};
+  var showPhone=function(n){return n.slice(0,5)+'-'+n.slice(5)};
+
+  function render(){
+    var allowed = st.m==='exact' ? [st.g] : RECV[st.g];
+    var pool=getRoster(st.d).filter(function(x){return allowed.indexOf(x.g)>-1;});
+    var shown=[],seen={};
+    pool.forEach(function(x){
+      if(shown.length<6 && !seen[x.name]){seen[x.name]=1;shown.push(x);}
+    });
+    var nearest=shown.length?shown[0].km:'—';
+    var furthest=shown.length?shown[shown.length-1].km:'—';
+
+    out.innerHTML=
+      '<span class="o-h">PATIENT</span>       '+st.g+'   ← '+
+        (st.d==='Dhaka'?'Dhaka Medical College Hospital':(st.d+' Medical College Hospital'))+', '+st.d.toUpperCase()+'<br>'+
+      '<span class="o-h">MODE</span>          '+(st.m==='exact'
+        ? 'exact group  ·  donors with <span class="o-red">'+st.g+'</span> only'
+        : 'compatible donors  ·  can receive from <span class="o-ok">'+RECV[st.g].join(' ')+'</span>')+'<br>'+
+      '<span class="o-h">MATCHED</span>       <b>'+pool.length+'</b> donor'+(pool.length===1?'':'s')+' in '+st.d+
+        ' · nearest <span class="o-ok">'+nearest+' km</span> · furthest '+furthest+' km<br>'+
+      '<span class="o-h">SORT</span>          distance ↑ then newest  ·  showing '+shown.length+
+        ' of '+pool.length+'  <span class="o-dim">(rows capped for the demo)</span><br>'+
+      '<span class="o-h">CONTACT</span>       hidden until tapped · <span class="o-red">'+st.left+'/'+LIMIT+
+        '</span> reveals left this hour<br>'+
+      '<span class="o-dim">// simulated dataset — the live site queries real volunteers. in an emergency the blood bank always has the final word.</span>';
+
+    rows.innerHTML=shown.map(function(x,i){
+      return '<div class="od-row" style="animation-delay:'+(i*55)+'ms">'+
+        '<span class="r-name">'+x.name+'</span>'+
+        '<span class="r-g">'+x.g+'</span>'+
+        '<span class="r-loc">'+x.area+' · donated '+x.last+' mo ago</span>'+
+        '<span class="r-km">'+x.km.toFixed(1)+' km</span>'+
+        '<span class="od-phone hidden" data-num="'+x.num+'">'+maskPhone(x.num)+'</span>'+
+        '<button class="od-ask"'+(st.left<=0?' disabled':'')+'>'+(st.left<=0?'COOL-DOWN':'Show contact')+'</button>'+
+      '</div>';
+    }).join('') || '<div class="od-row"><span class="r-loc">no donor of that group is listed in this district yet — the real app would widen the radius and show you the nearest other district.</span></div>';
+
+    var mNum=document.getElementById('odMeterNum'),mBar=document.getElementById('odMeterBar'),mWrap=document.getElementById('odMeter');
+    if(mNum)mNum.textContent=st.left;
+    if(mBar)mBar.style.width=(st.left/LIMIT*100)+'%';
+    if(mWrap)mWrap.classList.toggle('low',st.left<=5);
+  }
+
+  /* reveal = one tap, one number, hard cap */
+  rows.addEventListener('click',function(e){
+    var btn=e.target.closest('.od-ask');
+    if(!btn||btn.disabled)return;
+    var row=btn.closest('.od-row'),ph=row.querySelector('.od-phone');
+    if(!ph||ph.classList.contains('shown'))return;
+    if(st.left<=0)return;
+    st.left--;
+    ph.textContent=showPhone(ph.dataset.num);
+    ph.classList.add('shown');ph.classList.remove('hidden');
+    btn.textContent='Revealed ✓';btn.disabled=true;
+    if(st.left<=0){
+      out.insertAdjacentHTML('beforeend',
+        '<br><span class="o-red">RATE LIMIT · 25 reveals used this hour — the live app refuses the 26th until the window resets.</span>');
+      rows.querySelectorAll('.od-ask:not([disabled])').forEach(function(b){b.disabled=true;b.textContent='COOL-DOWN';});
+    }
+    var mNum=document.getElementById('odMeterNum'),mBar=document.getElementById('odMeterBar'),mWrap=document.getElementById('odMeter');
+    if(mNum)mNum.textContent=st.left;
+    if(mBar)mBar.style.width=(st.left/LIMIT*100)+'%';
+    if(mWrap)mWrap.classList.toggle('low',st.left<=5);
+  });
+
+  /* controls */
+  var bind=function(sel,attr,key,after){
+    var wrap=document.querySelector(sel);
+    if(!wrap)return;
+    wrap.addEventListener('click',function(e){
+      var b=e.target.closest('button');
+      if(!b)return;
+      wrap.querySelectorAll('button').forEach(function(x){x.classList.remove('sel')});
+      b.classList.add('sel');
+      st[key]=b.dataset[attr];
+      if(after)after();
+      render();
+    });
+  };
+  bind('#odNeed','g','g');
+  bind('#odDist','d','d');
+  bind('#odMode','m','m');
+
+  /* the mockup's group chips drive the same state */
+  var mock=document.getElementById('odGroups');
+  if(mock){
+    mock.addEventListener('click',function(e){
+      var b=e.target.closest('.od-g');if(!b)return;
+      mock.querySelectorAll('.od-g').forEach(function(x){x.classList.remove('sel')});
+      b.classList.add('sel');
+      st.g=b.dataset.g;
+      var need=document.querySelectorAll('#odNeed .cs-wd');
+      need.forEach(function(x){x.classList.toggle('sel',x.dataset.g===st.g)});
+      render();
+      var d=document.getElementById('demo');
+      if(d){
+        var r=d.getBoundingClientRect();
+        if(r.top>innerHeight*.5||r.bottom<120){d.scrollIntoView({behavior:'smooth',block:'start'})}
+      }
+    });
+  }
+
+  render();
+})();
+
+</script>
+</body>
+</html>
