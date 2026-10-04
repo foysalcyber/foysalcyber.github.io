@@ -1,12 +1,12 @@
 /* ============================================================
-   Store — Firestore realtime data + Account (balance/due/advance)
+   Store — Firestore realtime data + simple monthly accounts
    ============================================================ */
 import {
   db, collection, doc, onSnapshot, setDoc, addDoc, updateDoc, deleteDoc,
   serverTimestamp, writeBatch, getDocs, query, where, getDoc
 } from "./firebase.js";
 import { COL, SETTINGS_DOC, DEFAULT_SETTINGS } from "./config.js";
-import { currentMonth, monthDiff, monthAdd } from "./utils.js";
+import { currentMonth, monthAdd } from "./utils.js";
 
 /* ---------------- State ---------------- */
 export const state = {
@@ -16,10 +16,10 @@ export const state = {
   payments: [],
   devices: [],
   settings: { ...DEFAULT_SETTINGS },
-  router: 'all',      // 'all' | 'A' | 'B'
+  router: 'A',          // 'A' | 'B'
   month: currentMonth(),
-  route: 'dashboard',
   search: '',
+  filter: 'all',        // all | unpaid | paid
   userEmail: ''
 };
 
@@ -33,18 +33,14 @@ export function startSync() {
   if (started) return;
   started = true;
 
-  // Settings (First run created automatically on first run)
   const sRef = doc(db, COL.settings, SETTINGS_DOC);
   getDoc(sRef).then(snap => {
-    if (!snap.exists()) {
-      return setDoc(sRef, { ...DEFAULT_SETTINGS, createdAt: serverTimestamp() });
-    }
-  }).catch(err => setError(err));
+    if (!snap.exists()) return setDoc(sRef, { ...DEFAULT_SETTINGS, createdAt: serverTimestamp() });
+  }).catch(setError);
 
   onSnapshot(sRef,
     snap => { if (snap.exists()) state.settings = { ...DEFAULT_SETTINGS, ...snap.data() }; emit(); },
-    err => setError(err)
-  );
+    setError);
 
   const bind = (name, key) => onSnapshot(
     collection(db, COL[name]),
@@ -53,7 +49,7 @@ export function startSync() {
       state.ready = true; state.error = null;
       emit();
     },
-    err => setError(err)
+    setError
   );
 
   bind('members', 'members');
@@ -69,115 +65,83 @@ function setError(err) {
 
 /* ---------------- Helpers ---------------- */
 export function routerName(id) {
-  if (id === 'all') return 'All routers';
   const r = (state.settings.routers || []).find(x => x.id === id);
   return r ? r.name : id;
 }
-export function routerBadgeClass(id) { return id === 'B' ? 'rb' : 'ra'; }
-export function feeOf(m) { return Number(m?.monthlyFee ?? state.settings.defaultFee) || 0; }
 
-export function inRouterFilter(item) {
-  return state.router === 'all' || item.routerId === state.router;
+/** Fixed monthly fee — same for everyone */
+export function fee() { return Number(state.settings.defaultFee) || 0; }
+
+export function devicesOf(memberId) {
+  return state.devices.filter(d => d.memberId === memberId);
 }
-export function filteredMembers() {
-  const q = state.search.trim().toLowerCase();
+
+/** Payment recorded for a member in a month (or null) */
+export function paymentFor(memberId, month) {
+  return state.payments.find(p => p.memberId === memberId && p.month === month) || null;
+}
+
+export function paidAmount(memberId, month) {
+  const p = paymentFor(memberId, month);
+  return p ? (Number(p.amount) || 0) : 0;
+}
+
+/** Members of a router, filtered by search + paid/unpaid filter, sorted by room */
+export function membersOf(opts = {}) {
+  const routerId = opts.router ?? state.router;
+  const month = opts.month ?? state.month;
+  const q = (state.search || '').trim().toLowerCase();
+
   return state.members
-    .filter(inRouterFilter)
-    .filter(m => !q || [m.name, m.room, m.phone, m.note].some(v => (v || '').toLowerCase().includes(q)))
-    .sort((a, b) => (a.room || '').localeCompare(b.room || '', 'en', { numeric: true }) || (a.name || '').localeCompare(b.name || '', 'en'));
+    .filter(m => (m.routerId || 'A') === routerId)
+    .filter(m => {
+      if (state.filter === 'paid') return !!paymentFor(m.id, month);
+      if (state.filter === 'unpaid') return !paymentFor(m.id, month);
+      return true;
+    })
+    .filter(m => !q || [m.name, m.room].some(v => (v || '').toLowerCase().includes(q)))
+    .sort((a, b) => String(a.room || '').localeCompare(String(b.room || ''), 'en', { numeric: true })
+      || String(a.name).localeCompare(String(b.name), 'en'));
 }
-export function filteredPayments() { return state.payments.filter(inRouterFilter); }
-export function filteredDevices() { return state.devices.filter(inRouterFilter); }
 
-export function memberById(id) { return state.members.find(m => m.id === id); }
-export function paymentsOf(id) {
-  return state.payments
-    .filter(p => p.memberId === id)
-    .sort((a, b) => ts(b.date) - ts(a.date) || String(b.month || '').localeCompare(String(a.month || '')));
-}
-export function devicesOf(id) { return state.devices.filter(d => d.memberId === id); }
-function ts(v) { return v?.toMillis ? v.toMillis() : (v ? new Date(v).getTime() : 0); }
-
-/* ---------------- Account ---------------- */
-/**
- * balance > 0  → advance / refundable
- * balance < 0  → Has due
- */
-export function memberStats(m) {
-  const fee = feeOf(m);
-  const now = currentMonth();
-  const start = m.startMonth || now;
-  let end = now;
-  if (m.active === false && m.endMonth) end = m.endMonth;
-  if (monthDiff(start, end) < 0) end = start;
-
-  const billedMonths = Math.max(0, monthDiff(start, end) + 1);
-  const billed = fee * billedMonths;
-
-  const pays = state.payments.filter(p => p.memberId === m.id);
-  let paid = 0, refunded = 0, waived = 0, advance = 0;
-  pays.forEach(p => {
-    const amt = Number(p.amount) || 0;
-    if (p.type === 'refund') refunded += amt;
-    else if (p.type === 'waiver') waived += amt;
-    else if (p.type === 'advance') { advance += amt; paid += amt; }
-    else paid += amt;
+/** Collection summary for one month + router */
+export function monthSummary(month = state.month, routerId = state.router) {
+  const list = state.members.filter(m => (m.routerId || 'A') === routerId);
+  const f = fee();
+  let collected = 0, paidCount = 0;
+  list.forEach(m => {
+    const amt = paidAmount(m.id, month);
+    if (amt > 0) { collected += amt; paidCount++; }
   });
-
-  const opening = Number(m.openingBalance) || 0;      // + = Advance, - = Due
-  const balance = opening + paid + waived - refunded - billed;
-
+  const expected = list.length * f;
   return {
-    fee, start, end, billedMonths, billed,
-    paid, refunded, waived, advance, opening,
-    balance,
-    due: balance < 0 ? -balance : 0,
-    credit: balance > 0 ? balance : 0,
-    isDefaulter: m.active !== false && balance < 0
+    members: list.length,
+    paidCount,
+    unpaidCount: list.length - paidCount,
+    collected,
+    expected,
+    pending: Math.max(0, expected - collected)
   };
 }
 
-/** How much was paid in a given month */
-export function paidInMonth(m, ym) {
-  return state.payments
-    .filter(p => p.memberId === m.id && p.month === ym && (p.type === 'payment' || p.type === 'advance'))
-    .reduce((s, p) => s + (Number(p.amount) || 0), 0);
-}
-
-/** Members who are No Connected but Amount have not paid */
-export function defaultersConnected() {
-  return state.members
-    .filter(inRouterFilter)
-    .map(m => ({ m, st: memberStats(m) }))
-    .filter(x => x.st.due > 0)
-    .filter(x => state.devices.some(d => d.memberId === x.m.id && d.status === 'connected'))
-    .sort((a, b) => b.st.due - a.st.due);
-}
-
-export function unknownDevices() {
-  return state.devices.filter(inRouterFilter).filter(d => !d.memberId);
-}
-export function blockedDevices() {
-  return state.devices.filter(inRouterFilter).filter(d => d.status === 'blocked');
-}
-export function connectedDevices() {
-  return state.devices.filter(inRouterFilter).filter(d => d.status === 'connected');
+export function recentMonths(n = 6) {
+  const out = [];
+  for (let i = n - 1; i >= 0; i--) out.push(monthAdd(currentMonth(), -i));
+  return out;
 }
 
 /* ---------------- CRUD ---------------- */
 export const db_actions = {
-  /* Settings */
   async saveSettings(patch) {
     await setDoc(doc(db, COL.settings, SETTINGS_DOC), { ...patch, updatedAt: serverTimestamp() }, { merge: true });
   },
 
-  /* Members */
   async addMember(data) {
     const ref = await addDoc(collection(db, COL.members), {
-      ...data,
-      active: data.active !== false,
-      startMonth: data.startMonth || currentMonth(),
-      monthlyFee: Number(data.monthlyFee ?? state.settings.defaultFee) || 0,
+      name: data.name,
+      room: data.room || '',
+      routerId: data.routerId || state.router,
+      startMonth: currentMonth(),
       createdAt: serverTimestamp()
     });
     return ref.id;
@@ -188,27 +152,15 @@ export const db_actions = {
   async deleteMember(id) {
     const batch = writeBatch(db);
     batch.delete(doc(db, COL.members, id));
-    const snap = await getDocs(query(collection(db, COL.payments), where('memberId', '==', id)));
-    snap.forEach(d => batch.delete(d.ref));
-    const dsnap = await getDocs(query(collection(db, COL.devices), where('memberId', '==', id)));
-    dsnap.forEach(d => batch.update(d.ref, { memberId: null, orphan: true }));
+    const p = await getDocs(query(collection(db, COL.payments), where('memberId', '==', id)));
+    p.forEach(d => batch.delete(d.ref));
+    const dv = await getDocs(query(collection(db, COL.devices), where('memberId', '==', id)));
+    dv.forEach(d => batch.delete(d.ref));
     await batch.commit();
   },
 
-  /* Payments */
-  async addPayment(data) {
-    await addDoc(collection(db, COL.payments), { ...data, createdAt: serverTimestamp() });
-  },
-  async updatePayment(id, data) {
-    await updateDoc(doc(db, COL.payments, id), { ...data, updatedAt: serverTimestamp() });
-  },
-  async deletePayment(id) {
-    await deleteDoc(doc(db, COL.payments, id));
-  },
-
-  /* Devices */
   async addDevice(data) {
-    await addDoc(collection(db, COL.devices), { ...data, createdAt: serverTimestamp(), lastSeen: serverTimestamp() });
+    await addDoc(collection(db, COL.devices), { ...data, createdAt: serverTimestamp() });
   },
   async updateDevice(id, data) {
     await updateDoc(doc(db, COL.devices, id), { ...data, updatedAt: serverTimestamp() });
@@ -217,24 +169,27 @@ export const db_actions = {
     await deleteDoc(doc(db, COL.devices, id));
   },
 
-  /* Bulk */
-  async blockMany(ids, blocked = true) {
-    const batch = writeBatch(db);
-    ids.forEach(id => batch.update(doc(db, COL.devices, id), {
-      status: blocked ? 'blocked' : 'offline', updatedAt: serverTimestamp()
-    }));
-    await batch.commit();
+  /** Mark as paid for a month (replaces any earlier entry for that month) */
+  async markPaid({ memberId, routerId, month, amount, note = '' }) {
+    const snap = await getDocs(query(
+      collection(db, COL.payments),
+      where('memberId', '==', memberId), where('month', '==', month)
+    ));
+    const data = { memberId, routerId, month, amount: Number(amount) || 0, note, date: new Date().toISOString().slice(0, 10), updatedAt: serverTimestamp() };
+    if (!snap.empty) {
+      await updateDoc(snap.docs[0].ref, data);
+    } else {
+      await addDoc(collection(db, COL.payments), { ...data, createdAt: serverTimestamp() });
+    }
   },
-  async deleteManyDevices(ids) {
+  /** Undo: remove the paid mark for that month */
+  async clearPaid(memberId, month) {
+    const snap = await getDocs(query(
+      collection(db, COL.payments),
+      where('memberId', '==', memberId), where('month', '==', month)
+    ));
     const batch = writeBatch(db);
-    ids.forEach(id => batch.delete(doc(db, COL.devices, id)));
+    snap.forEach(d => batch.delete(d.ref));
     await batch.commit();
   }
 };
-
-/* ---- Month list (for reports) ---- */
-export function recentMonths(n = 6) {
-  const out = [];
-  for (let i = n - 1; i >= 0; i--) out.push(monthAdd(currentMonth(), -i));
-  return out;
-}

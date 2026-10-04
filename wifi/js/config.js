@@ -31,34 +31,7 @@ export const DEFAULT_SETTINGS = {
     { id: 'A', name: 'Router A' },
     { id: 'B', name: 'Router B' }
   ],
-  reminderTemplate:
-    'Hi {name},\nYour {month} WiFi bill of {due} is still unpaid.\n' +
-    'Room: {room} | Router: {router}\nPlease pay at your earliest convenience.\nThank you — Hostel WiFi',
   createdAt: null
-};
-
-/* Payment types */
-export const PAY_TYPES = {
-  payment: { label: 'Payment', icon: '💰', sign: +1 },
-  advance: { label: 'Advance', icon: '⭐', sign: +1 },
-  refund: { label: 'Refund', icon: '↩️', sign: -1 },
-  waiver: { label: 'Waiver / discount', icon: '🎁', sign: +1 }
-};
-
-/* Device types */
-export const DEVICE_TYPES = {
-  phone: '📱 Phone',
-  laptop: '💻 Laptop',
-  tv: '📺 TV',
-  tablet: '📲 Tablet',
-  other: '🔌 Other'
-};
-
-/* Device status */
-export const DEVICE_STATUS = {
-  connected: { label: 'Connected', cls: 'ok' },
-  offline: { label: 'Disconnected', cls: '' },
-  blocked: { label: 'Blocked', cls: 'bad' }
 };
 
 export const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
