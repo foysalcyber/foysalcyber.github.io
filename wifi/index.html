@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#4f46e5" />
+<meta name="description" content="Hostel WiFi Manager — track members, monthly bills, payments, advances, refunds and router devices for two routers." />
+<title>Hostel WiFi Manager</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%234f46e5'/%3E%3Cg fill='none' stroke='white' stroke-width='7' stroke-linecap='round'%3E%3Cpath d='M28 58a30 30 0 0 1 44 0'/%3E%3Cpath d='M39 70a15 15 0 0 1 22 0'/%3E%3C/g%3E%3Ccircle cx='50' cy='80' r='5' fill='white'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<!-- ===================== LOGIN ===================== -->
+<div id="loginScreen">
+  <div class="login-wrap">
+
+    <aside class="login-hero">
+      <div class="lh-in">
+        <span class="lh-badge">📶 Hostel WiFi Manager</span>
+        <h1>Everything about<br />your hostel WiFi,<br />in one place.</h1>
+        <p class="lh-lead">Track who took WiFi, who paid, who owes money and which devices are eating your bandwidth — with separate sections for each router.</p>
+
+        <div class="lh-feats">
+          <div class="lh-feat">
+            <span class="f-ico">👥</span>
+            <span><b>Members &amp; rooms</b><span>Who took WiFi, room-wise, with a live account balance</span></span>
+          </div>
+          <div class="lh-feat">
+            <span class="f-ico">💰</span>
+            <span><b>Bills, advances &amp; refunds</b><span>See at once who owes money and who paid extra</span></span>
+          </div>
+          <div class="lh-feat">
+            <span class="f-ico">📶</span>
+            <span><b>Two routers, separate</b><span>Router A and Router B tracked independently</span></span>
+          </div>
+          <div class="lh-feat">
+            <span class="f-ico">🛡️</span>
+            <span><b>Find freeloaders</b><span>Spot unknown devices or members connected without paying, then block them</span></span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="login-panel">
+      <div class="login-card">
+        <div class="lc-brand">
+          <span class="brand-ico">📶</span>
+          <div class="col">
+            <b style="font-size:15px">Hostel WiFi Manager</b>
+            <span class="small muted">Sign in to continue</span>
+          </div>
+        </div>
+
+        <h1>Welcome back</h1>
+        <p class="lead">Use the email and password you created in Firebase Authentication.</p>
+
+        <div class="err-box" id="loginErr" hidden></div>
+
+        <label class="field">
+          <span>Email</span>
+          <input type="email" id="email" autocomplete="username" placeholder="you@example.com" />
+        </label>
+
+        <label class="field">
+          <span>Password</span>
+          <input type="password" id="password" autocomplete="current-password" placeholder="••••••••" />
+        </label>
+
+        <button class="btn btn-primary btn-block btn-lg" id="loginBtn">Sign in</button>
+
+        <button class="btn btn-ghost btn-block btn-sm" id="loginForgot">Forgot password?</button>
+
+        <p class="login-note">
+          Only the manager's email can sign in.<br />
+          Your data stays in your own Firebase project.
+        </p>
+      </div>
+    </main>
+
+  </div>
+</div>
+
+<!-- ===================== APP ===================== -->
+<div id="appShell" hidden>
+  <div class="app-shell">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <span class="brand-ico">📶</span>
+        <div class="col" style="min-width:0">
+          <span class="brand-t" id="brandName">Hostel WiFi</span>
+          <span class="brand-s">Manager</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav" id="sidebarNav"></nav>
+
+      <div class="sidebar-foot">
+        <div class="router-switch" id="routerSwitch"></div>
+        <button class="user-btn" id="userMenuBtn">
+          <span class="user-ava" id="userAvatar">U</span>
+          <span class="col" style="min-width:0">
+            <span class="u-name" id="userName">User</span>
+            <span class="u-mail" id="userEmail">—</span>
+          </span>
+          <span class="spacer"></span>
+          <span class="muted small">⌃</span>
+        </button>
+      </div>
+
+      <div class="user-menu" id="userMenu" hidden>
+        <div class="um-head col">
+          <b style="font-size:13.5px" id="umName">User</b>
+          <span class="small muted" id="umMail">—</span>
+        </div>
+        <button id="udBackup">💾 Download backup</button>
+        <button id="udSettings">⚙️ Settings</button>
+        <button id="udTheme">🌙 Toggle theme</button>
+        <button id="udLogout" class="danger">🚪 Sign out</button>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="main">
+      <header class="topbar">
+        <div class="search-box">
+          <span class="s-ico">🔍</span>
+          <input type="search" id="searchInput" placeholder="Search this page…" autocomplete="off" />
+          <span class="kbd">/</span>
+        </div>
+
+        <div class="spacer"></div>
+
+        <button class="btn btn-primary btn-sm hide-sm" id="quickAdd">➕ Quick add</button>
+
+        <div class="month-nav">
+          <button id="prevMonth" title="Previous month" aria-label="Previous month">‹</button>
+          <span id="monthLabel">—</span>
+          <button id="nextMonth" title="Next month" aria-label="Next month">›</button>
+        </div>
+
+        <button class="icon-btn" id="paletteBtn" title="Command palette (Ctrl + K)">⌘</button>
+        <button class="icon-btn" id="themeToggle" title="Toggle theme">🌙</button>
+      </header>
+
+      <main class="view" id="view"></main>
+    </div>
+
+    <nav class="mobile-nav" id="mobileNav"></nav>
+  </div>
+</div>
+
+<div id="modalRoot"></div>
+<div id="toastRoot" class="toast-wrap"></div>
+<div id="loadingRoot" hidden></div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
