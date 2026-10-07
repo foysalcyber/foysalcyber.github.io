@@ -18,7 +18,9 @@ export const state = {
   settings: { ...DEFAULT_SETTINGS },
   router: 'A',          // 'A' | 'B'
   month: currentMonth(),
-  search: '',
+  search: '',           // member search
+  query: '',            // device search
+  mode: 'members',      // members | devices
   filter: 'all',        // all | unpaid | paid
   userEmail: ''
 };
@@ -122,6 +124,27 @@ export function monthSummary(month = state.month, routerId = state.router) {
     expected,
     pending: Math.max(0, expected - collected)
   };
+}
+
+/** Per-router headline numbers: members, paid / unpaid this month, devices */
+export function routerStats(routerId) {
+  const ms = state.members.filter(m => (m.routerId || 'A') === routerId);
+  const paid = ms.filter(m => paidAmount(m.id, state.month) > 0).length;
+  const devices = state.devices.filter(d => (d.routerId || 'A') === routerId).length;
+  return { members: ms.length, paid, unpaid: ms.length - paid, devices };
+}
+
+/** Devices of the current router, or a search across both routers */
+export function searchDevices() {
+  const q = (state.query || '').trim().toLowerCase();
+  const list = q
+    ? state.devices.slice()
+    : state.devices.filter(d => (d.routerId || 'A') === state.router);
+  return list
+    .map(d => ({ ...d, owner: state.members.find(m => m.id === d.memberId) || null }))
+    .filter(d => !q || [d.name, d.mac, d.owner?.name, d.owner?.room]
+      .some(v => (v || '').toLowerCase().includes(q)))
+    .sort((a, b) => String(a.name).localeCompare(String(b.name), 'en'));
 }
 
 export function recentMonths(n = 6) {

@@ -86,6 +86,7 @@ function render() {
   $('#monthLabel').textContent = monthLabel(state.month);
   const isNow = state.month === monthKey();
   $('#monthLabel').classList.toggle('now', isNow);
+  $('#monthToday').hidden = isNow;
 
   if (state.error) {
     root.innerHTML = `<div class="card" style="border-color:var(--danger)"><div class="card-body">
@@ -124,6 +125,7 @@ function bind() {
   $('#nextMonth').onclick = () => { state.month = addMonths(state.month, 1); render(); };
   $('#monthLabel').onclick = () => { state.month = monthKey(); render(); };
   $('#monthLabel').title = 'Jump to the current month';
+  $('#monthToday').onclick = () => { state.month = monthKey(); render(); };
 
   const um = $('#userMenu');
   $('#userBtn').onclick = e => { e.stopPropagation(); um.hidden = !um.hidden; };

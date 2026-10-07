@@ -145,13 +145,14 @@ export function skeleton(kind = 'page') {
   </div>`;
 }
 
-export function statCard({ label, value, hint = '', icon = '', tone = '', accent = false, trend = '' }) {
+export function statCard({ label, value, hint = '', icon = '', tone = '', accent = false, trend = '', extra = '' }) {
   return `<div class="stat ${tone} ${accent ? 'accent' : ''}">
     ${icon ? `<div class="st-ico">${icon}</div>` : ''}
     ${trend ? `<div class="trend ${trend.dir || ''}">${esc(trend.text || trend)}</div>` : ''}
     <div class="st-label">${esc(label)}</div>
     <div class="st-value">${value}</div>
     ${hint ? `<div class="st-hint">${hint}</div>` : ''}
+    ${extra || ''}
   </div>`;
 }
 
