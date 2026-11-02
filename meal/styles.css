@@ -150,7 +150,7 @@ html[data-theme="light"] .grid-noise{opacity:.5;background-image:linear-gradient
 .auth-hero h1{font-size:clamp(43px,5.4vw,82px);line-height:.96;letter-spacing:-.055em;font-weight:700;margin:18px 0 25px;max-width:750px}
 .auth-hero h1 em,.view-heading h1 em{font-style:normal;color:var(--primary)}
 .auth-hero>p:last-of-type{font-size:clamp(14px,1.25vw,17px);line-height:1.75;color:var(--muted);max-width:620px}
-.auth-rules{margin-top:38px;display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);background:rgba(8,11,16,.45);backdrop-filter:blur(12px)}
+.auth-rules{margin-top:38px;display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--line);background:rgba(8,11,16,.45);backdrop-filter:blur(12px)}
 html[data-theme="light"] .auth-rules{background:rgba(255,255,255,.55)}
 .auth-rules>div{padding:16px 18px;border-right:1px solid var(--line);display:grid;grid-template-columns:1fr auto;align-items:end;gap:3px 10px}
 .auth-rules>div:last-child{border-right:0}

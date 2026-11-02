@@ -18,13 +18,14 @@ import {
   parseMonthKey,
   parseTakaToPaisa,
   sanitizeDayEntry,
+  saturdayDinnerIsDouble,
   shiftMonth,
   slotHalfUnits,
   weekdayIndex,
-} from './core.js?v=1.4.1';
+} from './core.js?v=1.4.2';
 
 const FIREBASE_VERSION = '11.0.2';
-const APP_VERSION = '1.4.1';
+const APP_VERSION = '1.4.2';
 const ADMIN_EMAIL = 'foysal.cyber@gmail.com';
 const ANNOUNCEMENT_TYPES = ['info', 'warning', 'success'];
 const DEMO_ANNOUNCEMENT = {
@@ -1317,6 +1318,9 @@ function specialRuleText(dateKey) {
   const weekday = weekdayIndex(dateKey);
   if (weekday === 5) return '2× FRIDAY LUNCH';
   if (weekday === 2) return '2× TUESDAY DINNER';
+  if (weekday === 6 && saturdayDinnerIsDouble(parseDateKey(dateKey).monthKey)) {
+    return '2× SATURDAY DINNER';
+  }
   if (weekday === 0) return '1.5× SUNDAY DINNER';
   return '';
 }
@@ -1785,7 +1789,7 @@ function exportJson() {
     rules: {
       breakfast: '0.5 meal every day',
       lunch: '2 meals on Friday; 1 meal otherwise',
-      dinner: '2 meals on Tuesday; 1.5 meals on Sunday; 1 meal otherwise',
+      dinner: '2 meals on Tuesday; 2 meals on Saturday from November 2026; 1.5 meals on Sunday; 1 meal otherwise',
     },
     advancePaisa: summary.advancePaisa,
     entries: Object.fromEntries(summary.daily.map((day) => [day.dateKey, day.entry])),
