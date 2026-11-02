@@ -5,6 +5,7 @@ import {
   CURRENT_MEAL_RATE_PAISA,
   LEGACY_MEAL_RATE_PAISA,
   MEAL_RATE_CHANGE_MONTH,
+  SATURDAY_DINNER_CHANGE_MONTH,
   buildMonthCsv,
   calculateMonth,
   currentDateKey,
@@ -15,6 +16,7 @@ import {
   makeDateKey,
   mealRatePaisaForMonth,
   parseTakaToPaisa,
+  saturdayDinnerIsDouble,
   shiftMonth,
   slotHalfUnits,
 } from '../core.js';
@@ -64,6 +66,20 @@ test('Tuesday dinner is 2, Sunday dinner is 1.5, others are 1', () => {
   assert.equal(slotHalfUnits('2026-08-04', 'dinner'), 4); // Tuesday
   assert.equal(slotHalfUnits('2026-08-09', 'dinner'), 3); // Sunday
   assert.equal(slotHalfUnits('2026-08-05', 'dinner'), 2); // Wednesday
+  assert.equal(slotHalfUnits('2026-08-08', 'dinner'), 2); // Saturday before the change = 1 meal
+});
+
+test('Saturday dinner doubles to 2 meals exactly at the November 2026 boundary', () => {
+  assert.equal(SATURDAY_DINNER_CHANGE_MONTH, '2026-11');
+  assert.equal(saturdayDinnerIsDouble('2026-10'), false);
+  assert.equal(saturdayDinnerIsDouble('2026-11'), true);
+  assert.equal(saturdayDinnerIsDouble('2027-01'), true);
+  assert.equal(slotHalfUnits('2026-10-31', 'dinner'), 2); // last Saturday before the change
+  assert.equal(slotHalfUnits('2026-11-07', 'dinner'), 4); // first Saturday at 2 meals
+  assert.equal(slotHalfUnits('2027-01-02', 'dinner'), 4); // still 2 meals in a later month
+  assert.equal(slotHalfUnits('2026-11-08', 'dinner'), 3); // Sunday keeps 1.5 meals
+  assert.equal(slotHalfUnits('2026-11-03', 'dinner'), 4); // Tuesday keeps 2 meals
+  assert.equal(slotHalfUnits('2026-11-02', 'dinner'), 2); // other dinners stay 1 meal
 });
 
 test('historical August week remains exactly 20 meals at Tk 52', () => {
@@ -122,6 +138,25 @@ test('September 2026 maximum uses Tk 55 and exact Tk 27.50 half-meals', () => {
   assert.equal(summary.spentPaisa, 473_000);
   assert.equal(summary.duePaisa, 473_000);
   assert.equal(summary.specialExtraHalfUnits, 22);
+});
+
+test('November 2026 maximum includes the new Saturday dinner doubling', () => {
+  const entries = {};
+  for (let day = 1; day <= 30; day += 1) {
+    entries[makeDateKey('2026-11', day)] = { breakfast: true, lunch: true, dinner: true };
+  }
+  const summary = calculateMonth('2026-11', entries, 0);
+  // 30 breakfasts (30) + 26 regular lunches (52) + 4 Friday lunches (16)
+  // + 17 regular dinners (34) + 4 Tuesday dinners (16) + 4 Saturday dinners (16)
+  // + 5 Sunday dinners (15) = 179 half-units.
+  assert.equal(summary.maximumHalfUnits, 179);
+  assert.equal(summary.actualHalfUnits, 179);
+  assert.equal(formatMeals(summary.actualHalfUnits), '89.5');
+  assert.equal(summary.spentPaisa, 492_250);
+  assert.equal(summary.duePaisa, 492_250);
+  // Extras beyond 1 meal: 4 Friday lunches (8) + 4 Tuesday dinners (8)
+  // + 4 Saturday dinners (8) + 5 Sunday dinners (5) = 29 half-units.
+  assert.equal(summary.specialExtraHalfUnits, 29);
 });
 
 test('money input is parsed without floating-point arithmetic', () => {

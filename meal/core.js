@@ -1,6 +1,7 @@
 export const APP_NAME = 'Meal Ledger';
 export const APP_TIME_ZONE = 'Asia/Dhaka';
 export const MEAL_RATE_CHANGE_MONTH = '2026-09';
+export const SATURDAY_DINNER_CHANGE_MONTH = '2026-11';
 export const LEGACY_MEAL_RATE_PAISA = 5_200;
 export const CURRENT_MEAL_RATE_PAISA = 5_500;
 export const CURRENT_HALF_MEAL_COST_PAISA = CURRENT_MEAL_RATE_PAISA / 2;
@@ -47,6 +48,15 @@ export function halfMealCostPaisaForMonth(monthKey) {
   return ratePaisa / 2;
 }
 
+export function saturdayDinnerIsDouble(monthKey) {
+  // Month keys are zero-padded YYYY-MM values, so lexical ordering is
+  // chronological after validation. Saturdays through October 2026 keep the
+  // regular 1-meal dinner; November 2026 onward doubles to 2 meals.
+  const normalizedMonthKey = String(monthKey);
+  parseMonthKey(normalizedMonthKey);
+  return normalizedMonthKey >= SATURDAY_DINNER_CHANGE_MONTH;
+}
+
 export function daysInMonth(monthKey) {
   const { year, month } = parseMonthKey(monthKey);
   return new Date(Date.UTC(year, month, 0)).getUTCDate();
@@ -82,6 +92,7 @@ export function weekdayIndex(dateKey) {
 
 export function slotHalfUnits(dateKey, slot) {
   if (!SLOT_ORDER.includes(slot)) throw new TypeError(`Invalid meal slot: ${slot}`);
+  const { monthKey } = parseDateKey(dateKey);
   const weekday = weekdayIndex(dateKey);
 
   // One half-unit equals 0.5 meal. Keeping totals in integer half-units
@@ -89,16 +100,24 @@ export function slotHalfUnits(dateKey, slot) {
   if (slot === 'breakfast') return 1; // 0.5 meal every day
   if (slot === 'lunch') return weekday === 5 ? 4 : 2; // Friday = 2 meals
   if (weekday === 2) return 4; // Tuesday dinner = 2 meals
+  // Saturday dinner doubles to 2 meals from November 2026; earlier Saturdays
+  // keep the regular 1-meal dinner.
+  if (weekday === 6 && saturdayDinnerIsDouble(monthKey)) return 4;
   if (weekday === 0) return 3; // Sunday dinner = 1.5 meals
   return 2;
 }
 
 export function dayRule(dateKey) {
+  const { monthKey } = parseDateKey(dateKey);
   const weekday = weekdayIndex(dateKey);
   return {
     breakfast: 1,
     lunch: weekday === 5 ? 4 : 2,
-    dinner: weekday === 2 ? 4 : weekday === 0 ? 3 : 2,
+    dinner: weekday === 2 || (weekday === 6 && saturdayDinnerIsDouble(monthKey))
+      ? 4
+      : weekday === 0
+        ? 3
+        : 2,
   };
 }
 

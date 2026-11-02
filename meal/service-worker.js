@@ -1,11 +1,11 @@
-const CACHE_VERSION = 'meal-ledger-shell-v7';
+const CACHE_VERSION = 'meal-ledger-shell-v8';
 const APP_SHELL = [
   './',
   './index.html',
   './styles.css',
-  './app.js?v=1.4.1',
-  './core.js?v=1.4.1',
-  './pwa-install.js?v=1.4.1',
+  './app.js?v=1.4.2',
+  './core.js?v=1.4.2',
+  './pwa-install.js?v=1.4.2',
   './manifest.webmanifest',
   './assets/icons/favicon.svg',
   './assets/icons/icon-192.png',

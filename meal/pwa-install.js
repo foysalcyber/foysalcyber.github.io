@@ -171,7 +171,7 @@
   async function registerServiceWorker() {
     if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
     try {
-      await navigator.serviceWorker.register('./service-worker.js?v=1.4.1', {
+      await navigator.serviceWorker.register('./service-worker.js?v=1.4.2', {
         scope: './',
         updateViaCache: 'none',
       });
