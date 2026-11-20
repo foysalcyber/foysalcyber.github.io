@@ -1,0 +1,16 @@
+BeeBazar Upload Instructions
+============================
+
+1. Hosting File Manager থেকে public_html (অথবা domain document root) খুলুন।
+2. এই ZIP-এর ভেতরের সব file/folder সেখানে upload করুন।
+3. ZIP server-এ upload করলে public_html-এর ভেতরেই Extract করুন।
+4. নিশ্চিত করুন index.html সরাসরি public_html-এর মধ্যে আছে—অন্য কোনো nested folder-এর মধ্যে নয়।
+5. Domain visit করুন। Website live হবে।
+
+Upload করতে হবে:
+- index.html
+- favicon.svg
+- images folder
+- .htaccess (cPanel/Apache হলে)
+
+কোনো npm install, build command বা database প্রয়োজন নেই এই frontend version চালাতে।
